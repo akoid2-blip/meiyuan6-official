@@ -1,0 +1,8 @@
+# Canonical domain redirects
+https://meiyuan6.netlify.app/* https://meiyuan6.tw/:splat 301!
+https://www.meiyuan6.tw/* https://meiyuan6.tw/:splat 301!
+http://meiyuan6.tw/* https://meiyuan6.tw/:splat 301!
+http://www.meiyuan6.tw/* https://meiyuan6.tw/:splat 301!
+
+# Single-page anchor support
+/* /index.html 200

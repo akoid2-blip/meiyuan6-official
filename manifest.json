@@ -1,0 +1,22 @@
+{
+  "name": "眉原六民宿｜埔里日式庭園包棟民宿",
+  "short_name": "眉原六民宿",
+  "description": "眉原六民宿｜埔里日式庭園包棟民宿｜南投埔里住宿推薦",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f1e6",
+  "theme_color": "#263f33",
+  "icons": [
+    {
+      "src": "/assets/logo.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/assets/logo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
