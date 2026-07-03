@@ -140,7 +140,7 @@ https://meiyuan6.tw
 | Item | Value |
 |------|-------|
 | Release | Production V365 |
-| Tag | v365 |
+| Tag | V365 |
 | Branch | main |
 | Status | Latest Release |
 
