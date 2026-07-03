@@ -1,0 +1,31 @@
+name: Website QA Check
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  website-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check required files
+        run: |
+          echo "Checking required website files..."
+
+          test -f index.html || (echo "❌ index.html not found" && exit 1)
+          test -f robots.txt || (echo "❌ robots.txt not found" && exit 1)
+          test -f sitemap.xml || (echo "❌ sitemap.xml not found" && exit 1)
+          test -f manifest.json || (echo "❌ manifest.json not found" && exit 1)
+          test -f favicon.ico || (echo "❌ favicon.ico not found" && exit 1)
+
+          echo "✅ All required files found."
+
+      - name: Display Repository Structure
+        run: |
+          echo "Repository Structure:"
+          ls -R
