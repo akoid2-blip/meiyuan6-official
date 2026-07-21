@@ -411,5 +411,23 @@ document.querySelector('.to-top')?.addEventListener('click',()=>scrollTo({top:0,
 <div class="line-modal-card"><button aria-label="關閉 LINE 視窗" class="line-modal-close" type="button">×</button><h2>加入 LINE 官方帳號</h2><p>點擊按鈕即可加入官方 LINE。</p><div class="line-modal-actions"><a class="btn primary line-direct-link" href="https://lin.ee/933tuhU" rel="noopener" target="_blank">立即加入 LINE</a></div><p class="line-modal-note">若未自動開啟 LINE，可使用下方 QR Code 掃描加入。</p><div class="line-qr-panel"><img alt="眉原六民宿 LINE 官方帳號 QR Code" height="640" loading="lazy" src="assets/line-qr.png" width="640"/><p>請使用 LINE 掃描加入官方帳號</p></div></div>
 </div>
 <footer><div class="footer-brand"><img alt="眉原六民宿｜恬靜・自然・山間生活" class="footer-logo" decoding="async" height="382" loading="lazy" src="assets/brand/logo-full-footer.png" width="403"/></div><p>54559 南投縣埔里鎮廣成里眉原路6號｜<a href="tel:0932702847">0932-702-847</a></p><p><a class="line-action" href="https://lin.ee/933tuhU" rel="noopener" target="_blank">LINE</a> · <a href="https://www.facebook.com/profile.php?id=61590409932509" rel="noopener" target="_blank">Facebook</a> · <a href="https://www.google.com/maps/search/?api=1&amp;query=%E7%9C%89%E5%8E%9F%E5%85%AD%E6%B0%91%E5%AE%BF" rel="noopener" target="_blank">Google Maps</a></p><p>© 2026 Mei Yuan Liu Homestay. All Rights Reserved.</p></footer>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script>
+if(window.netlifyIdentity){
+  window.netlifyIdentity.on("init", function(user){
+    if(!user){
+      window.netlifyIdentity.on("login", function(){
+        document.location.href="/admin/";
+      });
+    }
+  });
+  window.addEventListener("load",function(){
+    const h=location.hash||"";
+    if(h.includes("invite_token=")||h.includes("recovery_token=")||h.includes("confirmation_token=")){
+      window.netlifyIdentity.open();
+    }
+  });
+}
+</script>
 </body>
 </html>
