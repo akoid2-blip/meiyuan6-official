@@ -6,7 +6,6 @@ backend:
     update: "CMS 更新 {{collection}}：{{slug}}"
     delete: "CMS 刪除 {{collection}}：{{slug}}"
 
-local_backend: true
 media_folder: "assets/uploads"
 public_folder: "/assets/uploads"
 site_url: "https://meiyuan6.tw"
