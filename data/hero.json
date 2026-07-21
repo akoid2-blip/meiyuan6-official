@@ -1,0 +1,32 @@
+{
+  "kicker": "Mei Yuan Liu Homestay",
+  "title": "眉原六民宿",
+  "subtitle": "恬靜．自然．山間生活",
+  "description": "在自然裡相聚，在庭園中慢下腳步。一處適合家人、好友共享的日式庭園包棟民宿。",
+  "slides": [
+    {
+      "image": "assets/garden/exterior-17.webp",
+      "alt": "眉原六民宿首頁主視覺 1"
+    },
+    {
+      "image": "assets/garden/hero-garden.webp",
+      "alt": "眉原六民宿首頁主視覺 2"
+    },
+    {
+      "image": "assets/garden/room-family-loft.webp",
+      "alt": "眉原六民宿首頁主視覺 3"
+    },
+    {
+      "image": "assets/garden/dining-hall-02.webp",
+      "alt": "眉原六民宿首頁主視覺 4"
+    },
+    {
+      "image": "assets/garden/corridor.webp",
+      "alt": "眉原六民宿首頁主視覺 5"
+    },
+    {
+      "image": "assets/garden/exterior-22.webp",
+      "alt": "眉原六民宿首頁主視覺 6"
+    }
+  ]
+}

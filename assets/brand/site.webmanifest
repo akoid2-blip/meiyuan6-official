@@ -1,0 +1,21 @@
+{
+  "name": "眉原六民宿",
+  "short_name": "眉原六",
+  "description": "恬靜．自然．山間生活",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f4ea",
+  "theme_color": "#2d3329",
+  "icons": [
+    {
+      "src": "android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
