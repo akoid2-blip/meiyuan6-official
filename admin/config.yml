@@ -6,8 +6,6 @@ backend:
     update: "CMS 更新 {{collection}}：{{slug}}"
     delete: "CMS 刪除 {{collection}}：{{slug}}"
 
-media_folder: "assets/garden"
-public_folder: "/assets/garden"
 site_url: "https://meiyuan6.tw"
 display_url: "https://meiyuan6.tw"
 logo_url: "/assets/brand/logo-icon.png"
@@ -16,8 +14,10 @@ publish_mode: editorial_workflow
 show_preview_links: true
 
 collections:
-  - name: settings
-    label: 網站設定
+  - name: home
+    label: 首頁內容
+    media_folder: "assets/garden"
+    public_folder: "/assets/garden"
     files:
       - name: hero
         label: 首頁主視覺
@@ -31,9 +31,119 @@ collections:
           - label: 輪播照片
             name: slides
             widget: list
+            summary: "{{fields.alt}}"
             fields:
               - {label: 照片, name: image, widget: image}
               - {label: 替代文字, name: alt, widget: string}
+
+  - name: rooms
+    label: 房型管理
+    media_folder: "assets/garden"
+    public_folder: "/assets/garden"
+    files:
+      - name: rooms
+        label: 房型與照片
+        file: data/rooms.json
+        format: json
+        fields:
+          - label: 房型
+            name: rooms
+            widget: list
+            summary: "{{fields.name}}｜{{fields.capacity}}"
+            fields:
+              - {label: 顯示, name: enabled, widget: boolean, default: true}
+              - {label: 房型名稱, name: name, widget: string}
+              - {label: 入住人數, name: capacity, widget: string}
+              - {label: 特色標籤, name: tags, widget: list, field: {label: 標籤, name: tag, widget: string}}
+              - {label: 介紹, name: description, widget: text}
+              - {label: 照片, name: image, widget: image}
+              - {label: 圖片說明, name: alt, widget: string}
+
+  - name: facilities
+    label: 館內設施
+    files:
+      - name: facilities
+        label: 設施服務內容
+        file: data/facilities.json
+        format: json
+        fields:
+          - label: 設施群組
+            name: groups
+            widget: list
+            summary: "{{fields.icon}} {{fields.name}}"
+            fields:
+              - {label: 顯示, name: enabled, widget: boolean, default: true}
+              - {label: 圖示, name: icon, widget: string}
+              - {label: 名稱, name: name, widget: string}
+              - {label: 說明, name: description, widget: text}
+              - label: 設施項目
+                name: items
+                widget: list
+                field: {label: 項目, name: item, widget: string}
+
+  - name: attractions
+    label: 周邊景點
+    media_folder: "assets/attractions"
+    public_folder: "/assets/attractions"
+    files:
+      - name: attractions
+        label: 景點與導航
+        file: data/attractions.json
+        format: json
+        fields:
+          - label: 景點
+            name: attractions
+            widget: list
+            summary: "{{fields.name}}｜{{fields.travel_time}}"
+            fields:
+              - {label: 顯示, name: enabled, widget: boolean, default: true}
+              - {label: 景點名稱, name: name, widget: string}
+              - {label: 車程, name: travel_time, widget: string}
+              - {label: 介紹, name: description, widget: text}
+              - {label: 照片, name: image, widget: image}
+              - {label: 圖片替代文字, name: image_alt, widget: string, required: false}
+              - {label: Google Maps, name: map_url, widget: string}
+
+  - name: policies
+    label: 入住須知與政策
+    files:
+      - name: policies
+        label: 住宿須知與訂房政策
+        file: data/policies.json
+        format: json
+        fields:
+          - label: 規範項目
+            name: items
+            widget: list
+            summary: "{{fields.category}}｜{{fields.title}}"
+            fields:
+              - {label: 顯示, name: enabled, widget: boolean, default: true}
+              - {label: 分類, name: category, widget: select, options: [住宿須知, 訂房政策]}
+              - {label: 標題, name: title, widget: string}
+              - {label: 內容, name: content, widget: text}
+
+  - name: faq
+    label: 常見問題
+    files:
+      - name: faq
+        label: FAQ 問答
+        file: data/faq.json
+        format: json
+        fields:
+          - label: 問答
+            name: items
+            widget: list
+            summary: "{{fields.question}}"
+            fields:
+              - {label: 顯示, name: enabled, widget: boolean, default: true}
+              - {label: 問題, name: question, widget: string}
+              - {label: 回答, name: answer, widget: text}
+
+  - name: website
+    label: 網站與品牌設定
+    media_folder: "assets/brand"
+    public_folder: "/assets/brand"
+    files:
       - name: site
         label: 聯絡資訊
         file: data/site.json
@@ -60,78 +170,11 @@ collections:
           - {label: 關鍵字, name: keywords, widget: string}
           - {label: Canonical URL, name: canonical, widget: string}
           - {label: 社群分享圖片, name: og_image, widget: image}
-      - name: rooms
-        label: 房型管理
-        file: data/rooms.json
-        format: json
-        fields:
-          - label: 房型
-            name: rooms
-            widget: list
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 房型名稱, name: name, widget: string}
-              - {label: 入住人數, name: capacity, widget: string}
-              - {label: 特色標籤, name: tags, widget: list}
-              - {label: 介紹, name: description, widget: text}
-              - {label: 照片, name: image, widget: image}
-              - {label: 圖片說明, name: alt, widget: string}
-      - name: facilities
-        label: 館內設施
-        file: data/facilities.json
-        format: json
-        fields:
-          - label: 設施群組
-            name: groups
-            widget: list
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 圖示, name: icon, widget: string}
-              - {label: 名稱, name: name, widget: string}
-              - {label: 說明, name: description, widget: text}
-              - {label: 設施項目, name: items, widget: list}
-      - name: attractions
-        label: 周邊景點
-        file: data/attractions.json
-        format: json
-        fields:
-          - label: 景點
-            name: attractions
-            widget: list
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 景點名稱, name: name, widget: string}
-              - {label: 車程, name: travel_time, widget: string}
-              - {label: 介紹, name: description, widget: text}
-              - {label: 照片, name: image, widget: image}
-              - {label: Google Maps, name: map_url, widget: string}
-      - name: policies
-        label: 入住須知與訂房政策
-        file: data/policies.json
-        format: json
-        fields:
-          - label: 規範項目
-            name: items
-            widget: list
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 分類, name: category, widget: select, options: [住宿須知, 訂房政策]}
-              - {label: 標題, name: title, widget: string}
-              - {label: 內容, name: content, widget: text}
-      - name: faq
-        label: 常見問題
-        file: data/faq.json
-        format: json
-        fields:
-          - label: 問答
-            name: items
-            widget: list
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 問題, name: question, widget: string}
-              - {label: 回答, name: answer, widget: text}
+
   - name: news
     label: 最新消息／優惠活動
+    media_folder: "assets/news"
+    public_folder: "/assets/news"
     files:
       - name: news_items
         label: 消息與優惠
@@ -141,6 +184,7 @@ collections:
           - label: 項目
             name: items
             widget: list
+            summary: "{{fields.date}}｜{{fields.title}}"
             fields:
               - {label: 發布, name: published, widget: boolean, default: true}
               - {label: 置頂, name: featured, widget: boolean, default: false}
@@ -148,9 +192,12 @@ collections:
               - {label: 日期, name: date, widget: datetime, date_format: YYYY-MM-DD, time_format: false}
               - {label: 摘要, name: summary, widget: text}
               - {label: 內容, name: body, widget: markdown}
-              - {label: 封面照片, name: cover, widget: image}
+              - {label: 封面照片, name: cover, widget: image, required: false}
+
   - name: blog
     label: 部落格文章
+    media_folder: "assets/blog"
+    public_folder: "/assets/blog"
     files:
       - name: blog_items
         label: 文章
@@ -160,6 +207,7 @@ collections:
           - label: 文章項目
             name: items
             widget: list
+            summary: "{{fields.date}}｜{{fields.title}}"
             fields:
               - {label: 發布, name: published, widget: boolean, default: true}
               - {label: 標題, name: title, widget: string}
@@ -167,4 +215,4 @@ collections:
               - {label: 作者, name: author, widget: string}
               - {label: 摘要, name: summary, widget: text}
               - {label: 內容, name: body, widget: markdown}
-              - {label: 封面照片, name: cover, widget: image}
+              - {label: 封面照片, name: cover, widget: image, required: false}

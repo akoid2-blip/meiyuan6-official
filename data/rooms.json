@@ -8,7 +8,7 @@
         "獨立衛浴"
       ],
       "description": "挑高樓中樓設計，兼具舒適與隱私，適合小家庭、親友同行入住，享受自在愜意的住宿時光。",
-      "image": "assets/garden/room-family-loft.jpg",
+      "image": "/assets/garden/room-family-loft.jpg",
       "alt": "家庭樓中樓套房",
       "enabled": true
     },
@@ -20,7 +20,7 @@
         "獨立衛浴"
       ],
       "description": "挑高樓中樓設計，兼具舒適與隱私，適合小家庭、親友同行入住，享受自在愜意的住宿時光。",
-      "image": "assets/garden/room-family-loft-1.jpg",
+      "image": "/assets/garden/room-family-loft-1.jpg",
       "alt": "家庭樓中樓套房起居空間",
       "enabled": true
     },
@@ -32,7 +32,7 @@
         "舒適寢具"
       ],
       "description": "寬敞的大和室空間，融合日式簡約美學，適合家庭或好友相聚，共享溫馨舒適的住宿體驗。",
-      "image": "assets/garden/room-washitsu.jpg",
+      "image": "/assets/garden/room-washitsu.jpg",
       "alt": "家庭大和室",
       "enabled": true
     },
@@ -44,7 +44,7 @@
         "舒適寢具"
       ],
       "description": "寬敞的大和室空間，融合日式簡約美學，適合家庭或好友相聚，共享溫馨舒適的住宿體驗。",
-      "image": "assets/garden/interior-view-03.jpg",
+      "image": "/assets/garden/interior-view-03.jpg",
       "alt": "家庭大和室細節",
       "enabled": true
     },
@@ -56,7 +56,7 @@
         "明亮舒適"
       ],
       "description": "客房結合獨立起居空間，讓住宿不只是休息，更是家人朋友交流與放鬆的美好時光。",
-      "image": "assets/garden/room-family4-1.jpg",
+      "image": "/assets/garden/room-family4-1.jpg",
       "alt": "家庭四人房",
       "enabled": true
     },
@@ -68,7 +68,7 @@
         "明亮舒適"
       ],
       "description": "客房結合獨立起居空間，讓住宿不只是休息，更是家人朋友交流與放鬆的美好時光。",
-      "image": "assets/garden/room-family4-2.jpg",
+      "image": "/assets/garden/room-family4-2.jpg",
       "alt": "家庭四人房",
       "enabled": true
     },
@@ -80,7 +80,7 @@
         "明亮舒適"
       ],
       "description": "客房結合獨立起居空間，讓住宿不只是休息，更是家人朋友交流與放鬆的美好時光。",
-      "image": "assets/garden/room-family4-living-cover.webp",
+      "image": "/assets/garden/room-family4-living-cover.webp",
       "alt": "家庭四人房獨立起居空間橫式封面",
       "enabled": true
     },
@@ -92,7 +92,7 @@
         "採光明亮"
       ],
       "description": "溫馨舒適的住宿空間，適合好友、小家庭或輕旅行旅客，享受自在愜意的住宿體驗。",
-      "image": "assets/garden/room-triple.jpg",
+      "image": "/assets/garden/room-triple.jpg",
       "alt": "三人房",
       "enabled": true
     },
@@ -104,7 +104,7 @@
         "寧靜放鬆"
       ],
       "description": "簡約溫馨的雙人客房，在靜謐的氛圍中，享受專屬兩人的放鬆時光。",
-      "image": "assets/garden/room-double.jpg",
+      "image": "/assets/garden/room-double.jpg",
       "alt": "雙人房",
       "enabled": true
     },
@@ -116,7 +116,7 @@
         "寧靜放鬆"
       ],
       "description": "簡約溫馨的雙人客房，在靜謐的氛圍中，享受專屬兩人的放鬆時光。",
-      "image": "assets/garden/room-double-1.jpg",
+      "image": "/assets/garden/room-double-1.jpg",
       "alt": "雙人房",
       "enabled": true
     },
@@ -128,7 +128,7 @@
         "寧靜放鬆"
       ],
       "description": "簡約溫馨的雙人客房，在靜謐的氛圍中，享受專屬兩人的放鬆時光。",
-      "image": "assets/garden/room-double-2.jpg",
+      "image": "/assets/garden/room-double-2.jpg",
       "alt": "雙人房",
       "enabled": true
     }

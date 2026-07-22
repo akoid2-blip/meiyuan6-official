@@ -12,3 +12,9 @@
 - Preserved all supplied layout, content, responsive behavior, LINE modal, navigation, facilities and attraction updates.
 - Archived the preceding V365.4 homepage at `backup/index_before_uploaded_merge.html` for rollback.
 - Regenerated QA records, manifest and package SHA256.
+
+## V365.5 Enterprise Dynamic CMS Edition
+- Preserved Editorial Workflow.
+- Unified CMS image URLs as root-relative paths.
+- Added dedicated CMS upload folder.
+- Connected frontend facilities, attractions, rooms, SEO, hero, policies, FAQ, news and blog to JSON data with embedded-content fallback.
