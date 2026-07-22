@@ -9,14 +9,11 @@ async function init(){try{const [hero,rooms,fac,attr,pol,faq,site,seo,news,blog]
  const rc=$('#rooms .room-carousel');if(rc){const controls=rc.querySelector('.slider-controls');rc.querySelectorAll('.room-slide').forEach(x=>x.remove());rooms.rooms.filter(x=>x.enabled!==false).forEach((x,i)=>{const a=document.createElement('article');a.className='room-slide'+(i?'':' active');a.innerHTML=`<img src="${esc(mediaPath(x.image))}" alt="${esc(x.alt||x.name)}" loading="lazy" decoding="async"><div class="room-info"><h3>${esc(x.name)}</h3><div class="tags"><span class="tag">${esc(x.capacity)}</span>${(x.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div><p>${esc(x.description)}</p></div>`;rc.insertBefore(a,controls)})}
  const fg=$('#services .facility-groups');if(fg)fg.innerHTML=fac.groups.filter(x=>x.enabled!==false).map(x=>`<article class="facility-group"><span class="facility-icon">${esc(x.icon)}</span><h3>${esc(x.name)}</h3><p class="facility-desc">${esc(x.description)}</p><ul>${(x.items||[]).map(i=>`<li>${esc(i)}</li>`).join('')}</ul></article>`).join('');
  const ag=$('#attractions .attraction-grid');if(ag)ag.innerHTML=attr.attractions.filter(x=>x.enabled!==false).map(x=>`<article class="attraction-card"><div class="attraction-media"><img src="${esc(mediaPath(x.image))}" alt="${esc(x.name)}代表照片" loading="lazy" decoding="async"></div><div class="attraction-body"><small>${esc(x.travel_time)}</small><h3>${esc(x.name)}</h3><p>${esc(x.description)}</p><a class="maps-btn" href="${esc(x.map_url)}" target="_blank" rel="noopener noreferrer">Google Maps 導航</a></div></article>`).join('');
- for(const [id,cat] of [['policy','住宿須知'],['booking','訂房政策']]){
-  const a=$(`#${id} .accordion`);
-  const matched=(pol?.items||[]).filter(x=>x.enabled!==false&&x.category===cat);
-  if(a&&matched.length){
-   a.innerHTML=accordion(matched,cat);
-   bindAccordion(a);
-  }
- }
+ /* Preserve the complete production accommodation and booking policy HTML.
+    CMS policy data remains editable in the backend, but does not overwrite these
+    rich sections until a renderer supports their tables and formatted rule lists. */
+ bindAccordion($('#policy .accordion'));
+ bindAccordion($('#booking .accordion'));
  const fa=$('#faq .accordion');
  if(fa){
   const faqItems=(faq?.items||[]).filter(x=>x.enabled!==false);
