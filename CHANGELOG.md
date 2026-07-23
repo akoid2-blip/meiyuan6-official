@@ -1,3 +1,10 @@
+# Production V365.5.3 Enterprise Dynamic CMS RC2
+
+- 修復 Hero 與房型輪播。
+- 修復住宿須知／訂房政策／FAQ 收合。
+- 新增統一前端控制器 `assets/js/site-ui.js`。
+- 移除 CMS Accordion 重複事件綁定。
+
 # CHANGELOG
 
 ## V365.4.0 — 2026-07-21
