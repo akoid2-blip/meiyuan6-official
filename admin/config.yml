@@ -1,231 +1,388 @@
+# Production V365.5.3 RC2 CMS Schema Fix
+# 穩定模式：圖片欄位改用路徑文字，避免 Decap image widget React #130。
 backend:
   name: git-gateway
   branch: cloudflare-test
   commit_messages:
-    create: "CMS 建立 {{collection}}：{{slug}}"
-    update: "CMS 更新 {{collection}}：{{slug}}"
-    delete: "CMS 刪除 {{collection}}：{{slug}}"
-
-media_folder: "assets/uploads"
-public_folder: "/assets/uploads"
-
-site_url: "https://meiyuan6.tw"
-display_url: "https://meiyuan6.tw"
-logo_url: "/assets/brand/logo-icon.png"
-locale: "zh_Hant"
-publish_mode: editorial_workflow
-show_preview_links: true
-
+    create: CMS 建立 {{collection}}：{{slug}}
+    update: CMS 更新 {{collection}}：{{slug}}
+    delete: CMS 刪除 {{collection}}：{{slug}}
+media_folder: assets/uploads
+public_folder: /assets/uploads
+site_url: https://meiyuan6.tw
+display_url: https://meiyuan6.tw
+logo_url: /assets/brand/logo-icon.png
+locale: zh_Hant
+publish_mode: simple
+show_preview_links: false
 editor:
   preview: false
-
 collections:
-  - name: home
-    label: 首頁內容
-    media_folder: "assets/garden"
-    public_folder: "/assets/garden"
-    files:
-      - name: hero
-        label: 首頁主視覺
-        file: data/hero.json
-        format: json
-        fields:
-          - {label: 英文眉標, name: kicker, widget: string}
-          - {label: 主標題, name: title, widget: string}
-          - {label: 副標題, name: subtitle, widget: string}
-          - {label: 主視覺文案, name: description, widget: text}
-          - label: 輪播照片
-            name: slides
-            widget: list
-            summary: "{{fields.alt}}"
-            fields:
-              - label: 照片
-                name: image
-                widget: image
-                required: true
-                choose_url: false
-                media_library:
-                  config:
-                    multiple: false
-              - {label: 替代文字, name: alt, widget: string}
-
+- name: home
+  label: 首頁內容
+  media_folder: assets/garden
+  public_folder: /assets/garden
+  files:
+  - name: hero
+    label: 首頁主視覺
+    file: data/hero.json
+    format: json
+    fields:
+    - label: 英文眉標
+      name: kicker
+      widget: string
+    - label: 主標題
+      name: title
+      widget: string
+    - label: 副標題
+      name: subtitle
+      widget: string
+    - label: 主視覺文案
+      name: description
+      widget: text
+    - label: 輪播照片（依清單順序播放）
+      name: slides
+      widget: list
+      fields:
+      - label: 照片路徑
+        name: image
+        widget: string
+        required: true
+        hint: 請填寫以 /assets/ 開頭的圖片路徑；可先在上方「媒體」上傳後複製路徑。
+      - label: 替代文字
+        name: alt
+        widget: string
+      collapsed: false
+      minimize_collapsed: false
+      label_singular: 輪播照片
+      min: 1
+      hint: 拖曳項目即可調整首頁輪播順序。圖片路徑需以 /assets/ 開頭。
+- name: rooms
+  label: 房型管理
+  media_folder: assets/garden
+  public_folder: /assets/garden
+  files:
   - name: rooms
-    label: 房型管理
-    media_folder: "assets/garden"
-    public_folder: "/assets/garden"
-    files:
-      - name: rooms
-        label: 房型與照片
-        file: data/rooms.json
-        format: json
-        fields:
-          - label: 房型
-            name: rooms
-            widget: list
-            summary: "{{fields.name}}｜{{fields.capacity}}"
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 房型名稱, name: name, widget: string}
-              - {label: 入住人數, name: capacity, widget: string}
-              - {label: 特色標籤, name: tags, widget: list, field: {label: 標籤, name: tag, widget: string}}
-              - {label: 介紹, name: description, widget: text}
-              - {label: 照片, name: image, widget: image}
-              - {label: 圖片說明, name: alt, widget: string}
-
+    label: 房型與照片
+    file: data/rooms.json
+    format: json
+    fields:
+    - label: 房型
+      name: rooms
+      widget: list
+      fields:
+      - label: 顯示
+        name: enabled
+        widget: boolean
+        default: true
+      - label: 房型名稱
+        name: name
+        widget: string
+      - label: 入住人數
+        name: capacity
+        widget: string
+      - label: 特色標籤
+        name: tags
+        widget: list
+        field:
+          label: 標籤
+          name: tag
+          widget: string
+        collapsed: false
+        minimize_collapsed: false
+      - label: 介紹
+        name: description
+        widget: text
+      - label: 照片路徑
+        name: image
+        widget: string
+        required: true
+        hint: 請填寫以 /assets/ 開頭的圖片路徑；可先在上方「媒體」上傳後複製路徑。
+      - label: 圖片說明
+        name: alt
+        widget: string
+      collapsed: false
+      minimize_collapsed: false
+- name: facilities
+  label: 館內設施
+  files:
   - name: facilities
-    label: 館內設施
-    files:
-      - name: facilities
-        label: 設施服務內容
-        file: data/facilities.json
-        format: json
-        fields:
-          - label: 設施群組
-            name: groups
-            widget: list
-            summary: "{{fields.icon}} {{fields.name}}"
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 圖示, name: icon, widget: string}
-              - {label: 名稱, name: name, widget: string}
-              - {label: 說明, name: description, widget: text}
-              - label: 設施項目
-                name: items
-                widget: list
-                field: {label: 項目, name: item, widget: string}
-
+    label: 設施服務內容
+    file: data/facilities.json
+    format: json
+    fields:
+    - label: 設施群組
+      name: groups
+      widget: list
+      fields:
+      - label: 顯示
+        name: enabled
+        widget: boolean
+        default: true
+      - label: 圖示
+        name: icon
+        widget: string
+      - label: 名稱
+        name: name
+        widget: string
+      - label: 說明
+        name: description
+        widget: text
+      - label: 設施項目
+        name: items
+        widget: list
+        field:
+          label: 項目
+          name: item
+          widget: string
+        collapsed: false
+        minimize_collapsed: false
+      collapsed: false
+      minimize_collapsed: false
+- name: attractions
+  label: 周邊景點
+  media_folder: assets/attractions
+  public_folder: /assets/attractions
+  files:
   - name: attractions
-    label: 周邊景點
-    media_folder: "assets/attractions"
-    public_folder: "/assets/attractions"
-    files:
-      - name: attractions
-        label: 景點與導航
-        file: data/attractions.json
-        format: json
-        fields:
-          - label: 景點
-            name: attractions
-            widget: list
-            summary: "{{fields.name}}｜{{fields.travel_time}}"
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 景點名稱, name: name, widget: string}
-              - {label: 車程, name: travel_time, widget: string}
-              - {label: 介紹, name: description, widget: text}
-              - {label: 照片, name: image, widget: image}
-              - {label: 圖片替代文字, name: image_alt, widget: string, required: false}
-              - {label: Google Maps, name: map_url, widget: string}
-
+    label: 景點與導航
+    file: data/attractions.json
+    format: json
+    fields:
+    - label: 景點
+      name: attractions
+      widget: list
+      fields:
+      - label: 顯示
+        name: enabled
+        widget: boolean
+        default: true
+      - label: 景點名稱
+        name: name
+        widget: string
+      - label: 車程
+        name: travel_time
+        widget: string
+      - label: 介紹
+        name: description
+        widget: text
+      - label: 照片路徑
+        name: image
+        widget: string
+        required: true
+        hint: 請填寫以 /assets/ 開頭的圖片路徑；可先在上方「媒體」上傳後複製路徑。
+      - label: 圖片替代文字
+        name: image_alt
+        widget: string
+        required: false
+      - label: Google Maps
+        name: map_url
+        widget: string
+      collapsed: false
+      minimize_collapsed: false
+- name: policies
+  label: 入住須知與政策
+  files:
   - name: policies
-    label: 入住須知與政策
-    files:
-      - name: policies
-        label: 住宿須知與訂房政策
-        file: data/policies.json
-        format: json
-        fields:
-          - label: 規範項目
-            name: items
-            widget: list
-            summary: "{{fields.category}}｜{{fields.title}}"
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 分類, name: category, widget: select, options: [住宿須知, 訂房政策]}
-              - {label: 標題, name: title, widget: string}
-              - {label: 內容, name: content, widget: text}
-
+    label: 住宿須知與訂房政策
+    file: data/policies.json
+    format: json
+    fields:
+    - label: 規範項目
+      name: items
+      widget: list
+      fields:
+      - label: 顯示
+        name: enabled
+        widget: boolean
+        default: true
+      - label: 分類
+        name: category
+        widget: select
+        options:
+        - 住宿須知
+        - 訂房政策
+      - label: 標題
+        name: title
+        widget: string
+      - label: 內容
+        name: content
+        widget: text
+      collapsed: false
+      minimize_collapsed: false
+- name: faq
+  label: 常見問題
+  files:
   - name: faq
-    label: 常見問題
-    files:
-      - name: faq
-        label: FAQ 問答
-        file: data/faq.json
-        format: json
-        fields:
-          - label: 問答
-            name: items
-            widget: list
-            summary: "{{fields.question}}"
-            fields:
-              - {label: 顯示, name: enabled, widget: boolean, default: true}
-              - {label: 問題, name: question, widget: string}
-              - {label: 回答, name: answer, widget: text}
-
-  - name: website
-    label: 網站與品牌設定
-    media_folder: "assets/brand"
-    public_folder: "/assets/brand"
-    files:
-      - name: site
-        label: 聯絡資訊
-        file: data/site.json
-        format: json
-        fields:
-          - {label: 網站名稱, name: site_name, widget: string}
-          - {label: 品牌標語, name: tagline, widget: string}
-          - {label: 電話顯示, name: phone_display, widget: string}
-          - {label: 電話連結, name: phone_link, widget: string}
-          - {label: LINE 連結, name: line_url, widget: string}
-          - {label: Facebook 連結, name: facebook_url, widget: string}
-          - {label: 電子郵件, name: email, widget: string, required: false}
-          - {label: 公開電子郵件, name: show_email, widget: boolean, default: false}
-          - {label: 地址, name: address, widget: string}
-          - {label: Google Maps 連結, name: map_url, widget: string}
-          - {label: 版權文字, name: copyright, widget: string}
-      - name: seo
-        label: SEO 設定
-        file: data/seo.json
-        format: json
-        fields:
-          - {label: SEO 標題, name: title, widget: string}
-          - {label: SEO 說明, name: description, widget: text}
-          - {label: 關鍵字, name: keywords, widget: string}
-          - {label: Canonical URL, name: canonical, widget: string}
-          - {label: 社群分享圖片, name: og_image, widget: image}
-
-  - name: news
-    label: 最新消息／優惠活動
-    media_folder: "assets/news"
-    public_folder: "/assets/news"
-    files:
-      - name: news_items
-        label: 消息與優惠
-        file: data/news.json
-        format: json
-        fields:
-          - label: 項目
-            name: items
-            widget: list
-            summary: "{{fields.date}}｜{{fields.title}}"
-            fields:
-              - {label: 發布, name: published, widget: boolean, default: true}
-              - {label: 置頂, name: featured, widget: boolean, default: false}
-              - {label: 標題, name: title, widget: string}
-              - {label: 日期, name: date, widget: datetime, date_format: YYYY-MM-DD, time_format: false}
-              - {label: 摘要, name: summary, widget: text}
-              - {label: 內容, name: body, widget: markdown}
-              - {label: 封面照片, name: cover, widget: image, required: false}
-
-  - name: blog
-    label: 部落格文章
-    media_folder: "assets/blog"
-    public_folder: "/assets/blog"
-    files:
-      - name: blog_items
-        label: 文章
-        file: data/blog.json
-        format: json
-        fields:
-          - label: 文章項目
-            name: items
-            widget: list
-            summary: "{{fields.date}}｜{{fields.title}}"
-            fields:
-              - {label: 發布, name: published, widget: boolean, default: true}
-              - {label: 標題, name: title, widget: string}
-              - {label: 日期, name: date, widget: datetime, date_format: YYYY-MM-DD, time_format: false}
-              - {label: 作者, name: author, widget: string}
-              - {label: 摘要, name: summary, widget: text}
-              - {label: 內容, name: body, widget: markdown}
-              - {label: 封面照片, name: cover, widget: image, required: false}
+    label: FAQ 問答
+    file: data/faq.json
+    format: json
+    fields:
+    - label: 問答
+      name: items
+      widget: list
+      fields:
+      - label: 顯示
+        name: enabled
+        widget: boolean
+        default: true
+      - label: 問題
+        name: question
+        widget: string
+      - label: 回答
+        name: answer
+        widget: text
+      collapsed: false
+      minimize_collapsed: false
+- name: website
+  label: 網站與品牌設定
+  media_folder: assets/brand
+  public_folder: /assets/brand
+  files:
+  - name: site
+    label: 聯絡資訊
+    file: data/site.json
+    format: json
+    fields:
+    - label: 網站名稱
+      name: site_name
+      widget: string
+    - label: 品牌標語
+      name: tagline
+      widget: string
+    - label: 電話顯示
+      name: phone_display
+      widget: string
+    - label: 電話連結
+      name: phone_link
+      widget: string
+    - label: LINE 連結
+      name: line_url
+      widget: string
+    - label: Facebook 連結
+      name: facebook_url
+      widget: string
+    - label: 電子郵件
+      name: email
+      widget: string
+      required: false
+    - label: 公開電子郵件
+      name: show_email
+      widget: boolean
+      default: false
+    - label: 地址
+      name: address
+      widget: string
+    - label: Google Maps 連結
+      name: map_url
+      widget: string
+    - label: 版權文字
+      name: copyright
+      widget: string
+  - name: seo
+    label: SEO 設定
+    file: data/seo.json
+    format: json
+    fields:
+    - label: SEO 標題
+      name: title
+      widget: string
+    - label: SEO 說明
+      name: description
+      widget: text
+    - label: 關鍵字
+      name: keywords
+      widget: string
+    - label: Canonical URL
+      name: canonical
+      widget: string
+    - label: 社群分享圖片路徑
+      name: og_image
+      widget: string
+      required: true
+      hint: 請填寫以 /assets/ 開頭的圖片路徑；可先在上方「媒體」上傳後複製路徑。
+- name: news
+  label: 最新消息／優惠活動
+  media_folder: assets/news
+  public_folder: /assets/news
+  files:
+  - name: news_items
+    label: 消息與優惠
+    file: data/news.json
+    format: json
+    fields:
+    - label: 項目
+      name: items
+      widget: list
+      fields:
+      - label: 發布
+        name: published
+        widget: boolean
+        default: true
+      - label: 置頂
+        name: featured
+        widget: boolean
+        default: false
+      - label: 標題
+        name: title
+        widget: string
+      - label: 日期
+        name: date
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: false
+      - label: 摘要
+        name: summary
+        widget: text
+      - label: 內容
+        name: body
+        widget: markdown
+      - label: 封面照片路徑
+        name: cover
+        widget: string
+        required: false
+        hint: 請填寫以 /assets/ 開頭的圖片路徑；可先在上方「媒體」上傳後複製路徑。
+      collapsed: false
+      minimize_collapsed: false
+- name: blog
+  label: 部落格文章
+  media_folder: assets/blog
+  public_folder: /assets/blog
+  files:
+  - name: blog_items
+    label: 文章
+    file: data/blog.json
+    format: json
+    fields:
+    - label: 文章項目
+      name: items
+      widget: list
+      fields:
+      - label: 發布
+        name: published
+        widget: boolean
+        default: true
+      - label: 標題
+        name: title
+        widget: string
+      - label: 日期
+        name: date
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: false
+      - label: 作者
+        name: author
+        widget: string
+      - label: 摘要
+        name: summary
+        widget: text
+      - label: 內容
+        name: body
+        widget: markdown
+      - label: 封面照片路徑
+        name: cover
+        widget: string
+        required: false
+        hint: 請填寫以 /assets/ 開頭的圖片路徑；可先在上方「媒體」上傳後複製路徑。
+      collapsed: false
+      minimize_collapsed: false
