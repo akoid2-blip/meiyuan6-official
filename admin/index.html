@@ -3,10 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
   <title>眉原六民宿｜內容管理後台</title>
+
+  <!-- 先載入 Netlify Identity，再以固定版本啟動 Decap CMS。 -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>window.CMS_MANUAL_INIT = true;</script>
 </head>
 <body>
-  <script src="https://unpkg.com/decap-cms@^3.8.0/dist/decap-cms.js"></script>
+  <!-- 固定版本，避免 ^3.8.0 自動解析到不同版本造成後台渲染差異。 -->
+  <script src="https://unpkg.com/decap-cms@3.8.0/dist/decap-cms.js"></script>
+  <script>
+    (function () {
+      function startCMS() {
+        if (!window.CMS || typeof window.CMS.init !== "function") {
+          window.setTimeout(startCMS, 100);
+          return;
+        }
+        window.CMS.init();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", startCMS, { once: true });
+      } else {
+        startCMS();
+      }
+    }());
+  </script>
 </body>
 </html>

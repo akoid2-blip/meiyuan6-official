@@ -1,6 +1,6 @@
 backend:
   name: git-gateway
-  branch: main
+  branch: cloudflare-test
   commit_messages:
     create: "CMS 建立 {{collection}}：{{slug}}"
     update: "CMS 更新 {{collection}}：{{slug}}"
@@ -15,6 +15,9 @@ logo_url: "/assets/brand/logo-icon.png"
 locale: "zh_Hant"
 publish_mode: editorial_workflow
 show_preview_links: true
+
+editor:
+  preview: false
 
 collections:
   - name: home
@@ -36,7 +39,14 @@ collections:
             widget: list
             summary: "{{fields.alt}}"
             fields:
-              - {label: 照片, name: image, widget: image}
+              - label: 照片
+                name: image
+                widget: image
+                required: true
+                choose_url: false
+                media_library:
+                  config:
+                    multiple: false
               - {label: 替代文字, name: alt, widget: string}
 
   - name: rooms
