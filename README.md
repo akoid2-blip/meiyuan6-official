@@ -13,3 +13,4 @@ Logo、品牌色、字型、Header、Footer、版型、CSS、JavaScript、動畫
 
 ## 電子郵件
 `data/site.json` 內 `show_email` 控制是否顯示；電子郵件尚未指定，因此預設關閉。
+Cloudflare test deployment initialized.
