@@ -26,11 +26,20 @@ collections:
         label: 首頁主視覺
         file: data/hero.json
         format: json
+        editor:
+          preview: false
         fields:
           - {label: 英文眉標, name: kicker, widget: string}
           - {label: 主標題, name: title, widget: string}
           - {label: 副標題, name: subtitle, widget: string}
           - {label: 主視覺文案, name: description, widget: text}
+          - label: 輪播照片
+            name: slides
+            widget: list
+            summary: "{{fields.alt}}"
+            fields:
+              - {label: 照片, name: image, widget: image}
+              - {label: 圖片說明, name: alt, widget: string}
 
   - name: rooms
     label: 房型管理
