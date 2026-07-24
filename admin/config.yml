@@ -13,8 +13,8 @@ site_url: "https://meiyuan6.tw"
 display_url: "https://meiyuan6.tw"
 logo_url: "/assets/brand/logo-icon.png"
 locale: "zh_Hant"
-publish_mode: editorial_workflow
-show_preview_links: true
+publish_mode: simple
+show_preview_links: false
 
 collections:
   - name: home
