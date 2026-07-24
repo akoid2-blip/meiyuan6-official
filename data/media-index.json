@@ -1,0 +1,1233 @@
+{
+  "version": "Production V365.5.4",
+  "title": "Global Media Library Unification Fix",
+  "backend_branch": "cloudflare-test",
+  "media_folder": "assets/uploads",
+  "public_folder": "/assets/uploads",
+  "source_image_count": 145,
+  "library_file_count": 129,
+  "removed_collection_overrides": [
+    {
+      "collection": "home",
+      "key": "media_folder",
+      "old_value": "assets/garden"
+    },
+    {
+      "collection": "home",
+      "key": "public_folder",
+      "old_value": "/assets/garden"
+    },
+    {
+      "collection": "rooms",
+      "key": "media_folder",
+      "old_value": "assets/garden"
+    },
+    {
+      "collection": "rooms",
+      "key": "public_folder",
+      "old_value": "/assets/garden"
+    },
+    {
+      "collection": "attractions",
+      "key": "media_folder",
+      "old_value": "assets/attractions"
+    },
+    {
+      "collection": "attractions",
+      "key": "public_folder",
+      "old_value": "/assets/attractions"
+    },
+    {
+      "collection": "website",
+      "key": "media_folder",
+      "old_value": "assets/brand"
+    },
+    {
+      "collection": "website",
+      "key": "public_folder",
+      "old_value": "/assets/brand"
+    },
+    {
+      "collection": "news",
+      "key": "media_folder",
+      "old_value": "assets/news"
+    },
+    {
+      "collection": "news",
+      "key": "public_folder",
+      "old_value": "/assets/news"
+    },
+    {
+      "collection": "blog",
+      "key": "media_folder",
+      "old_value": "assets/blog"
+    },
+    {
+      "collection": "blog",
+      "key": "public_folder",
+      "old_value": "/assets/blog"
+    }
+  ],
+  "files": [
+    {
+      "source": "assets/attractions/spot-expressway-puli.png",
+      "library": "assets/uploads/spot-expressway-puli.png",
+      "original_name": "spot-expressway-puli.png",
+      "sha256": "39193326a08f17f6772ceb17e0012ac3f639b5351223b6bb6bcfe990a7c8523b",
+      "bytes": 1920537,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/attractions/spot-fuxing.jpg",
+      "library": "assets/uploads/attractions--spot-fuxing.jpg",
+      "original_name": "spot-fuxing.jpg",
+      "sha256": "e32a42669a0b13c8a3def956b54a695c1eb1c04d0a9bafa402055d3a51e0b7bf",
+      "bytes": 33833,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/attractions/spot-paragliding.jpg",
+      "library": "assets/uploads/attractions--spot-paragliding.jpg",
+      "original_name": "spot-paragliding.jpg",
+      "sha256": "1c38810aceab62b3de51432c63d33999e868081b287af1e5543cebf670a83c57",
+      "bytes": 81818,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/attractions/spot-sunmoonlake.jpg",
+      "library": "assets/uploads/attractions--spot-sunmoonlake.jpg",
+      "original_name": "spot-sunmoonlake.jpg",
+      "sha256": "b5af542a7ead923081161ddf4501df60f1efc171e712649932246ce078c4d20e",
+      "bytes": 195802,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/attractions/spot-winery.jpg",
+      "library": "assets/uploads/attractions--spot-winery.jpg",
+      "original_name": "spot-winery.jpg",
+      "sha256": "f6c657eae1c185446de1f7e16622aa58bb3acd0957a99adfc0951a5ab21c8493",
+      "bytes": 291833,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/attractions/spot-zhongtai.jpg",
+      "library": "assets/uploads/attractions--spot-zhongtai.jpg",
+      "original_name": "spot-zhongtai.jpg",
+      "sha256": "bacb8f4a760137c3aa846f782f3b96543afe3f03c1d5547f1d5f0c52d97678f8",
+      "bytes": 220411,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/android-chrome-192x192.png",
+      "library": "assets/uploads/android-chrome-192x192.png",
+      "original_name": "android-chrome-192x192.png",
+      "sha256": "6399a8326bc991c3e9770f436110a3453f25caf9d58853dde95af5506cf34343",
+      "bytes": 15561,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/android-chrome-512x512.png",
+      "library": "assets/uploads/android-chrome-512x512.png",
+      "original_name": "android-chrome-512x512.png",
+      "sha256": "a1aa20457b0623c857ef9b05872b020cc3f11091e9952ed795f467b996640e02",
+      "bytes": 83573,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/apple-touch-icon.png",
+      "library": "assets/uploads/apple-touch-icon.png",
+      "original_name": "apple-touch-icon.png",
+      "sha256": "e724ba28014b53575f414e3debe93cd0c4dc7edf0c9254add5ff75f41598c602",
+      "bytes": 13836,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/favicon-32x32.png",
+      "library": "assets/uploads/favicon-32x32.png",
+      "original_name": "favicon-32x32.png",
+      "sha256": "1170699ac91291e621479ca3fbff9a57f43c67e6c780db8bb177614e742794e7",
+      "bytes": 866,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/favicon-48x48.png",
+      "library": "assets/uploads/favicon-48x48.png",
+      "original_name": "favicon-48x48.png",
+      "sha256": "49f68f5843686e22febadcaab6522317bbece40f2ef09aad7f7b0340507c50d4",
+      "bytes": 1570,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/logo-full-footer.png",
+      "library": "assets/uploads/logo-full-footer.png",
+      "original_name": "logo-full-footer.png",
+      "sha256": "020df6bef59c089d03d4f9518aba044bafb3c4afab372caf562403b89153a4e8",
+      "bytes": 28756,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/logo-full-light.png",
+      "library": "assets/uploads/logo-full-light.png",
+      "original_name": "logo-full-light.png",
+      "sha256": "df175926be8cb3cb6c71a9660da42c5f71e804da9615ece0826fd22a37189d44",
+      "bytes": 88557,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/logo-full-transparent.png",
+      "library": "assets/uploads/logo-full-transparent.png",
+      "original_name": "logo-full-transparent.png",
+      "sha256": "1a28f1f28a2fda555c6bfc66814020f093d976b396988d0e1e79177778bd53b9",
+      "bytes": 177479,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/logo-full.jpg",
+      "library": "assets/uploads/logo-full.jpg",
+      "original_name": "logo-full.jpg",
+      "sha256": "96c21343492f2f4d9e943c0870abb95d0323ba87b57e8964a0d8ade479cbc69d",
+      "bytes": 34755,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/logo-full.png",
+      "library": "assets/uploads/logo-full.png",
+      "original_name": "logo-full.png",
+      "sha256": "907edb93b1d3703d5e34660ef52a3fab0ed540f611c502f3e3941c922f05e3cd",
+      "bytes": 198902,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/logo-full.webp",
+      "library": "assets/uploads/logo-full.webp",
+      "original_name": "logo-full.webp",
+      "sha256": "f541d534922037ec69a72f6b6f00f6b8a10da271b46d613b787b99f8b9ed8659",
+      "bytes": 69682,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/logo-icon.png",
+      "library": "assets/uploads/logo-icon.png",
+      "original_name": "logo-icon.png",
+      "sha256": "7008d28020a9a83aa013311143963546623c20eb6c9c759632a0234a78f4ae62",
+      "bytes": 96997,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/logo-icon.webp",
+      "library": "assets/uploads/logo-icon.webp",
+      "original_name": "logo-icon.webp",
+      "sha256": "33bb118bd06ff9615e1d676cdc2786bf4c4effb1b3eeddbf88a777ca5c20e1dd",
+      "bytes": 17108,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/brand/og-cover.jpg",
+      "library": "assets/uploads/og-cover.jpg",
+      "original_name": "og-cover.jpg",
+      "sha256": "478975d15f9b2886f81bb889f26a67bc4a9ba46299f4b851a5f9c6a466f9e721",
+      "bytes": 207764,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/corridor.jpeg",
+      "library": "assets/uploads/.--corridor.jpeg",
+      "original_name": "corridor.jpeg",
+      "sha256": "3812628a892a5859199e354969d176906ae2de61b395cc19b7611d3497a10257",
+      "bytes": 530624,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/courtyard.jpeg",
+      "library": "assets/uploads/courtyard.jpeg",
+      "original_name": "courtyard.jpeg",
+      "sha256": "24d1eed927e88cfdb205608ab8cab0a4baf6e8f4099f8bfe7b60fd85d30c546b",
+      "bytes": 691718,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/dining-hall.jpg",
+      "library": "assets/uploads/.--dining-hall.jpg",
+      "original_name": "dining-hall.jpg",
+      "sha256": "da1a16d7e6c1f13967c6e01fc753f708d457762ae2866f0073d71c3eafc9ecf9",
+      "bytes": 347014,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/exterior-01.jpeg",
+      "library": "assets/uploads/exterior-01.jpeg",
+      "original_name": "exterior-01.jpeg",
+      "sha256": "d73ad6d2a82c3112cf5d619bf847adcdd290f28803f3520c3a219e7e3654c03e",
+      "bytes": 763505,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/exterior-02.jpeg",
+      "library": "assets/uploads/exterior-02.jpeg",
+      "original_name": "exterior-02.jpeg",
+      "sha256": "6b025333e5744d548f7dd17b6eaa597845b148e6b1a1bfe10fd30c297e1bc688",
+      "bytes": 944402,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/brand-story.jpg",
+      "library": "assets/uploads/brand-story.jpg",
+      "original_name": "brand-story.jpg",
+      "sha256": "0e887b1cc575864857713f547824216735d0a3e4f70470b36f875e5dae9ca2ff",
+      "bytes": 1042738,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/brand-story.webp",
+      "library": "assets/uploads/brand-story.webp",
+      "original_name": "brand-story.webp",
+      "sha256": "8e3f73f634968c9f0a14242ec1bd15897c095030df85cb7ebfee987991a3a24f",
+      "bytes": 613496,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/corridor.jpeg",
+      "library": "assets/uploads/.--corridor.jpeg",
+      "original_name": "corridor.jpeg",
+      "sha256": "3812628a892a5859199e354969d176906ae2de61b395cc19b7611d3497a10257",
+      "bytes": 530624,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/garden/corridor.webp",
+      "library": "assets/uploads/corridor.webp",
+      "original_name": "corridor.webp",
+      "sha256": "7473cf88e4f62a04fe615bfe5abb3f0f5174c52b2f462fa6db1189a76af3d568",
+      "bytes": 108434,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-01.jpg",
+      "library": "assets/uploads/courtyard-01.jpg",
+      "original_name": "courtyard-01.jpg",
+      "sha256": "ca26bebfc0acf4392bbaca4cd25328f79d514b806cb2c09e81832f200233a302",
+      "bytes": 493753,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-01.webp",
+      "library": "assets/uploads/courtyard-01.webp",
+      "original_name": "courtyard-01.webp",
+      "sha256": "0cf17a9ef66f879a5b2d1d4478f63f1e46621f2b01e4acf82c51d644a2234f20",
+      "bytes": 621298,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-02.jpg",
+      "library": "assets/uploads/courtyard-02.jpg",
+      "original_name": "courtyard-02.jpg",
+      "sha256": "7dd9d3e5744616ce594ac496a66bd5e17fcc25f1c49c2aae78511f2ad5aa5acd",
+      "bytes": 2131971,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-02.webp",
+      "library": "assets/uploads/courtyard-02.webp",
+      "original_name": "courtyard-02.webp",
+      "sha256": "0651fe7f0713b814166803553bfdb1d874391d77d48b36d2ae9c5756bcf9045b",
+      "bytes": 2967440,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-03.jpg",
+      "library": "assets/uploads/courtyard-03.jpg",
+      "original_name": "courtyard-03.jpg",
+      "sha256": "fbd3ef145dca4aafa190b10dbc2dd9129700d2df73f09630a6413c876ce9d064",
+      "bytes": 2085400,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-03.webp",
+      "library": "assets/uploads/courtyard-03.webp",
+      "original_name": "courtyard-03.webp",
+      "sha256": "560af539b186e56eb14e5fbe8cfaf8e6fbb6f55085d9c2886513bc11bb4b44ab",
+      "bytes": 2898784,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-04.jpg",
+      "library": "assets/uploads/courtyard-04.jpg",
+      "original_name": "courtyard-04.jpg",
+      "sha256": "58309cef89cb63ae9cd1922f51ca24d419cb738a861ea62a60703d921f6c9683",
+      "bytes": 2026582,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-04.webp",
+      "library": "assets/uploads/courtyard-04.webp",
+      "original_name": "courtyard-04.webp",
+      "sha256": "7434d110da9afc109938e2726a6cf85edac7ae7f71d7eb0235997977752c46db",
+      "bytes": 2722852,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-05.jpg",
+      "library": "assets/uploads/courtyard-05.jpg",
+      "original_name": "courtyard-05.jpg",
+      "sha256": "7ecb8642cfdce362d56cb785171b714eb03833ed2a5336335e686fd45cd6786b",
+      "bytes": 1672172,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-05.webp",
+      "library": "assets/uploads/courtyard-05.webp",
+      "original_name": "courtyard-05.webp",
+      "sha256": "0350b5091c003892354aae179cb4a33a1aa17e904c12ce1613db9b852b3cebe1",
+      "bytes": 2229554,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-06.jpg",
+      "library": "assets/uploads/courtyard-06.jpg",
+      "original_name": "courtyard-06.jpg",
+      "sha256": "211705d7add4fc2793832e2286e3fb0bc1bf173eea700883bf003176149924b3",
+      "bytes": 1853210,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-06.webp",
+      "library": "assets/uploads/courtyard-06.webp",
+      "original_name": "courtyard-06.webp",
+      "sha256": "d78a7c6912c82a0027934ee81e313b424a3d6014a8bc839d0f4e21c90a9feb98",
+      "bytes": 2510534,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-07.jpg",
+      "library": "assets/uploads/courtyard-07.jpg",
+      "original_name": "courtyard-07.jpg",
+      "sha256": "ee60299f7b55344819f93d5727b98b1d6c1c0b45d41334473a34549de54e7bf6",
+      "bytes": 2003844,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-07.webp",
+      "library": "assets/uploads/courtyard-07.webp",
+      "original_name": "courtyard-07.webp",
+      "sha256": "ff0df1bd6c755ad09b841b080d6d07af19389e0172b35a2893c9947bcb5cec96",
+      "bytes": 2766546,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-08.jpg",
+      "library": "assets/uploads/courtyard-08.jpg",
+      "original_name": "courtyard-08.jpg",
+      "sha256": "5395de5e5ef12b1059a3f75e6935fbfb5ca4f0fa2b2448a09e9ec72078febfc4",
+      "bytes": 1987973,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/courtyard-08.webp",
+      "library": "assets/uploads/courtyard-08.webp",
+      "original_name": "courtyard-08.webp",
+      "sha256": "8c5e72d5f3385ee96ab71ec2f989a58b0f15b45de255cb5ac3592d57ecd308c4",
+      "bytes": 2735312,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/dining-hall-01.jpg",
+      "library": "assets/uploads/dining-hall-01.jpg",
+      "original_name": "dining-hall-01.jpg",
+      "sha256": "eb0d1313abf086de503029288044b7ba3e68cd704a05e916b335dd674d16ef9a",
+      "bytes": 1651756,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/dining-hall-01.webp",
+      "library": "assets/uploads/dining-hall-01.webp",
+      "original_name": "dining-hall-01.webp",
+      "sha256": "6a5943dfb7b653589b27d30e7d10f129b2a611e825b411c2cfd930df5243f9e5",
+      "bytes": 622340,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/dining-hall-02.jpg",
+      "library": "assets/uploads/dining-hall-02.jpg",
+      "original_name": "dining-hall-02.jpg",
+      "sha256": "d0f9b2e32234e51f2f697a0326209403db7bf1913f5bbafce84d2e330ce23122",
+      "bytes": 2439876,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/dining-hall-02.webp",
+      "library": "assets/uploads/dining-hall-02.webp",
+      "original_name": "dining-hall-02.webp",
+      "sha256": "f8dcd28aa2eefc814cbc36d93fc59307b8fdbf45cb786b920ee862ecf9eb1f9d",
+      "bytes": 586068,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/dining-hall.jpg",
+      "library": "assets/uploads/.--dining-hall.jpg",
+      "original_name": "dining-hall.jpg",
+      "sha256": "da1a16d7e6c1f13967c6e01fc753f708d457762ae2866f0073d71c3eafc9ecf9",
+      "bytes": 347014,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/garden/dining-hall.webp",
+      "library": "assets/uploads/dining-hall.webp",
+      "original_name": "dining-hall.webp",
+      "sha256": "be959d42ef0bcc3c76b2188433c5302f6dab9702ccd6f50cd0d6d70514faeb3a",
+      "bytes": 176348,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/elevator-stairs.jpeg",
+      "library": "assets/uploads/elevator-stairs.jpeg",
+      "original_name": "elevator-stairs.jpeg",
+      "sha256": "151c65fb422a74c75d1a2a55d3d62bd9c1c2cee7486f47d9fe6b731ed2e2aa28",
+      "bytes": 449667,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-01.jpg",
+      "library": "assets/uploads/exterior-01.jpg",
+      "original_name": "exterior-01.jpg",
+      "sha256": "e6ae99440aec21fec743f1f6fca3ce2aaa6246ef27aebe879adfb35899911791",
+      "bytes": 1012309,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-01.webp",
+      "library": "assets/uploads/exterior-01.webp",
+      "original_name": "exterior-01.webp",
+      "sha256": "ed3c58a0f4d3f71b037debbf06bf64f7878850797f83834c6cc36326dc2e4055",
+      "bytes": 598042,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-02.jpg",
+      "library": "assets/uploads/exterior-02.jpg",
+      "original_name": "exterior-02.jpg",
+      "sha256": "738772884ca0d966c5ce05ab288284d51ca1dd98f007eab0c175f33a52d8aa19",
+      "bytes": 739783,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-02.webp",
+      "library": "assets/uploads/exterior-02.webp",
+      "original_name": "exterior-02.webp",
+      "sha256": "9c2fc037695923c402b083c1c207fd2cad8eda1a6fcfb827d0c6c1d7b6aa1e55",
+      "bytes": 409072,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-03.jpg",
+      "library": "assets/uploads/exterior-03.jpg",
+      "original_name": "exterior-03.jpg",
+      "sha256": "1037c812bc280ed037f6aef97f24c21feac7b72b5e864d575da86a35b4ba825c",
+      "bytes": 1041280,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-03.webp",
+      "library": "assets/uploads/exterior-03.webp",
+      "original_name": "exterior-03.webp",
+      "sha256": "265f9fecfe2bf6dac29e38840c66e7363baf94fa5f45d89fcaa92e95a6d33e8d",
+      "bytes": 630406,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-04.jpg",
+      "library": "assets/uploads/exterior-04.jpg",
+      "original_name": "exterior-04.jpg",
+      "sha256": "1f96d46f3bd51e180b63677b68c72adee05ad85f6bade9fe71065d876dac858d",
+      "bytes": 541509,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-04.webp",
+      "library": "assets/uploads/exterior-04.webp",
+      "original_name": "exterior-04.webp",
+      "sha256": "eedebd01d14baa1d603013c0ea6f191fcfc3853bbd76997e9d3ee03e68547188",
+      "bytes": 196170,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-05.jpg",
+      "library": "assets/uploads/exterior-05.jpg",
+      "original_name": "exterior-05.jpg",
+      "sha256": "96236364968e0b4cb26b019af4d02ef53511c6883a2d059d36b0e8f4f394061d",
+      "bytes": 881178,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-05.webp",
+      "library": "assets/uploads/exterior-05.webp",
+      "original_name": "exterior-05.webp",
+      "sha256": "51798e1b1992ff4cef8aefabf7de8b8ed27f87521e3a83df17c71548f66e588c",
+      "bytes": 488176,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-06.jpg",
+      "library": "assets/uploads/exterior-06.jpg",
+      "original_name": "exterior-06.jpg",
+      "sha256": "a0ccb82c36cfca1395da6d025b4c9bfbb5fc66d6a9c833225648ec140c163475",
+      "bytes": 1124059,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-06.webp",
+      "library": "assets/uploads/exterior-06.webp",
+      "original_name": "exterior-06.webp",
+      "sha256": "6b27445c07d3e70b7eb0a7b65ee6d82c0ebf4af14446316e6bc768fd7a662c4e",
+      "bytes": 684796,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-07.jpg",
+      "library": "assets/uploads/exterior-07.jpg",
+      "original_name": "exterior-07.jpg",
+      "sha256": "6e18e78af2ca4a3a30b49e79eaa1fb775116f017d911f017d89d0edc24ffaba6",
+      "bytes": 846297,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-07.webp",
+      "library": "assets/uploads/exterior-07.webp",
+      "original_name": "exterior-07.webp",
+      "sha256": "30689f81277176e6616589ed1a81740a09b05e809df0c0f516f48e2b077ab00e",
+      "bytes": 478686,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-08.jpg",
+      "library": "assets/uploads/exterior-08.jpg",
+      "original_name": "exterior-08.jpg",
+      "sha256": "ba89812a5eec1c8936c7c089a4d90b9e7a9b610d229eaa3fb6c7ffefdc02a463",
+      "bytes": 1272923,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-08.webp",
+      "library": "assets/uploads/exterior-08.webp",
+      "original_name": "exterior-08.webp",
+      "sha256": "fc10d5fd1fac8d3a2c755c244dfe93560faec4b6772914da2f32f572d09b5d2a",
+      "bytes": 838164,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-09.jpg",
+      "library": "assets/uploads/exterior-09.jpg",
+      "original_name": "exterior-09.jpg",
+      "sha256": "ad4b3392e6b3f288a48f00a0bed9aaecbd2759e2dc08560d0b036e44c572ac45",
+      "bytes": 1015598,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-09.webp",
+      "library": "assets/uploads/exterior-09.webp",
+      "original_name": "exterior-09.webp",
+      "sha256": "fc6ca69d4e152c5777dbebdb3af981e72052f5414c6577adbe429350f8dd9819",
+      "bytes": 582944,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-10.jpg",
+      "library": "assets/uploads/exterior-10.jpg",
+      "original_name": "exterior-10.jpg",
+      "sha256": "6631efbfaa484ce00dfd22beccea362663ba3fc3642056f6def283c7a322153d",
+      "bytes": 1150526,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-10.webp",
+      "library": "assets/uploads/exterior-10.webp",
+      "original_name": "exterior-10.webp",
+      "sha256": "466239dfdd3add00aa81412078aa0b97b09e783c1c1260c3b7b1deca213183eb",
+      "bytes": 714248,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-11.jpg",
+      "library": "assets/uploads/exterior-11.jpg",
+      "original_name": "exterior-11.jpg",
+      "sha256": "360a83cd87369ce247eb3b432225e3e0773ce5d2ff3c1b8f73ca47d84cebb974",
+      "bytes": 711905,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-11.webp",
+      "library": "assets/uploads/exterior-11.webp",
+      "original_name": "exterior-11.webp",
+      "sha256": "1ff8bfd34b2a934dbf04c24f9f61923c72743794f582765d496ff1e5977b375a",
+      "bytes": 333080,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-12.jpg",
+      "library": "assets/uploads/exterior-12.jpg",
+      "original_name": "exterior-12.jpg",
+      "sha256": "433f2e46ae09bb315095f66933c3b6f2313c4bb92a5dcb53a60c9172f0b37cbb",
+      "bytes": 644875,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-12.webp",
+      "library": "assets/uploads/exterior-12.webp",
+      "original_name": "exterior-12.webp",
+      "sha256": "2cca56ef76056afe82c321846281778723a0ff39b882dc4f9c5e52bc7000bb22",
+      "bytes": 278230,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-13.jpg",
+      "library": "assets/uploads/exterior-13.jpg",
+      "original_name": "exterior-13.jpg",
+      "sha256": "b1bb99a320aace33ac6e87f8a9531b85fa8162a84876906ed0d6772e4dcb39d4",
+      "bytes": 843508,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-13.webp",
+      "library": "assets/uploads/exterior-13.webp",
+      "original_name": "exterior-13.webp",
+      "sha256": "6ee209d0e42d89094ff2a156de2b701d0281e36f3589c27bd7f1f665fd712b8b",
+      "bytes": 443678,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-14.jpg",
+      "library": "assets/uploads/exterior-14.jpg",
+      "original_name": "exterior-14.jpg",
+      "sha256": "3c8b2cd0a05c2395e9c04f7390788b3a393f20f6adfb600a05ece8fd9318d4e8",
+      "bytes": 947894,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-15.jpg",
+      "library": "assets/uploads/exterior-15.jpg",
+      "original_name": "exterior-15.jpg",
+      "sha256": "c8b7113a48e5b8ff2f06a7e05575511f9c4df0347bf2358097275fc2a5be3bcf",
+      "bytes": 759152,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-16.jpg",
+      "library": "assets/uploads/exterior-16.jpg",
+      "original_name": "exterior-16.jpg",
+      "sha256": "0e887b1cc575864857713f547824216735d0a3e4f70470b36f875e5dae9ca2ff",
+      "bytes": 1042738,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-16.webp",
+      "library": "assets/uploads/exterior-16.webp",
+      "original_name": "exterior-16.webp",
+      "sha256": "8e3f73f634968c9f0a14242ec1bd15897c095030df85cb7ebfee987991a3a24f",
+      "bytes": 613496,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-17.jpg",
+      "library": "assets/uploads/exterior-17.jpg",
+      "original_name": "exterior-17.jpg",
+      "sha256": "c9458d72c63cd037a34a6b4ebd3e015ac9fd68f990d116fc6c5f6967ac4c4daf",
+      "bytes": 1124731,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-17.webp",
+      "library": "assets/uploads/exterior-17.webp",
+      "original_name": "exterior-17.webp",
+      "sha256": "7ba13852d8e67949cc0fa51352fdfa8ce3fe9eac88c2d331f11caf45b174ff69",
+      "bytes": 698866,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-18.jpg",
+      "library": "assets/uploads/exterior-18.jpg",
+      "original_name": "exterior-18.jpg",
+      "sha256": "55e3d7e54404db824fe8f4decaa5a63af1515d659bfc7599d10186cc03019aea",
+      "bytes": 1095948,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-18.webp",
+      "library": "assets/uploads/exterior-18.webp",
+      "original_name": "exterior-18.webp",
+      "sha256": "2b78a2ebdcee4cbafe8f5115c447d0af4310e44ae2de6350cb3fb92b5e2846e1",
+      "bytes": 706280,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-19.jpg",
+      "library": "assets/uploads/exterior-19.jpg",
+      "original_name": "exterior-19.jpg",
+      "sha256": "fdf430f2682e3ba2d1fef7ea59165c4519ea89f43284ab7dec41216f89dfc82f",
+      "bytes": 969577,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-20.jpg",
+      "library": "assets/uploads/exterior-20.jpg",
+      "original_name": "exterior-20.jpg",
+      "sha256": "c0a4353c1300538392e059297b4392c4f7b3a16b6e6115edb8a6ea41e38ff72c",
+      "bytes": 1190108,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-21.jpg",
+      "library": "assets/uploads/exterior-21.jpg",
+      "original_name": "exterior-21.jpg",
+      "sha256": "582cc18cf20b4e9a083fa0fc8e94412d93f21dc2702c59bf8e557bfdd0a5f9fc",
+      "bytes": 599156,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-22.jpg",
+      "library": "assets/uploads/exterior-22.jpg",
+      "original_name": "exterior-22.jpg",
+      "sha256": "2ef32ede5b9b3abddf8dc09d453d8735a2dfe42390729bc1fa42ae48bf4b4aec",
+      "bytes": 287912,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-22.webp",
+      "library": "assets/uploads/exterior-22.webp",
+      "original_name": "exterior-22.webp",
+      "sha256": "4354d801caf2abce193ac2ec566125d1fff8c4ad92111289659d94c4736886db",
+      "bytes": 186416,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-23.jpg",
+      "library": "assets/uploads/exterior-23.jpg",
+      "original_name": "exterior-23.jpg",
+      "sha256": "e081110c015ab004cb1a1ee37a12d2b01fd284ffa7f225258c792cb1a28d0d68",
+      "bytes": 384247,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-24.jpg",
+      "library": "assets/uploads/exterior-24.jpg",
+      "original_name": "exterior-24.jpg",
+      "sha256": "0313b7fc9cc20d206546b8f0f950b9c16d10af18cc31ef5b646375aa056705d2",
+      "bytes": 441889,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-24.webp",
+      "library": "assets/uploads/exterior-24.webp",
+      "original_name": "exterior-24.webp",
+      "sha256": "e29aee4f87f0b33fe34a397067eb3dfcc105045007416deb4facc989f04965a8",
+      "bytes": 456890,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-25.jpg",
+      "library": "assets/uploads/exterior-25.jpg",
+      "original_name": "exterior-25.jpg",
+      "sha256": "987c0b5150a376a13fb99c6a9c5b217ab6093423e43c4933edc53be2697f2eb6",
+      "bytes": 774847,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-26.jpg",
+      "library": "assets/uploads/exterior-26.jpg",
+      "original_name": "exterior-26.jpg",
+      "sha256": "c03a85885123634cd982b4746f10871b232704cf01f6e9cad392c2721dcee8e3",
+      "bytes": 525970,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-27.jpg",
+      "library": "assets/uploads/exterior-27.jpg",
+      "original_name": "exterior-27.jpg",
+      "sha256": "ac6fe7db39ed90749cbc7e88538ad55734dd2d000e00921150bfbdeed1b6c663",
+      "bytes": 528264,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-28.jpg",
+      "library": "assets/uploads/exterior-28.jpg",
+      "original_name": "exterior-28.jpg",
+      "sha256": "9821218228ea34c1f9e7f94511de92e12ba974698a56737f4da66b00e3cfa030",
+      "bytes": 653837,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-29.jpg",
+      "library": "assets/uploads/exterior-29.jpg",
+      "original_name": "exterior-29.jpg",
+      "sha256": "d0b7eb6f1de30c9dd450a0ac6841dd17d7ccd8ff4754eee377467dab86493704",
+      "bytes": 563117,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/exterior-30.jpg",
+      "library": "assets/uploads/exterior-30.jpg",
+      "original_name": "exterior-30.jpg",
+      "sha256": "28f224524f6750da423807fcdc1ec6c232eed7ac841b7fa34cec2ea6e2ec2422",
+      "bytes": 977295,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/hero-garden.jpeg",
+      "library": "assets/uploads/garden--hero-garden.jpeg",
+      "original_name": "hero-garden.jpeg",
+      "sha256": "c6b908646c9977f863366f9ed3f8a2fadab5b6778f87511ee6e035aa098c14da",
+      "bytes": 697311,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/hero-garden.webp",
+      "library": "assets/uploads/hero-garden.webp",
+      "original_name": "hero-garden.webp",
+      "sha256": "580d94e334244ccd8ea3a0ea9a6bfe950f45892e3e60dffe96969d24bce3d2ea",
+      "bytes": 770678,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/interior-view-01.jpeg",
+      "library": "assets/uploads/interior-view-01.jpeg",
+      "original_name": "interior-view-01.jpeg",
+      "sha256": "69712bf3e4c36dab88ea0691dea71eeb2b01a543846f77c7c9bb8e501e904132",
+      "bytes": 971594,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/interior-view-02.jpg",
+      "library": "assets/uploads/interior-view-02.jpg",
+      "original_name": "interior-view-02.jpg",
+      "sha256": "071970aa00ef99fbb56079b34f843160ba44ca9ae42f3df25f79ed4f67d7e49b",
+      "bytes": 620178,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/interior-view-03.jpg",
+      "library": "assets/uploads/interior-view-03.jpg",
+      "original_name": "interior-view-03.jpg",
+      "sha256": "26fc06dd2ed175dc1ddd38d6746534f23ae84e554adc904e311fafb900b76025",
+      "bytes": 696395,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/interior-view-05.jpg",
+      "library": "assets/uploads/interior-view-05.jpg",
+      "original_name": "interior-view-05.jpg",
+      "sha256": "0331cdc1ed903b6b5a6303f98b8be1a24286de600355d1729ba538090dc8356e",
+      "bytes": 453847,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/interior-view.jpeg",
+      "library": "assets/uploads/interior-view.jpeg",
+      "original_name": "interior-view.jpeg",
+      "sha256": "24d1eed927e88cfdb205608ab8cab0a4baf6e8f4099f8bfe7b60fd85d30c546b",
+      "bytes": 691718,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/line-qr.png",
+      "library": "assets/uploads/garden--line-qr.png",
+      "original_name": "line-qr.png",
+      "sha256": "478befc48873fe4f4228f2de8de9c79173f49fc8cbbf90daa76c2f669a7ee014",
+      "bytes": 51603,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-double-1.jpg",
+      "library": "assets/uploads/room-double-1.jpg",
+      "original_name": "room-double-1.jpg",
+      "sha256": "13243940bbee927f14096d2a696fa0f733dd8c77ccf524adf917dd144343f833",
+      "bytes": 1925648,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-double-2.jpg",
+      "library": "assets/uploads/room-double-2.jpg",
+      "original_name": "room-double-2.jpg",
+      "sha256": "d496a657a56f2880ee4ce2cf1a5d521643e8a4312265b366bd0981888e32c7f1",
+      "bytes": 170570,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-double.jpg",
+      "library": "assets/uploads/garden--room-double.jpg",
+      "original_name": "room-double.jpg",
+      "sha256": "7b1b1ec861f7e644d9a0d67951a1a7756b634a02bc1d15bc13dee4e6afdfd1eb",
+      "bytes": 276024,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-double.webp",
+      "library": "assets/uploads/room-double.webp",
+      "original_name": "room-double.webp",
+      "sha256": "667bdce7d00afa0efc81c4e5ba89a3cf3a654ed5c3edd60fe3f4f9e73713263b",
+      "bytes": 237756,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family-loft-1.jpg",
+      "library": "assets/uploads/room-family-loft-1.jpg",
+      "original_name": "room-family-loft-1.jpg",
+      "sha256": "8f1711c826d55be7aec4da8ce38163d0f7cc207bf6cc5cd757bbeaa45ba4f8cd",
+      "bytes": 373745,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family-loft.jpg",
+      "library": "assets/uploads/garden--room-family-loft.jpg",
+      "original_name": "room-family-loft.jpg",
+      "sha256": "1ac73bcf34b6abce9dc02e1af98942f81719fbc7486ad31e8bbae01aa2d01f98",
+      "bytes": 242852,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family-loft.webp",
+      "library": "assets/uploads/room-family-loft.webp",
+      "original_name": "room-family-loft.webp",
+      "sha256": "da73d64a8c665b16b66e9474b4945133e16772e178830e18cbdf8cc2e4a6686e",
+      "bytes": 206646,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family4-1.jpg",
+      "library": "assets/uploads/garden--room-family4-1.jpg",
+      "original_name": "room-family4-1.jpg",
+      "sha256": "d99985cc531529b132d23ed03234fc9e85304d2606faa3de92b6f5dcaa0d1f39",
+      "bytes": 314110,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family4-1.webp",
+      "library": "assets/uploads/room-family4-1.webp",
+      "original_name": "room-family4-1.webp",
+      "sha256": "44bc35e1948e8d6b4d9cbe54342d3142d8847be4e4928be26e50802453cc9358",
+      "bytes": 309834,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family4-2.jpg",
+      "library": "assets/uploads/garden--room-family4-2.jpg",
+      "original_name": "room-family4-2.jpg",
+      "sha256": "27dfc80bd0667169a61a92dcf0ed086154e069a2521d6027145f2e6bec51758e",
+      "bytes": 167022,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family4-2.webp",
+      "library": "assets/uploads/room-family4-2.webp",
+      "original_name": "room-family4-2.webp",
+      "sha256": "28424c08dada11165a56c9cc5cd9f349fe92cb0c3007b964aaaed2a7420aca85",
+      "bytes": 137926,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family4-living-cover.jpg",
+      "library": "assets/uploads/room-family4-living-cover.jpg",
+      "original_name": "room-family4-living-cover.jpg",
+      "sha256": "c65ea341afdbf5b0cbf7a52eb57c46c64bc5faf0dc3de65a443ae2ecc7fa2945",
+      "bytes": 112482,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family4-living-cover.webp",
+      "library": "assets/uploads/room-family4-living-cover.webp",
+      "original_name": "room-family4-living-cover.webp",
+      "sha256": "5f2dde088212dd42eaaea25b89cd94219750969c7eb5f1b08663ca892acf7d33",
+      "bytes": 68136,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family4-living.jpg",
+      "library": "assets/uploads/garden--room-family4-living.jpg",
+      "original_name": "room-family4-living.jpg",
+      "sha256": "fca0f9311392951d8cf80969f0592606d9465f7b1ac31e17e2ac3baaf233665e",
+      "bytes": 188092,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-family4-living.webp",
+      "library": "assets/uploads/room-family4-living.webp",
+      "original_name": "room-family4-living.webp",
+      "sha256": "7eb6b8601f8c3e707d00cea61d1b536c837c46ca6f8e4fc8a4901e8ba192d46c",
+      "bytes": 146404,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-triple.jpg",
+      "library": "assets/uploads/garden--room-triple.jpg",
+      "original_name": "room-triple.jpg",
+      "sha256": "e727c882736ee11cfd1bd922c4964eb154f03dc59996513a679a8fff1edcf35a",
+      "bytes": 248499,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-triple.webp",
+      "library": "assets/uploads/room-triple.webp",
+      "original_name": "room-triple.webp",
+      "sha256": "31eea278f65c0bfed6ed526746ede2613a7bd3828a300b7d4c34bd2231e68094",
+      "bytes": 222548,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-washitsu.jpg",
+      "library": "assets/uploads/garden--room-washitsu.jpg",
+      "original_name": "room-washitsu.jpg",
+      "sha256": "59925308a983e2953019528919c265675c783e53ef7ec2d206298b0625b08368",
+      "bytes": 285239,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden/room-washitsu.webp",
+      "library": "assets/uploads/room-washitsu.webp",
+      "original_name": "room-washitsu.webp",
+      "sha256": "e2c103e274681a28925f4ba8044388688170807dff9b7c7fb4b8ec00c90fd6e2",
+      "bytes": 139550,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/garden-glass.jpeg",
+      "library": "assets/uploads/garden-glass.jpeg",
+      "original_name": "garden-glass.jpeg",
+      "sha256": "69712bf3e4c36dab88ea0691dea71eeb2b01a543846f77c7c9bb8e501e904132",
+      "bytes": 971594,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/guide.jpeg",
+      "library": "assets/uploads/guide.jpeg",
+      "original_name": "guide.jpeg",
+      "sha256": "79bf88d58b726bafed882494beb61aa7cfca5db592a58823a3655110d7c1378e",
+      "bytes": 595402,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/hero-garden.jpeg",
+      "library": "assets/uploads/garden--hero-garden.jpeg",
+      "original_name": "hero-garden.jpeg",
+      "sha256": "c6b908646c9977f863366f9ed3f8a2fadab5b6778f87511ee6e035aa098c14da",
+      "bytes": 697311,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/line-qr.png",
+      "library": "assets/uploads/garden--line-qr.png",
+      "original_name": "line-qr.png",
+      "sha256": "478befc48873fe4f4228f2de8de9c79173f49fc8cbbf90daa76c2f669a7ee014",
+      "bytes": 51603,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/logo.jpeg",
+      "library": "assets/uploads/logo.jpeg",
+      "original_name": "logo.jpeg",
+      "sha256": "6f4f6dc4046b41068f7462981659dae8a4216dc24804f3fe23f7ab58d5539daf",
+      "bytes": 47901,
+      "deduplicated": false
+    },
+    {
+      "source": "assets/room-double.jpg",
+      "library": "assets/uploads/garden--room-double.jpg",
+      "original_name": "room-double.jpg",
+      "sha256": "7b1b1ec861f7e644d9a0d67951a1a7756b634a02bc1d15bc13dee4e6afdfd1eb",
+      "bytes": 276024,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/room-family-loft.jpg",
+      "library": "assets/uploads/garden--room-family-loft.jpg",
+      "original_name": "room-family-loft.jpg",
+      "sha256": "1ac73bcf34b6abce9dc02e1af98942f81719fbc7486ad31e8bbae01aa2d01f98",
+      "bytes": 242852,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/room-family4-1.jpg",
+      "library": "assets/uploads/garden--room-family4-1.jpg",
+      "original_name": "room-family4-1.jpg",
+      "sha256": "d99985cc531529b132d23ed03234fc9e85304d2606faa3de92b6f5dcaa0d1f39",
+      "bytes": 314110,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/room-family4-2.jpg",
+      "library": "assets/uploads/garden--room-family4-2.jpg",
+      "original_name": "room-family4-2.jpg",
+      "sha256": "27dfc80bd0667169a61a92dcf0ed086154e069a2521d6027145f2e6bec51758e",
+      "bytes": 167022,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/room-family4-living.jpg",
+      "library": "assets/uploads/garden--room-family4-living.jpg",
+      "original_name": "room-family4-living.jpg",
+      "sha256": "fca0f9311392951d8cf80969f0592606d9465f7b1ac31e17e2ac3baaf233665e",
+      "bytes": 188092,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/room-triple.jpg",
+      "library": "assets/uploads/garden--room-triple.jpg",
+      "original_name": "room-triple.jpg",
+      "sha256": "e727c882736ee11cfd1bd922c4964eb154f03dc59996513a679a8fff1edcf35a",
+      "bytes": 248499,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/room-washitsu.jpg",
+      "library": "assets/uploads/garden--room-washitsu.jpg",
+      "original_name": "room-washitsu.jpg",
+      "sha256": "59925308a983e2953019528919c265675c783e53ef7ec2d206298b0625b08368",
+      "bytes": 285239,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/spot-fuxing.jpg",
+      "library": "assets/uploads/attractions--spot-fuxing.jpg",
+      "original_name": "spot-fuxing.jpg",
+      "sha256": "e32a42669a0b13c8a3def956b54a695c1eb1c04d0a9bafa402055d3a51e0b7bf",
+      "bytes": 33833,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/spot-paragliding.jpg",
+      "library": "assets/uploads/attractions--spot-paragliding.jpg",
+      "original_name": "spot-paragliding.jpg",
+      "sha256": "1c38810aceab62b3de51432c63d33999e868081b287af1e5543cebf670a83c57",
+      "bytes": 81818,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/spot-sunmoonlake.jpg",
+      "library": "assets/uploads/attractions--spot-sunmoonlake.jpg",
+      "original_name": "spot-sunmoonlake.jpg",
+      "sha256": "b5af542a7ead923081161ddf4501df60f1efc171e712649932246ce078c4d20e",
+      "bytes": 195802,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/spot-winery.jpg",
+      "library": "assets/uploads/attractions--spot-winery.jpg",
+      "original_name": "spot-winery.jpg",
+      "sha256": "f6c657eae1c185446de1f7e16622aa58bb3acd0957a99adfc0951a5ab21c8493",
+      "bytes": 291833,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/spot-zhongtai.jpg",
+      "library": "assets/uploads/attractions--spot-zhongtai.jpg",
+      "original_name": "spot-zhongtai.jpg",
+      "sha256": "bacb8f4a760137c3aa846f782f3b96543afe3f03c1d5547f1d5f0c52d97678f8",
+      "bytes": 220411,
+      "deduplicated": true
+    },
+    {
+      "source": "assets/stairs.jpeg",
+      "library": "assets/uploads/stairs.jpeg",
+      "original_name": "stairs.jpeg",
+      "sha256": "151c65fb422a74c75d1a2a55d3d62bd9c1c2cee7486f47d9fe6b731ed2e2aa28",
+      "bytes": 449667,
+      "deduplicated": false
+    }
+  ]
+}

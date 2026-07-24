@@ -1,0 +1,101 @@
+{
+  "version": "Production V365.5.4",
+  "result": "PASS",
+  "checks": [
+    {
+      "check": "admin/config.yml YAML parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/attractions.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/blog.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/facilities.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/faq.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/hero.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/media-index.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/news.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/policies.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/rooms.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/seo.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "data/site.json JSON parse",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "backend branch",
+      "status": "PASS",
+      "detail": "cloudflare-test"
+    },
+    {
+      "check": "global media_folder",
+      "status": "PASS",
+      "detail": "assets/uploads"
+    },
+    {
+      "check": "global public_folder",
+      "status": "PASS",
+      "detail": "/assets/uploads"
+    },
+    {
+      "check": "collection media overrides removed",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "media library populated",
+      "status": "PASS",
+      "detail": "129 files"
+    },
+    {
+      "check": "media hashes verified",
+      "status": "PASS",
+      "detail": "145/145 records"
+    },
+    {
+      "check": "existing JSON image references",
+      "status": "PASS",
+      "detail": "28 references, 0 missing"
+    }
+  ]
+}
