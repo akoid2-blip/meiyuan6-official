@@ -183,3 +183,27 @@ th,td{padding:9px 8px;line-height:1.35;vertical-align:middle}tbody tr{height:54p
 .panel{padding:17px}.panel-head{margin-bottom:11px}.topbar{margin-bottom:18px}.main{padding:21px}
 .lifecycle-terminal{opacity:.88}.lifecycle-terminal .workflow-action{display:none}
 @media(max-width:900px){.table-actions{flex-wrap:wrap;white-space:normal}.table-actions button{flex:0 0 auto}.filters{flex-wrap:wrap}.filters select{width:min(100%,190px)}}
+
+
+/* Milestone A4 RC2 Hotfix — Payment Integrity Control */
+#payments table{min-width:1080px}
+.payment-order-row td{vertical-align:middle}
+.compact-button{min-height:30px;padding:5px 9px;font-size:12px}
+.payment-detail-row td{padding:0!important;background:#f8f6f1}
+.payment-detail-wrap{padding:14px 18px 18px}
+.payment-summary-inline,.payment-dialog-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.payment-summary-inline span,.payment-dialog-summary span{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--muted);font-size:12px}
+.payment-summary-inline strong,.payment-dialog-summary strong{display:block;color:var(--text);font-size:15px;margin-top:4px}
+.payment-detail-table{min-width:680px!important}
+.amount-negative{color:var(--danger);font-weight:800}
+.payment-dialog-summary{margin-top:14px;padding:12px;background:#f7f4ee;border-radius:12px}
+.payment-dialog-summary span{background:transparent}
+@media(max-width:900px){.payment-summary-inline,.payment-dialog-summary{grid-template-columns:repeat(2,1fr)}}
+
+/* Milestone A4 RC2 Hotfix 2 — Additional Charge Control */
+.additional-charge-fields{display:grid;grid-template-columns:1fr 2fr;gap:12px;padding:12px;border:1px solid var(--line,#d9ddd8);border-radius:10px;background:#fbfaf6}
+.additional-charge-fields.hidden{display:none}
+.additional-charge-fields label{margin:0}
+.amount-charge{font-weight:700}
+.payment-summary-inline span strong{white-space:nowrap}
+@media(max-width:760px){.additional-charge-fields{grid-template-columns:1fr}.additional-charge-fields .wide{grid-column:auto}}

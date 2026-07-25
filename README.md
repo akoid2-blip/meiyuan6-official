@@ -22,3 +22,21 @@ Enterprise V1.2 Build 2A — Milestone A3 RC1
 
 ## A4 RC2
 本版修正生命週期資料持久化、合法流轉一致性與重複房務任務，並套用 Enterprise UI v1.0 Official Design Lock。
+## A4 RC2 Hotfix — Payment Integrity Control
+
+本版本以 A4 RC2 為基準，正式加入收款完整性控制：
+
+- 一張訂單一列的收款總覽
+- 訂單預收訂金自動顯示
+- 防止重複收付款
+- 防止超收及超額退款
+- 已收淨額、已退款、剩餘應收及核帳狀態自動計算
+- 點擊「明細」可查看該訂單完整收付款流水
+
+此版本仍屬 Release Candidate Hotfix，需完成瀏覽器驗收與 Level 2 深度 QA 後才能標記為 Official Stable。
+
+
+
+## Milestone A4 RC2 Hotfix 2 — Additional Charge Control
+
+加收費用為獨立應收調整：不受原始訂單金額限制，但必須填寫分類及說明。系統以「原始訂單金額＋加收費用」計算最新應收總額，一般收款仍不得超過剩餘應收。

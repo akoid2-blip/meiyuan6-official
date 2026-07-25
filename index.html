@@ -146,7 +146,7 @@
       <section class="panel">
         <div class="panel-head"><h3>收款管理</h3><button id="addPaymentBtn" class="primary" data-icon="wallet">登記收款</button></div>
         <div class="table-wrap"><table>
-          <thead><tr><th>日期</th><th>訂單</th><th>旅客</th><th>類型</th><th>方式</th><th>金額</th><th>核帳</th></tr></thead>
+          <thead><tr><th>訂單</th><th>旅客</th><th>原始訂單</th><th>加收費用</th><th>最新應收</th><th>預收訂金</th><th>已收淨額</th><th>已退款</th><th>剩餘應收</th><th>狀態</th><th>操作</th></tr></thead>
           <tbody id="paymentTableBody"></tbody>
         </table></div>
       </section>
@@ -361,10 +361,16 @@
     <label>日期<input id="paymentDate" type="date" required></label>
     <label>訂單<select id="paymentOrder" required></select></label>
     <label>類型<select id="paymentType"><option>訂金</option><option>尾款</option><option>全額</option><option>加收費用</option><option>退款</option></select></label>
-    <label>方式<select id="paymentMethod"><option>現金</option><option>轉帳</option><option>信用卡</option><option>LINE Pay</option></select></label>
+    <label>方式<select id="paymentMethod"><option>現金</option><option>轉帳</option><option>信用卡</option><option>LINE Pay</option><option>其他</option></select></label>
     <label>金額<input id="paymentAmount" type="text" inputmode="numeric" min="1" required></label>
     <label>核帳<select id="paymentVerified"><option value="true">已核帳</option><option value="false">待核帳</option></select></label>
+    <div id="additionalChargeFields" class="wide additional-charge-fields hidden">
+      <label>加收分類<select id="paymentCategory"><option value="">請選擇</option><option>延遲退房</option><option>額外入住人數</option><option>寵物清潔費</option><option>設備損壞</option><option>加購服務</option><option>其他</option></select></label>
+      <label class="wide">加收費用說明<textarea id="paymentDescription" rows="3" maxlength="200" placeholder="必填，例如：延遲退房 1 小時"></textarea></label>
+    </div>
   </div>
+  <div id="paymentDialogSummary" class="payment-dialog-summary" aria-live="polite"></div>
+  <p class="section-note">一般收款仍受剩餘應收限制；加收費用不受原始訂單金額限制，但必須填寫分類與說明，並自動增加最新應收總額。</p>
   <div class="dialog-actions"><button type="button" data-close="paymentDialog">取消</button><button class="primary" type="submit">儲存</button></div>
 </form>
 </dialog>

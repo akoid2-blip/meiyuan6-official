@@ -17,3 +17,8 @@
 - iPad Safari 房務卡片與按鈕
 - 完整入住、退房、清掃、完成流程
 - F5 後資料保存
+
+## Milestone A4 RC2 Hotfix — Payment Integrity Control
+
+Static QA 已通過；瀏覽器驗收項目請參閱 `QA_REPORT_MILESTONE_A4_RC2_HOTFIX.md`。
+

@@ -3,11 +3,12 @@
   "version": "1.2",
   "build": "2A",
   "milestone": "A4",
-  "release": "RC2",
-  "released": "2026-07-25",
-  "schema": 8,
-  "status": "Release Candidate",
-  "baseline": "Milestone A4 RC1",
+  "release": "RC2 Hotfix 2",
+  "released": "2026-07-26",
+  "schema": 10,
+  "status": "Release Candidate Hotfix 2",
+  "baseline": "Milestone A4 RC2 Hotfix — Payment Integrity Control",
   "ui": "Enterprise UI v1.0 Official Design Lock",
-  "date": "2026-07-25"
+  "date": "2026-07-26",
+  "hotfix": "Additional Charge Control"
 }
