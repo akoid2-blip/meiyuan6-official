@@ -1,9 +1,13 @@
 {
   "product": "Meiyuan6 Booking Admin Enterprise",
-  "version": "Enterprise V1.2",
-  "build": "2C",
-  "milestone": "Enterprise UI Design System",
+  "version": "1.2",
+  "build": "2A",
+  "milestone": "A4",
+  "release": "RC2",
   "released": "2026-07-25",
-  "schema": 6,
-  "status": "Official QA Candidate"
+  "schema": 8,
+  "status": "Release Candidate",
+  "baseline": "Milestone A4 RC1",
+  "ui": "Enterprise UI v1.0 Official Design Lock",
+  "date": "2026-07-25"
 }

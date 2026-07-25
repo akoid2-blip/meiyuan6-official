@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2C</p>
+    <p>Enterprise V1.2 · Build 2A · A2 RC1</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -37,7 +37,7 @@
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2C</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · A2 RC1</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -126,12 +126,7 @@
         <div class="panel-head"><h3>訂單管理</h3><button id="addOrderBtn" class="primary" data-icon="plus">新增訂單</button></div>
         <div class="filters">
           <input id="orderSearch" placeholder="搜尋姓名、電話、訂單編號">
-          <select id="statusFilter">
-            <option value="">全部狀態</option>
-            <option>詢問中</option><option>暫時保留</option><option>已確認</option>
-            <option>已付訂金</option><option>已付全額</option><option>已入住</option>
-            <option>已退房</option><option>已取消</option>
-          </select>
+          <select id="statusFilter"><option value="">全部生命週期</option><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select>
         </div>
         <div class="table-wrap"><table>
           <thead><tr><th>訂單</th><th>旅客</th><th>住宿日期</th><th>方案／房間</th><th>服務</th><th>金額</th><th>狀態</th><th>操作</th></tr></thead>
@@ -294,6 +289,8 @@
   <div class="form-grid">
     <label>訂房類型<select id="orderType"><option value="normal">一般訂房</option><option value="backfill">補登訂房</option></select></label>
     <label>營運流程<select id="workflowStatus"><option>建立</option><option>已確認</option><option>入住</option><option>退房</option><option>待清掃</option><option>清掃中</option><option>完成清掃</option><option>可入住</option></select></label>
+    <label>訂單生命週期<select id="lifecycleStatus"><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select></label>
+    <label>狀態操作人員<input id="lifecycleOperator" placeholder="例如：管理員"></label>
     <fieldset id="backfillFields" class="wide backfill-fields hidden"><legend>補登紀錄</legend><div class="service-grid"><label>補登原因<input id="backfillReason" placeholder="必填，例如：電話訂房漏登"></label><label>補登時間<input id="backfillTime" readonly></label><label>補登人員（預留）<input id="backfillOperator" placeholder="可留空"></label></div></fieldset>
     <label>旅客姓名<input id="guestName" required></label>
     <label>聯絡電話<input id="guestPhone" required></label>
@@ -343,9 +340,18 @@
 
 <dialog id="roomLockDialog">
 <form id="roomLockForm">
- <div class="dialog-head"><h3>新增房號鎖定</h3><button type="button" class="icon-only" data-icon="x" data-close="roomLockDialog" aria-label="關閉"></button></div>
- <div class="form-grid"><label>房間<select id="lockRoom"></select></label><label>狀態<select id="lockType"><option value="maintenance">維修中</option><option value="unavailable">暫停出租</option><option value="service">保養中</option></select></label><label>起日<input id="lockStart" type="date" required></label><label>迄日<input id="lockEnd" type="date" required></label><label class="wide">原因<input id="lockReason" required></label></div>
- <div class="dialog-actions"><button type="button" data-close="roomLockDialog">取消</button><button type="submit" class="primary">建立鎖定</button></div>
+ <input id="lockId" type="hidden">
+ <div class="dialog-head"><h3 id="roomLockDialogTitle">新增房號鎖定</h3><button type="button" class="icon-only" data-icon="x" data-close="roomLockDialog" aria-label="關閉"></button></div>
+ <div class="form-grid">
+  <label>房間<select id="lockRoom"></select></label>
+  <label>狀態<select id="lockType"><option value="maintenance">維修中</option><option value="unavailable">暫停出租</option><option value="service">保養中</option></select></label>
+  <label>起日<input id="lockStart" type="date" required></label>
+  <label>迄日<input id="lockEnd" type="date" required></label>
+  <label>操作人員<input id="lockOperator" placeholder="例如：管家／管理員"></label>
+  <label class="wide">鎖定原因<input id="lockReason" list="lockReasonOptions" required placeholder="請選擇或輸入原因"></label>
+  <datalist id="lockReasonOptions"><option value="房間維修"><option value="清潔保養"><option value="業主保留"><option value="包棟保留"><option value="其他"></datalist>
+ </div>
+ <div class="dialog-actions"><button type="button" data-close="roomLockDialog">取消</button><button type="submit" class="primary" id="lockSubmitLabel">建立鎖定</button></div>
 </form></dialog>
 
 <dialog id="paymentDialog">
