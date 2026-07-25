@@ -1,12 +1,14 @@
-# FINAL ACCEPTANCE CHECKLIST
+# FINAL ACCEPTANCE CHECKLIST — Build 2A RC3
 
-1. 建立一筆包含兩個住宿單位的訂單。
-2. 完成入住。
-3. 點擊退房，確認自動產生兩筆房務工作。
-4. 確認房客、訂單編號、退房日期與時間正確。
-5. 填寫房務人員與備註。
-6. 點擊開始清掃，確認記錄開始時間。
-7. 點擊完成清掃，確認記錄完成時間。
-8. 確認房間狀態恢復可入住。
-9. 重新整理後確認資料仍存在。
-10. 在 iPhone 與 iPad 完成同一流程驗收。
+- [x] Mobile payment card layout
+- [x] Mobile payment/refund/additional-charge bottom sheet
+- [x] Payment summary and long-text overflow protection
+- [x] Mobile order card layout and operations
+- [x] Mobile calendar non-drag adjustment flow
+- [x] Conflict, lock, past-date and lifecycle validation
+- [x] Desktop drag retained
+- [x] Responsive Chromium QA profiles
+- [x] VERSION / CHANGELOG / README / QA report
+- [x] ZIP and SHA-256
+
+Status: Milestone A4 RC3 LOCK / Build 2A LOCK. Not Official Stable.

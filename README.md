@@ -40,3 +40,14 @@ Enterprise V1.2 Build 2A — Milestone A3 RC1
 ## Milestone A4 RC2 Hotfix 2 — Additional Charge Control
 
 加收費用為獨立應收調整：不受原始訂單金額限制，但必須填寫分類及說明。系統以「原始訂單金額＋加收費用」計算最新應收總額，一般收款仍不得超過剩餘應收。
+
+
+## Milestone A4 RC3 — Mobile & Responsive Integration
+
+本版本以 RC2 Hotfix 2 為基準，完成手機端操作流程整合。手機訂單與收款使用卡片介面；收款／退款／加收費用及房況調整採單欄底部抽屜。手機房況異動必須透過「調整日期／房間」並通過日期、鎖房、衝突與狀態驗證。桌機拖曳功能保留。
+
+### 驗收狀態
+
+- Milestone A4 RC3 LOCK
+- Enterprise V1.2 Build 2A LOCK
+- 非 Official Stable

@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · A2 RC1</p>
+    <p>Enterprise V1.2 · Build 2A · A4 RC3</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -37,7 +37,7 @@
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · A2 RC1</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · A4 RC3</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -105,7 +105,7 @@
         <div class="panel-head calendar-head">
           <div>
             <h3>房況日曆</h3>
-            <p class="section-note">拖曳整張訂單可平移日期；拖曳左右把手可調整入住或退房日期。</p>
+            <p class="section-note desktop-calendar-help">桌機可拖曳整張訂單平移日期，或拖曳左右把手調整入住／退房日期。</p><p class="section-note mobile-calendar-help">手機請點選訂單，再使用「調整日期／房間」；不需拖曳。</p>
           </div>
           <div class="legend">
             <span><i class="dot confirmed"></i>已確認</span>
@@ -128,7 +128,8 @@
           <input id="orderSearch" placeholder="搜尋姓名、電話、訂單編號">
           <select id="statusFilter"><option value="">全部生命週期</option><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select>
         </div>
-        <div class="table-wrap"><table>
+        <div id="orderMobileList" class="order-mobile-list"></div>
+        <div class="table-wrap order-desktop-table"><table>
           <thead><tr><th>訂單</th><th>旅客</th><th>住宿日期</th><th>方案／房間</th><th>服務</th><th>金額</th><th>狀態</th><th>操作</th></tr></thead>
           <tbody id="orderTableBody"></tbody>
         </table></div>
@@ -145,7 +146,8 @@
     <section id="payments" class="page">
       <section class="panel">
         <div class="panel-head"><h3>收款管理</h3><button id="addPaymentBtn" class="primary" data-icon="wallet">登記收款</button></div>
-        <div class="table-wrap"><table>
+        <div id="paymentMobileList" class="payment-mobile-list"></div>
+        <div class="table-wrap payment-desktop-table"><table>
           <thead><tr><th>訂單</th><th>旅客</th><th>原始訂單</th><th>加收費用</th><th>最新應收</th><th>預收訂金</th><th>已收淨額</th><th>已退款</th><th>剩餘應收</th><th>狀態</th><th>操作</th></tr></thead>
           <tbody id="paymentTableBody"></tbody>
         </table></div>
@@ -338,6 +340,22 @@
 </form>
 </dialog>
 
+
+<dialog id="calendarAdjustDialog" class="mobile-sheet-dialog">
+<form id="calendarAdjustForm">
+  <div class="dialog-head"><div><h3>調整日期／房間</h3><p id="calendarAdjustOrderLabel" class="section-note"></p></div><button type="button" class="icon-only" data-icon="x" data-close="calendarAdjustDialog" aria-label="關閉"></button></div>
+  <input id="calendarAdjustOrderId" type="hidden">
+  <div class="form-grid mobile-single-column">
+    <label>入住日期<input id="calendarAdjustCheckin" type="date" required></label>
+    <label>退房日期<input id="calendarAdjustCheckout" type="date" required></label>
+    <fieldset class="wide"><legend>住宿單位</legend><div id="calendarAdjustRooms" class="checkbox-grid"></div></fieldset>
+  </div>
+  <div id="calendarAdjustWarning" class="warning hidden" aria-live="polite"></div>
+  <p class="section-note">儲存前會檢查日期先後、過期日期、房間鎖定、訂單狀態與房況衝突。</p>
+  <div class="dialog-actions"><button type="button" data-close="calendarAdjustDialog">取消</button><button class="primary" type="submit">確認調整</button></div>
+</form>
+</dialog>
+
 <dialog id="roomLockDialog">
 <form id="roomLockForm">
  <input id="lockId" type="hidden">
@@ -354,7 +372,7 @@
  <div class="dialog-actions"><button type="button" data-close="roomLockDialog">取消</button><button type="submit" class="primary" id="lockSubmitLabel">建立鎖定</button></div>
 </form></dialog>
 
-<dialog id="paymentDialog">
+<dialog id="paymentDialog" class="mobile-sheet-dialog">
 <form id="paymentForm">
   <div class="dialog-head"><h3>登記收款</h3><button type="button" class="icon-only" data-icon="x" data-close="paymentDialog" aria-label="關閉"></button></div>
   <div class="form-grid">

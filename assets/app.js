@@ -484,9 +484,19 @@ function getAlerts(){
  return a;
 }
 
+function orderActionButtons(o){
+ const terminal=["已取消","No Show"].includes(lifecycleStatus(o));
+ return `<button onclick="window.editOrder('${o.id}')">${uiIcon("edit")}編輯</button>${!terminal?`<button onclick="window.openCalendarAdjust('${o.id}')">${uiIcon("calendar")}調整日期／房間</button>`:""}${(LIFECYCLE_NEXT[lifecycleStatus(o)]||[]).length?`<button class="workflow-action" onclick="window.advanceLifecycle('${o.id}')">${uiIcon("arrow-right")}變更狀態</button>`:""}${WORKFLOW_NEXT[o.workflowStatus]?`<button class="workflow-action" onclick="window.advanceOrderWorkflow('${o.id}')">${uiIcon("arrow-right")}${esc(WORKFLOW_NEXT[o.workflowStatus])}</button>`:""}<button onclick="window.openPaymentForOrder('${o.id}')">${uiIcon("wallet")}收款</button><button class="official-line-button" onclick="window.copyLineMessage('${o.id}')">${uiIcon("message")}官方 LINE</button><button onclick="window.deleteOrder('${o.id}')">${uiIcon("trash")}刪除</button>`;
+}
+function renderOrderMobileCards(list){
+ const box=$("#orderMobileList");if(!box)return;
+ box.innerHTML=list.map(o=>{const p=paymentSummary(o);return `<article class="order-mobile-card"><div class="mobile-card-head"><div><strong>${esc(o.name)}</strong><span>${esc(o.id)}・${esc(o.phone)}</span></div><span class="badge ${lifecycleClass(lifecycleStatus(o))}">${esc(lifecycleStatus(o))}</span></div><dl><div><dt>住宿日期</dt><dd>${o.checkin}～${o.checkout}</dd></div><div><dt>方案</dt><dd>${esc(o.package)}</dd></div><div class="wide"><dt>房間</dt><dd>${orderRooms(o).map(roomName).map(esc).join("、")}</dd></div><div><dt>最新應收</dt><dd>${money(p.adjustedTotal)}</dd></div><div><dt>剩餘應收</dt><dd>${money(p.remaining)}</dd></div><div class="wide"><dt>服務</dt><dd>${serviceTags(o).map(esc).join("、")||"—"}</dd></div></dl><div class="mobile-card-actions">${orderActionButtons(o)}</div></article>`}).join("")||'<div class="empty">沒有符合條件的訂單。</div>';
+ applyStaticIcons(box);
+}
 function renderOrders(){
  const q=$("#orderSearch")?.value.trim().toLowerCase()||"", st=$("#statusFilter")?.value||"";
  const list=orders.filter(o=>(!st||lifecycleStatus(o)===st)&&(!q||[o.id,o.name,o.phone].join(" ").toLowerCase().includes(q))).sort((a,b)=>b.checkin.localeCompare(a.checkin));
+ renderOrderMobileCards(list);
  $("#orderTableBody").innerHTML=list.map(o=>`<tr>
  <td><strong>${esc(o.id)}</strong>${o.isBackfill?`<span class="badge backfill" title="補登原因：${esc(o.backfillReason)}">補登</span>`:""}<span class="guest-detail">${esc(o.source)}</span>${o.isBackfill?`<span class="guest-detail backfill-meta">原因：${esc(o.backfillReason)}${o.backfillOperator?`・人員：${esc(o.backfillOperator)}`:""}${o.backfillTime?`・時間：${esc(new Date(o.backfillTime).toLocaleString("zh-TW",{hour12:false}))}`:""}</span>`:""}</td>
  <td><strong>${esc(o.name)}</strong><span class="guest-detail">${esc(o.phone)}</span></td>
@@ -495,7 +505,7 @@ function renderOrders(){
  <td><div class="service-tags">${serviceTags(o).map(x=>`<span>${esc(x)}</span>`).join("")||"-"}</div></td>
  <td class="money-cell"><strong>${money(o.total)}</strong><span class="guest-detail">已收 ${money(o.paid)}・未收 ${money(Math.max(0,o.total-o.paid))}</span><div class="money-progress"><i style="width:${Math.min(100,o.total?o.paid/o.total*100:0)}%"></i></div></td>
  <td><span class="badge ${lifecycleClass(lifecycleStatus(o))}" title="${esc(lifecycleHistoryText(o))}">${esc(lifecycleStatus(o))}</span><span class="workflow-badge">${esc(o.workflowStatus)}</span>${(o.lifecycleHistory||[]).length?`<span class="guest-detail">歷程 ${(o.lifecycleHistory||[]).length} 筆</span>`:""}</td>
- <td><div class="table-actions"><button onclick="window.editOrder('${o.id}')">${uiIcon("edit")}編輯</button>${(LIFECYCLE_NEXT[lifecycleStatus(o)]||[]).length?`<button class="workflow-action" onclick="window.advanceLifecycle('${o.id}')">${uiIcon("arrow-right")}變更狀態</button>`:""}${WORKFLOW_NEXT[o.workflowStatus]?`<button class="workflow-action" onclick="window.advanceOrderWorkflow('${o.id}')">${uiIcon("arrow-right")}${esc(WORKFLOW_NEXT[o.workflowStatus])}</button>`:""}<button class="official-line-button" title="聯絡眉原六官方 LINE" onclick="window.copyLineMessage('${o.id}')">${uiIcon("message")}官方 LINE</button><button onclick="window.deleteOrder('${o.id}')">${uiIcon("trash")}刪除</button></div></td>
+ <td><div class="table-actions">${orderActionButtons(o)}</div></td>
  </tr>`).join("")||'<tr><td colspan="8">沒有符合條件的訂單。</td></tr>';
  $("#paymentOrder").innerHTML=orders.filter(o=>!["已取消","No Show"].includes(lifecycleStatus(o))).map(o=>{const p=paymentSummary(o);return `<option value="${o.id}">${o.id}｜${esc(o.name)}｜剩餘 ${money(p.remaining)}</option>`}).join("");
  updatePaymentDialogSummary();
@@ -704,6 +714,7 @@ function clearTouchDragVisuals(){
 }
 function installTouchCalendarDrag(){
   const grid=$("#calendarGrid");
+  if(window.matchMedia("(max-width: 900px)").matches)return;
   if(!grid||!("PointerEvent" in window))return;
   $$(".event",grid).forEach(eventEl=>{
     eventEl.addEventListener("pointerdown",e=>{
@@ -790,10 +801,10 @@ function renderCalendar(){
      if(!o){events+='<div class="event-placeholder" aria-hidden="true"></div>';continue;}
      const first=iso===o.checkin,last=iso===addDays(o.checkout,-1);
      const segment=first&&last?"single":first?"first":last?"last":"middle";
-     events+=`<div class="event ${statusClass(o.status)} event-${segment}" draggable="true" data-id="${o.id}" data-mode="move" data-lane="${lane}" role="button" tabindex="0" title="開啟訂單：${esc(o.name)}｜${esc(calendarOrderSummary(o))}">
-       ${first?`<span class="resize-handle" draggable="true" data-id="${o.id}" data-mode="start" title="調整入住日期"></span>`:`<span class="event-spacer"></span>`}
+     events+=`<div class="event ${statusClass(o.status)} event-${segment}" draggable="${window.matchMedia("(min-width: 901px)").matches}" data-id="${o.id}" data-mode="move" data-lane="${lane}" role="button" tabindex="0" title="開啟訂單：${esc(o.name)}｜${esc(calendarOrderSummary(o))}">
+       ${first?`<span class="resize-handle" draggable="${window.matchMedia("(min-width: 901px)").matches}" data-id="${o.id}" data-mode="start" title="調整入住日期"></span>`:`<span class="event-spacer"></span>`}
        <span class="event-content"><span class="event-name">${esc(o.name)}</span><span class="event-room">${esc(calendarOrderSummary(o))}</span></span>
-       ${last?`<span class="resize-handle" draggable="true" data-id="${o.id}" data-mode="end" title="調整退房日期"></span>`:`<span class="event-spacer"></span>`}
+       ${last?`<span class="resize-handle" draggable="${window.matchMedia("(min-width: 901px)").matches}" data-id="${o.id}" data-mode="end" title="調整退房日期"></span>`:`<span class="event-spacer"></span>`}
      </div>`;
    }
    const dayLocks=roomLocks.filter(l=>iso>=l.start&&iso<=l.end);
@@ -810,12 +821,12 @@ function renderCalendar(){
    el.addEventListener("click",e=>{
      if(Date.now()<suppressCalendarClickUntil){e.preventDefault();e.stopPropagation();return;}
      if(e.target.classList.contains("resize-handle")) return;
-     window.openOrderFromCalendar(el.dataset.id);
+     window.matchMedia("(max-width: 900px)").matches?window.openCalendarAdjust(el.dataset.id):window.openOrderFromCalendar(el.dataset.id);
    });
    el.addEventListener("keydown",e=>{
      if(e.key==="Enter"||e.key===" "){
        e.preventDefault();
-       window.openOrderFromCalendar(el.dataset.id);
+       window.matchMedia("(max-width: 900px)").matches?window.openCalendarAdjust(el.dataset.id):window.openOrderFromCalendar(el.dataset.id);
      }
    });
  });
@@ -838,6 +849,24 @@ function renderCalendar(){
  });
  installTouchCalendarDrag();
 }
+window.openCalendarAdjust=id=>{
+ const o=orders.find(x=>x.id===id);if(!o)return;
+ if(["已取消","No Show","已退房"].includes(lifecycleStatus(o)))return toast("此訂單狀態不可調整日期或房間");
+ $("#calendarAdjustOrderId").value=o.id;$("#calendarAdjustOrderLabel").textContent=`${o.id}｜${o.name}`;
+ $("#calendarAdjustCheckin").value=o.checkin;$("#calendarAdjustCheckout").value=o.checkout;
+ $("#calendarAdjustCheckin").min=todayISO;$("#calendarAdjustCheckout").min=addDays(todayISO,1);
+ $("#calendarAdjustRooms").innerHTML=roomMaster.map(r=>`<label class="check-item"><input type="checkbox" value="${r.id}" ${orderRooms(o).includes(r.id)?"checked":""}><span>${esc(r.name)}</span></label>`).join("");
+ $("#calendarAdjustWarning").classList.add("hidden");$("#calendarAdjustDialog").showModal();
+};
+$("#calendarAdjustForm")?.addEventListener("submit",e=>{
+ e.preventDefault();const id=$("#calendarAdjustOrderId").value,o=orders.find(x=>x.id===id);if(!o)return toast("找不到訂單");
+ if(["已取消","No Show","已退房"].includes(lifecycleStatus(o)))return toast("此訂單狀態不可調整");
+ const rooms=$$("#calendarAdjustRooms input:checked").map(x=>x.value);
+ const next={...o,checkin:$("#calendarAdjustCheckin").value,checkout:$("#calendarAdjustCheckout").value,rooms};
+ let error="";if(!next.checkin||!next.checkout)error="請完整選擇入住與退房日期";else if(next.checkout<=next.checkin)error="退房日期必須晚於入住日期";else if(!rooms.length)error="請至少選擇一個住宿單位";else error=validateBookingRules(next,o.id);
+ const warning=$("#calendarAdjustWarning");if(error){warning.textContent=error;warning.classList.remove("hidden");return toast(error);}
+ Object.assign(o,next);persist();$("#calendarAdjustDialog").close();renderAll();toast("日期與房間已更新");
+});
 function applyCalendarDrop(date){
  if(!dragInfo)return; if(isPastDate(date))return toast("過去日期不可拖曳建立一般房況"); const o=orders.find(x=>x.id===dragInfo.id); if(!o)return; const next={...o,rooms:[...o.rooms]};
  if(dragInfo.mode==="move"){const nights=daysBetween(o.checkin,o.checkout);next.checkin=date;next.checkout=addDays(date,nights);}
@@ -926,7 +955,14 @@ function paymentDetailRows(order){
  }).join("");
  return opening+records||'<tr><td colspan="5">尚無收付款紀錄。</td></tr>';
 }
+function paymentRecordCards(order){
+ const summary=paymentSummary(order);const items=[];if(summary.opening>0)items.push(`<div class="payment-record-card"><span>訂單預收訂金</span><strong>${money(summary.opening)}</strong><small>訂單建立時帶入・已納入</small></div>`);
+ summary.records.slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).forEach(p=>items.push(`<div class="payment-record-card"><span>${esc(p.date)}・${esc(p.type)}</span><strong class="${p.amount<0?'amount-negative':''}">${p.amount<0?'-':''}${money(Math.abs(p.amount))}</strong><small>${p.type==="加收費用"?`${esc(p.category||"其他")}｜${esc(p.description||"")}`:esc(p.method)}・${p.verified?"已核帳":"待核帳"}</small></div>`));return items.join("")||'<div class="empty">尚無收付款紀錄。</div>';
+}
+function renderPaymentMobileCards(){const box=$("#paymentMobileList");if(!box)return;box.innerHTML=orders.slice().sort((a,b)=>b.checkin.localeCompare(a.checkin)).map(o=>{const p=paymentSummary(o);return `<article class="payment-mobile-card"><div class="mobile-card-head"><div><strong>${esc(o.name)}</strong><span>${esc(o.id)}</span></div><span>${paymentStatus(p)}</span></div><div class="payment-mobile-summary"><div><span>原始訂單</span><strong>${money(o.total)}</strong></div><div><span>加收費用</span><strong>+${money(p.additionalCharges)}</strong></div><div><span>最新應收</span><strong>${money(p.adjustedTotal)}</strong></div><div><span>已收淨額</span><strong>${money(p.net)}</strong></div><div><span>已退款</span><strong>${money(p.refunds)}</strong></div><div><span>剩餘應收</span><strong>${money(p.remaining)}</strong></div></div><details><summary>查看帳務明細</summary><div class="payment-record-list">${paymentRecordCards(o)}</div></details><div class="mobile-card-actions"><button class="primary" onclick="window.openPaymentForOrder('${o.id}')">${uiIcon("wallet")}登記收款／退款</button></div></article>`}).join("")||'<div class="empty">尚無訂單。</div>';applyStaticIcons(box);}
+window.openPaymentForOrder=id=>{navigate("payments");$("#paymentForm").reset();$("#paymentDate").value=todayISO;renderOrders();$("#paymentOrder").value=id;$("#paymentDescription").value="";updatePaymentDialogSummary();$("#paymentDialog").showModal();};
 function renderPayments(){
+ renderPaymentMobileCards();
  const rows=orders.slice().sort((a,b)=>b.checkin.localeCompare(a.checkin)).map(o=>{
    const p=paymentSummary(o);
    return `<tr class="payment-order-row"><td>${esc(o.id)}</td><td>${esc(o.name)}</td><td>${money(o.total)}</td><td>${money(p.additionalCharges)}</td><td>${money(p.adjustedTotal)}</td><td>${money(p.deposit)}</td><td>${money(p.net)}</td><td>${money(p.refunds)}</td><td>${money(p.remaining)}</td><td>${paymentStatus(p)}</td><td><button type="button" class="compact-button" data-icon="file-text" onclick="window.togglePaymentDetail('${o.id}')">明細</button></td></tr><tr id="payment-detail-${o.id}" class="payment-detail-row hidden"><td colspan="11"><div class="payment-detail-wrap"><div class="payment-summary-inline"><span>原始訂單<strong>${money(o.total)}</strong></span><span>加收費用<strong>+${money(p.additionalCharges)}</strong></span><span>最新應收<strong>${money(p.adjustedTotal)}</strong></span><span>預收訂金<strong>${money(p.deposit)}</strong></span><span>已收淨額<strong>${money(p.net)}</strong></span><span>已退款<strong>${money(p.refunds)}</strong></span><span>剩餘應收<strong>${money(p.remaining)}</strong></span></div><div class="table-wrap"><table class="payment-detail-table"><thead><tr><th>日期</th><th>類型</th><th>方式／說明</th><th>金額</th><th>核帳</th></tr></thead><tbody>${paymentDetailRows(o)}</tbody></table></div></div></td></tr>`;

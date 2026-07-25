@@ -3,12 +3,17 @@
   "version": "1.2",
   "build": "2A",
   "milestone": "A4",
-  "release": "RC2 Hotfix 2",
+  "release": "RC3",
   "released": "2026-07-26",
-  "schema": 10,
-  "status": "Release Candidate Hotfix 2",
-  "baseline": "Milestone A4 RC2 Hotfix — Payment Integrity Control",
-  "ui": "Enterprise UI v1.0 Official Design Lock",
-  "date": "2026-07-26",
-  "hotfix": "Additional Charge Control"
+  "schema": 11,
+  "status": "Milestone A4 RC3 LOCK / Build 2A LOCK",
+  "baseline": "Milestone A4 RC2 Hotfix 2 — Additional Charge Control",
+  "scope": "Mobile & Responsive Integration",
+  "officialStable": false,
+  "qaTargets": [
+    "iPhone Safari responsive profile",
+    "Android Chrome responsive profile",
+    "iPad responsive profile",
+    "Desktop Chromium"
+  ]
 }

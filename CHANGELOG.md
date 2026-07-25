@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## Enterprise V1.2 Build 2A — Milestone A4 RC3 Mobile & Responsive Integration — 2026-07-26
+
+- 手機版訂單管理新增原生卡片清單，保留搜尋與生命週期篩選。
+- 手機卡片提供編輯、調整日期／房間、狀態流程、收款、官方 LINE 與刪除操作。
+- 手機版收款管理改為卡片式摘要與可展開帳務明細，不再依賴桌機寬表格。
+- 登記收款、退款、加收費用視窗於手機改為底部全螢幕抽屜，含安全區與固定操作列。
+- 新增「調整日期／房間」流程；手機房況日曆不再安裝觸控拖曳。
+- 調整流程執行日期先後、過期日期、房號鎖定、房況衝突、住宿單位與合法狀態檢查。
+- 桌機房況日曆仍保留拖曳平移及入住／退房邊界調整。
+- 付款摘要、長文字、按鈕與帳務明細加入 overflow-wrap 與單欄響應式控制。
+- 完成 Chromium 響應式 Browser QA：390×844、820×1180、1440×900。
+- 狀態：Milestone A4 RC3 LOCK / Build 2A LOCK；非 Official Stable。
+
+
 ## Enterprise V1.2 Build 2A — Milestone A4 RC2 Hotfix 2
 ### Additional Charge Control — 2026-07-26
 
