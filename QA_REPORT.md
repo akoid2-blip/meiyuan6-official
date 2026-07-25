@@ -1,37 +1,36 @@
-# Production V365.2.2 Full QA Report
+# Enterprise V1.1 Phase 1 RC3.2.2 Hotfix QA Report
 
-Date: 2026-07-14  
-Result: **PASS — Ready for Netlify deployment**
+## LINE 官方帳號入口
+- PASS：手機官方 LINE 使用設定中的 `lin.ee` 萬用連結。
+- PASS：桌機先嘗試 `line://` 應用程式協定。
+- PASS：桌機回退網址固定為 `https://tw.linebiz.com/login/`。
+- PASS：專案未寫入含 `state`、`code_challenge` 或 OAuth callback 的一次性登入網址。
+- PASS：所有 LINE 操作按鈕維持「🟢 官方 LINE」。
+- PASS：未新增 LINE QR Code 或 LINE QR 彈窗。
 
-## Verified
-- Production V365.2.2 version marker is present.
-- Navigation logo is enlarged to 64 px on desktop and remains responsive on smaller screens.
-- Logo asset is transparent and no separate background block is applied.
-- Three reservation CTA cards use equal-height grid rows and flex-column layout.
-- Telephone, LINE, and Facebook buttons use the same brand-gold style, width and minimum height.
-- Desktop CTA buttons are anchored after equal flexible content areas, providing one horizontal bottom baseline.
-- Facebook explanatory text is plain text; the CTA button is the only Facebook link inside the card.
-- Approved policy text is present: add-bed inquiry, breakfast ordering, NT$5,000 deposit, and 14-day extension notice.
-- “寵物友善” is absent.
-- No duplicate HTML IDs were found.
-- All referenced local images and assets exist.
-- All images include alt text.
-- Inline JavaScript passed Node syntax validation.
-- No zero-byte files remain in the package.
+## 回歸
+- PASS：RC3.2.1 手機／桌機裝置判斷保留。
+- PASS：RC3.2 天氣圖示與精簡天氣列保留。
+- PASS：RC3.1 跨日固定軌道、事件固定高度及人數輸入 UX 保留。
+- PASS：訂單拖曳、日期調整、衝突檢查與 LocalStorage 程式碼保留。
 
-## Responsive behavior
-- Desktop: three equal-width cards in one row with aligned CTA bottoms.
-- Tablet: cards collapse to one column for stable spacing and readability.
-- Mobile: CTA buttons expand to full card width and card height becomes content-driven.
+# Enterprise V1.1 Phase 1 RC3.2.1 Hotfix QA Report
 
-## Limitation
-A browser screenshot pass could not be completed in the execution environment because local HTTP and file URLs were blocked by the administrator policy. Structural, asset, CSS, HTML and JavaScript checks all passed.
+## LINE UX 回歸
+- PASS：官方 LINE 入口均顯示「🟢 官方 LINE」。
+- PASS：LINE 入口未引用或顯示 LINE QR Code。
+- PASS：手機流程直接導向設定中的官方 lin.ee 連結。
+- PASS：桌機流程先嘗試 `line://` 協定。
+- PASS：桌機未偵測到 App 切換時，1.2 秒後回退官方 LINE 網頁。
+- PASS：瀏覽器阻擋預開分頁時，仍會以新分頁嘗試開啟網頁。
+- PASS：複製訂單訊息後沿用相同 LINE 開啟流程。
+- PASS：沒有新增 LINE QR 彈窗或遮罩。
 
-## Uploaded homepage integration verification — 2026-07-21
-- Source file integrated as root `index.html`: PASS
-- Previous homepage rollback copy retained: PASS
-- HTML document structure check: PASS
-- Local asset reference existence check: PASS
-- JSON data parse check: PASS
-- Manifest regenerated: PASS
-- ZIP integrity test: PASS
+## RC3.2／RC3.1 回歸
+- PASS：天氣圖示與精簡天氣列保留。
+- PASS：跨日訂單固定軌道與固定高度保留。
+- PASS：入住人數首次聚焦清空 UX 保留。
+- PASS：拖曳、日期調整與房況衝突檢查相關程式碼保留。
+
+## 說明
+桌機瀏覽器無法百分之百確認外部 App 是否成功開啟；此版本以頁面可見狀態判斷並提供官方網頁回退，避免操作中斷。

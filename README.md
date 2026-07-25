@@ -1,15 +1,32 @@
-# Production V365.4 Enterprise Dynamic CMS Edition – Official Stable
+# Meiyuan6 Booking Admin System
+## Enterprise V1.1 — Phase 1 RC1
 
-基準：Production V365.2.2 Official Stable。此版本保留 Logo、品牌色、固定版型與 RWD，並新增 Decap CMS 管理介面。
+第一階段核心修正版：
 
-## 後台入口
-部署後前往 `/admin/`。首次使用須在 Netlify 啟用 Identity 與 Git Gateway，並邀請管理員帳號。
+- Dashboard 今日營運資訊
+- 房況日曆穩定載入
+- 房間層級衝突檢查
+- 舊版 LocalStorage 資料自動轉換
+- 舊資料首次啟動自動備份
+- 模組錯誤隔離，單一錯誤不再中斷整套系統
 
-## 可管理內容
-首頁主視覺、房型、館內設施、入住須知、訂房政策、FAQ、周邊景點、最新消息／優惠、部落格、聯絡資訊與 SEO。
+### 使用
+解壓縮後開啟 `index.html`。
 
-## 品牌鎖定
-Logo、品牌色、字型、Header、Footer、版型、CSS、JavaScript、動畫、RWD、浮動按鈕與 LINE 彈窗不在 CMS 編輯欄位中。
+帳號：`admin`  
+密碼：`123456`
 
-## 電子郵件
-`data/site.json` 內 `show_email` 控制是否顯示；電子郵件尚未指定，因此預設關閉。
+### 第一階段驗收
+1. 首頁 KPI 是否正常。
+2. 房況日曆是否出現完整月份格線。
+3. 上月、下月及今天按鈕是否正常。
+4. 拖曳訂單是否能調整日期。
+5. 日期或房間衝突時是否阻止變更。
+6. 關閉重開後資料是否保留。
+
+
+## RC3 更新摘要
+- Enterprise 房況日曆兩行固定高度與跨日一致顯示。
+- Dashboard 每日營運中心、待發 LINE、埔里即時天氣。
+- 金額千分位輸入 UX 與收款進度顯示。
+- Open-Meteo 僅用於即時天氣；離線時系統會顯示降級訊息，訂房功能不受影響。

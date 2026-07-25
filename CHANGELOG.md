@@ -1,27 +1,78 @@
-# Production V365.5.3 Enterprise Dynamic CMS RC2
+# Enterprise V1.1 Phase 1 RC3.2.2 Hotfix
 
-- 修復 Hero 與房型輪播。
-- 修復住宿須知／訂房政策／FAQ 收合。
-- 新增統一前端控制器 `assets/js/site-ui.js`。
-- 移除 CMS Accordion 重複事件綁定。
+- 手機「🟢 官方 LINE」維持使用 `https://lin.ee/933tuhU`，優先交由 LINE App 開啟。
+- Windows／macOS 先嘗試呼叫已安裝的 LINE 應用程式。
+- 桌機未成功開啟應用程式時，改以 LINE 官方穩定入口 `https://tw.linebiz.com/login/` 進入官方帳號管理後台。
+- 不採用包含 `state`、`code_challenge` 與 OAuth callback 的一次性登入長網址。
+- 保留 RC3.2.1 的 QR Code 移除、天氣圖示、跨日固定軌道與既有回歸功能。
+
+# Enterprise V1.1 Phase 1 RC3.2.1 Hotfix
+
+- 所有官方 LINE 入口統一為「🟢 官方 LINE」按鈕。
+- LINE 流程不顯示 QR Code 或中間彈窗。
+- 手機使用官方 lin.ee 萬用連結，交由作業系統優先開啟 LINE App。
+- Windows／macOS 先嘗試呼叫 LINE Desktop；未安裝、未成功切換或瀏覽器阻擋時，1.2 秒後自動開啟官方 LINE 網頁。
+- 今日待發 LINE、訂單列表、入住檢查及整合設定共用相同開啟邏輯。
+- 保留 RC3.2 天氣圖示、RC3.1 跨日固定軌道及既有衝突檢查。
 
 # CHANGELOG
 
-## V365.4.0 — 2026-07-21
-- 升級為企業級動態 CMS 架構。
-- 新增 Hero、房型、設施、政策、FAQ、景點、消息、文章、聯絡資訊與 SEO 管理。
-- 新增媒體庫、草稿／審核／發布流程。
-- 新增 Git 版本紀錄、回復基礎、部署與操作紀錄說明。
-- 保留 V365.2.2 品牌版型。
+## Enterprise V1.1 Phase 1 RC3.2 — 2026-07-25
+- 埔里天氣列加入動態天氣圖示（晴、多雲、雨、霧、雷雨）。
+- 官方 LINE 按鈕改為直接開啟 LINE App／網頁版，不顯示 QR Code。
+- 手機使用官方 lin.ee 萬用連結直接交由系統開啟 LINE App；桌機開啟 LINE 網頁。
+- 今日待發 LINE 與訂單 LINE 快捷按鈕共用相同直接開啟邏輯。
 
-## 2026-07-21 — Uploaded homepage integration
-- Integrated the user-supplied `index(20).html` as the production root `index.html`.
-- Preserved all supplied layout, content, responsive behavior, LINE modal, navigation, facilities and attraction updates.
-- Archived the preceding V365.4 homepage at `backup/index_before_uploaded_merge.html` for rollback.
-- Regenerated QA records, manifest and package SHA256.
+# CHANGELOG
 
-## V365.5 Enterprise Dynamic CMS Edition
-- Preserved Editorial Workflow.
-- Unified CMS image URLs as root-relative paths.
-- Added dedicated CMS upload folder.
-- Connected frontend facilities, attractions, rooms, SEO, hero, policies, FAQ, news and blog to JSON data with embedded-content fallback.
+## Enterprise V1.1 Phase 1 RC3.1 Hotfix — 2026-07-25
+
+### Fixed
+- 埔里天氣卡由大型工作區卡片改為單列資訊列，保留溫度、天氣、高低溫、降雨與更新時間。
+- 房況日曆導入固定軌道配置，同一筆跨日訂單在整個住宿期間維持相同垂直位置。
+- 房況事件高度、內距、字級、行高及圓角完全一致。
+- 入住人數欄位每次開啟訂單後首次聚焦會自動清除原值，可直接輸入新數字。
+- 新增入住人數至少 1 人的送出驗證。
+
+### Preserved
+- 拖曳整筆訂單、調整入住／退房日期。
+- 房況衝突檢查與 LocalStorage 相容性。
+- RC3 Dashboard、訂單與 Phase 2 預留資料介面。
+
+
+## Enterprise V1.1 Phase 1 RC3 — 2026-07-25
+
+### 房況日曆 Enterprise UI
+- 每筆訂單統一為固定 46px 高度的兩行式事件卡。
+- 跨日訂單於每一天顯示相同旅客姓名與房型／房號摘要。
+- 全館包棟顯示「全館包棟｜房間數」；小包棟顯示「小包棟｜房間數」。
+- 一般訂房顯示精簡房號／房型摘要，長文字自動省略。
+- 新增跨日首段、中段、末段與單日段落視覺狀態。
+- 保留整筆拖曳平移、左右日期調整把手與房況衝突阻擋。
+- 保留日曆點擊訂單後切換至訂單管理並開啟編輯。
+
+### Dashboard Enterprise 工作台
+- 重整 8 項 KPI：今日入住、今日退房、今日住宿人數、房間使用率、今日應收、今日已收、待清潔、營運提醒。
+- 新增「今日待發 LINE」佇列，整理今日入住、明日入住與早餐確認。
+- 新增埔里即時天氣卡，顯示目前溫度、天氣、高低溫與降雨機率。
+- 天氣服務無法連線時顯示安全降級狀態，不影響其他功能。
+- 今日營運中心整合入住、退房與房務任務。
+- 近期入住改為一致高度卡片網格。
+
+### UI / UX 統一
+- 統一卡片圓角、邊框、標題高度、控制項圓角與按鈕高度。
+- 統一 Dashboard 工作卡與次要資訊區間距。
+- 統一標籤高度與字級。
+- 改善 1250px、900px 以下響應式排列。
+
+### 訂單與金額 UX
+- 訂單總額、已收金額、車資、收款金額改為千分位顯示。
+- 聚焦輸入時切回純數字並自動全選；失焦時自動格式化。
+- 僅接受數字輸入，持續避免前導零問題。
+- 訂單列表新增已收、未收與收款進度條。
+- 保留既有早餐、叫車、收款資料結構，作為 Phase 2 介面基礎。
+
+## Enterprise V1.1 Phase 1 RC2
+- 修正台灣時區造成房況日曆日期偏移一天。
+- 點擊房況日曆訂單可切換至訂單管理並直接開啟該筆訂單。
+- 金額欄位開始輸入時自動清除 0 並移除前導零。

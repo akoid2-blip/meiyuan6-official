@@ -1,0 +1,9 @@
+{
+  "product": "Meiyuan6 Booking Admin System",
+  "edition": "Enterprise V1.1 Phase 1 RC3.2.2",
+  "phase": 1,
+  "release_date": "2026-07-25",
+  "storage_schema": 2,
+  "status": "Release Candidate Hotfix",
+  "build": "Mobile Official LINE Universal Link / Desktop LINE Client Attempt + Official Account Manager Stable Login Fallback / RC3.2.1 Stability Base"
+}
