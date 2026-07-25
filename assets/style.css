@@ -123,3 +123,42 @@ button{min-height:38px;font-weight:750;letter-spacing:.01em}
 
 /* Enterprise V1.2 Build 1 — Checkout & Housekeeping Workflow */
 .housekeeping-stats{margin-bottom:18px}.room-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:20px}.room-status-card{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7}.room-status-card span{font-size:12px;font-weight:850;padding:5px 9px;border-radius:999px}.status-入住中 span{background:#e7eefb;color:#315c99}.status-待清掃 span{background:#fff0d4;color:#96630b}.status-清掃中 span{background:#f3eadf;color:#7a5939}.status-可入住 span{background:#e5f4e9;color:#267041}.task-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.task-actions{display:flex;gap:8px;margin-top:12px}.task-note{margin-top:8px;padding:8px;border-radius:8px;background:#f4f1eb;font-size:12px;color:var(--muted)}.checkin-action{background:#e8f4ed;color:#286a43;border-color:#b9d9c5}.checkout-action{background:#fff1df;color:#9a5b06;border-color:#e8c58f}.calendar-housekeeping{margin-top:5px;padding:4px 6px;border-radius:7px;background:#fff0d4;color:#855b13;font-size:10px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:900px){.room-status-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.room-status-grid{grid-template-columns:1fr}.table-actions{min-width:150px}}
+
+/* V1.2 Build 1.1 mobile template editor + calendar quick add */
+.calendar-cell[data-date]{cursor:pointer}.calendar-cell[data-date]:hover{box-shadow:inset 0 0 0 2px rgba(45,91,70,.22)}
+.template-edit-btn{flex:0 0 auto;background:#edf3ef;color:var(--brand);border-color:#bfd0c5;font-weight:800}
+@media(max-width:650px){.template-layout{display:flex;flex-direction:column}.template-item{padding:11px 8px}.template-edit-btn{min-width:72px;min-height:42px}.template-editor-actions>div{display:grid;grid-template-columns:1fr 1fr;width:100%}.template-editor-actions .danger{grid-column:1/-1}.template-layout textarea{min-height:55vh;font-size:16px}.calendar-cell[data-date]{min-height:116px}.day-num::after{content:" ＋";font-size:10px;color:var(--brand);opacity:.7}}
+
+/* V1.2 Build 1.2 — touch calendar drag */
+.calendar-grid .event{touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none}
+.calendar-grid .event.touch-dragging{position:relative;z-index:8;opacity:.86;transform:scale(1.03);box-shadow:0 8px 22px rgba(20,45,35,.28);cursor:grabbing;touch-action:none}
+@media(max-width:900px){.calendar-grid .event:active{filter:brightness(.97)}.calendar-cell.drag-over{outline-width:4px}}
+
+/* Enterprise V1.2 Build 1.3 — order-driven housekeeping */
+.housekeeping-record .task-card-head>div{display:flex;flex-direction:column;gap:3px}.task-order-id{font-size:11px;color:var(--muted);font-weight:700}.housekeeping-guest{font-size:17px;font-weight:850;margin:12px 0 8px}.housekeeping-meta{display:grid;gap:5px;font-size:12px;color:var(--muted)}.housekeeping-record .task-actions button{flex:1}.housekeeping-record{border-left:4px solid #d8c5a4}.task-column:nth-child(2) .housekeeping-record{border-left-color:#b68752}.task-column:nth-child(3) .housekeeping-record{border-left-color:#5f9770}@media(max-width:650px){.housekeeping-meta{font-size:14px}.housekeeping-guest{font-size:18px}.task-actions{display:grid;grid-template-columns:1fr 1fr}.task-actions button{min-height:46px}}
+/* Enterprise V1.2 Build 1.4 */
+.guest-mobile-list{display:none}.guest-edit-btn{font-weight:800}.template-item-actions{display:flex;gap:8px;flex:0 0 auto}.template-rename-btn,.template-content-btn{font-weight:800}.template-rename-btn{background:#f2ece2;color:var(--brand)}.template-content-btn{background:#edf3ef;color:var(--brand);border-color:#bfd0c5}
+@media(max-width:650px){
+ .guest-desktop-table{display:none}.guest-mobile-list{display:grid;gap:14px}.guest-mobile-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fff}.guest-mobile-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.guest-mobile-head strong{display:block;font-size:19px}.guest-mobile-head span{display:block;color:var(--muted);margin-top:4px}.guest-mobile-head button{min-height:44px;white-space:nowrap}.guest-mobile-card dl{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:16px 0 0}.guest-mobile-card dl div{min-width:0}.guest-mobile-card dl .wide{grid-column:1/-1}.guest-mobile-card dt{font-size:12px;color:var(--muted);margin-bottom:3px}.guest-mobile-card dd{margin:0;overflow-wrap:anywhere}
+ .template-item{align-items:flex-start}.template-item-actions{display:grid;grid-template-columns:1fr 1fr;width:auto}.template-item-actions button{min-height:42px;padding-inline:12px}.template-editor-actions{align-items:flex-start}
+}
+
+/* Enterprise V1.2 Build 2A */
+.calendar-cell.today{background:#f0f8f2;box-shadow:inset 0 0 0 3px var(--brand)}.today-badge{margin-left:6px;padding:2px 6px;border-radius:999px;background:var(--brand);color:#fff;font-size:10px}.calendar-cell.past{background:#f3f2ef;color:#8b8881;cursor:not-allowed}.calendar-cell.past:hover{box-shadow:none}.calendar-cell.past .day-num{opacity:.68}.calendar-lock{margin-top:5px;padding:4px 6px;border-radius:7px;background:#ece9e4;color:#5b5650;font-size:10px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.room-lock-panel{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}.room-lock-panel h4{margin:0 0 10px}.room-lock-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-top:8px;background:#faf9f6}.room-lock-item strong,.room-lock-item small{display:block}.room-lock-item small{margin-top:3px;color:var(--muted)}.badge.backfill{margin-left:6px;background:#eee2fb;color:#65418a}.workflow-badge{display:block;margin-top:5px;font-size:11px;font-weight:800;color:var(--brand)}.workflow-action{background:#edf3ef;color:var(--brand);border-color:#bfd0c5}.backfill-fields{border-color:#ccb4e3;background:#fbf8fe}.backfill-fields legend{color:#65418a;font-weight:850}
+@media(max-width:650px){.room-lock-item{align-items:flex-start}.calendar-cell.past .day-num::after{content:""}.today-badge{display:block;width:max-content;margin:2px 0 0}}
+
+
+/* Enterprise V1.2 Build 2C — Unified Icon Design System */
+.ui-icon{width:1.1em;height:1.1em;flex:0 0 auto;display:inline-block;vertical-align:-.18em}
+button[data-icon],button:has(>.ui-icon),a:has(>.ui-icon){display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.sidebar nav button[data-icon]{display:flex;align-items:center;gap:11px}
+.sidebar nav .ui-icon{width:18px;height:18px;opacity:.9}
+.icon-only{width:40px;min-width:40px;padding:0;gap:0;border-radius:10px}
+.icon-only .ui-icon{width:20px;height:20px}
+.dialog-head .icon-only{background:transparent}
+.template-item-actions{display:flex;grid-template-columns:none}
+.template-item-actions .template-rename-btn{min-width:112px}
+.template-content-btn{display:none!important}
+.official-line-button .ui-icon{width:17px;height:17px}
+.table-actions button,.task-actions button,.guest-edit-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+@media(max-width:650px){.template-item-actions{display:flex;width:auto}.template-item-actions .template-rename-btn{min-width:104px}.ui-icon{width:1.15em;height:1.15em}}

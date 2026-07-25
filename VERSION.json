@@ -1,10 +1,9 @@
 {
-  "product": "Meiyuan6 Booking Admin System",
-  "edition": "Enterprise V1.2",
-  "release": "Build 1",
-  "version": "1.2.0-build.1",
-  "buildDate": "2026-07-25",
-  "storageSchema": 4,
-  "status": "Feature Build",
-  "build": "Check-in / Check-out / Housekeeping Workflow / Dashboard and Calendar Sync"
+  "product": "Meiyuan6 Booking Admin Enterprise",
+  "version": "Enterprise V1.2",
+  "build": "2C",
+  "milestone": "Enterprise UI Design System",
+  "released": "2026-07-25",
+  "schema": 6,
+  "status": "Official QA Candidate"
 }

@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 1</p>
+    <p>Enterprise V1.2 · Build 2C</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -26,27 +26,27 @@
   <aside class="sidebar">
     <div class="sidebar-brand"><strong>眉原六民宿</strong><span>Booking Admin</span></div>
     <nav id="nav">
-      <button data-page="dashboard" class="active">首頁總覽</button>
-      <button data-page="calendar">房況日曆</button>
-      <button data-page="orders">訂單管理</button>
-      <button data-page="checkin">入住管理</button>
-      <button data-page="payments">收款管理</button>
-      <button data-page="housekeeping">房務管理</button>
-      <button data-page="guests">旅客資料</button>
-      <button data-page="templates">模板中心</button>
-      <button data-page="reports">營運報表</button>
-      <button data-page="settings">系統設定</button>
+      <button data-icon="home" data-page="dashboard" class="active">首頁總覽</button>
+      <button data-icon="calendar" data-page="calendar">房況日曆</button>
+      <button data-icon="clipboard" data-page="orders">訂單管理</button>
+      <button data-icon="login" data-page="checkin">入住管理</button>
+      <button data-icon="wallet" data-page="payments">收款管理</button>
+      <button data-icon="sparkles" data-page="housekeeping">房務管理</button>
+      <button data-icon="users" data-page="guests">旅客資料</button>
+      <button data-icon="file-text" data-page="templates">模板中心</button>
+      <button data-icon="chart" data-page="reports">營運報表</button>
+      <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 1</div>
-    <button id="logoutBtn" class="logout">登出</button>
+    <div class="version">Enterprise V1.2<br>Build 2C</div>
+    <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
   <main class="main">
     <header class="topbar">
       <div><h2 id="pageTitle">首頁總覽</h2><p id="todayText"></p></div>
       <div class="topbar-actions">
-        <button id="openSettingsBtn">⚙ 系統設定</button>
-        <button id="quickAddOrder" class="primary">＋ 新增訂單</button>
+        <button id="openSettingsBtn" data-icon="settings">系統設定</button>
+        <button id="quickAddOrder" class="primary" data-icon="plus">新增訂單</button>
       </div>
     </header>
 
@@ -64,7 +64,7 @@
 
       <div class="dashboard-workspace">
         <section class="panel workspace-card">
-          <div class="panel-head"><div><h3>今日營運中心</h3><p class="section-note">入住、退房與房務工作一次掌握</p></div><button data-page-jump="checkin">入住管理</button></div>
+          <div class="panel-head"><div><h3>今日營運中心</h3><p class="section-note">入住、退房與房務工作一次掌握</p></div><button data-page-jump="checkin" data-icon="login">入住管理</button></div>
           <div id="dailyOperations" class="operations-list"></div>
         </section>
         <section class="panel workspace-card">
@@ -84,18 +84,18 @@
           <div id="alertList"></div>
         </section>
         <section class="panel">
-          <div class="panel-head"><h3>服務待辦</h3><button data-page-jump="orders">訂單服務</button></div>
+          <div class="panel-head"><h3>服務待辦</h3><button data-page-jump="orders" data-icon="clipboard">訂單服務</button></div>
           <div id="serviceTodoList"></div>
         </section>
       </div>
 
       <section class="panel">
-        <div class="panel-head"><h3>常用快捷中心</h3><button data-page-jump="settings">管理快捷</button></div>
+        <div class="panel-head"><h3>常用快捷中心</h3><button data-page-jump="settings" data-icon="settings">管理快捷</button></div>
         <div id="shortcutGrid" class="shortcut-grid"></div>
       </section>
 
       <section class="panel">
-        <div class="panel-head"><h3>近期入住</h3><button data-page-jump="orders">查看全部</button></div>
+        <div class="panel-head"><h3>近期入住</h3><button data-page-jump="orders" data-icon="arrow-right">查看全部</button></div>
         <div id="upcomingList" class="upcoming-grid"></div>
       </section>
     </section>
@@ -114,16 +114,16 @@
           </div>
         </div>
         <div class="calendar-controls">
-          <button id="prevMonth">‹</button><strong id="calendarTitle"></strong><button id="nextMonth">›</button>
-          <button id="calendarToday">今天</button>
+          <button id="prevMonth" class="icon-only" data-icon="chevron-left" aria-label="上個月"></button><strong id="calendarTitle"></strong><button id="nextMonth" class="icon-only" data-icon="chevron-right" aria-label="下個月"></button>
+          <button id="calendarToday">今天</button><button id="addRoomLockBtn" data-icon="lock">房號鎖定</button>
         </div>
-        <div id="calendarGrid" class="calendar-grid"></div>
+        <div id="calendarGrid" class="calendar-grid"></div><div class="room-lock-panel"><h4>房號鎖定紀錄</h4><div id="roomLockList"></div></div>
       </section>
     </section>
 
     <section id="orders" class="page">
       <section class="panel">
-        <div class="panel-head"><h3>訂單管理</h3><button id="addOrderBtn" class="primary">＋ 新增訂單</button></div>
+        <div class="panel-head"><h3>訂單管理</h3><button id="addOrderBtn" class="primary" data-icon="plus">新增訂單</button></div>
         <div class="filters">
           <input id="orderSearch" placeholder="搜尋姓名、電話、訂單編號">
           <select id="statusFilter">
@@ -142,14 +142,14 @@
 
     <section id="checkin" class="page">
       <section class="panel">
-        <div class="panel-head"><h3>入住管理</h3><button data-page-jump="templates">提取入住須知</button></div>
+        <div class="panel-head"><h3>入住管理</h3><button data-page-jump="templates" data-icon="file-text">提取入住須知</button></div>
         <div id="checkinList"></div>
       </section>
     </section>
 
     <section id="payments" class="page">
       <section class="panel">
-        <div class="panel-head"><h3>收款管理</h3><button id="addPaymentBtn" class="primary">＋ 登記收款</button></div>
+        <div class="panel-head"><h3>收款管理</h3><button id="addPaymentBtn" class="primary" data-icon="wallet">登記收款</button></div>
         <div class="table-wrap"><table>
           <thead><tr><th>日期</th><th>訂單</th><th>旅客</th><th>類型</th><th>方式</th><th>金額</th><th>核帳</th></tr></thead>
           <tbody id="paymentTableBody"></tbody>
@@ -165,7 +165,7 @@
         <article><span>可入住</span><strong id="hkReady">0</strong></article>
       </div>
       <section class="panel">
-        <div class="panel-head"><div><h3>房務管理</h3><p class="section-note">退房後自動建立清掃工作；完成清掃後房間恢復可入住。</p></div><button id="addTaskBtn" class="primary">＋ 新增任務</button></div>
+        <div class="panel-head"><div><h3>房務管理</h3><p class="section-note">房務工作由訂單退房自動建立；房務人員只需開始清掃、填寫紀錄並完成清掃。</p></div></div>
         <div id="roomStatusGrid" class="room-status-grid"></div>
         <div id="taskBoard" class="task-board"></div>
       </section>
@@ -174,13 +174,14 @@
     <section id="guests" class="page">
       <section class="panel">
         <div class="panel-head"><h3>旅客資料</h3></div>
-        <div class="table-wrap"><table>
+        <div class="table-wrap guest-desktop-table"><table>
           <thead><tr><th>姓名</th><th>聯絡方式</th><th>入住次數</th><th>累計消費</th><th>最近入住</th><th>備註</th><th>操作</th></tr></thead>
           <tbody id="guestTableBody"></tbody>
         </table></div>
+        <div id="guestMobileList" class="guest-mobile-list"></div>
       </section>
       <section class="panel wifi-panel">
-        <div class="panel-head"><h3>住客 Wi-Fi</h3><button id="copyWifiBtn">複製 Wi-Fi 資料</button></div>
+        <div class="panel-head"><h3>住客 Wi-Fi</h3><button id="copyWifiBtn" data-icon="copy">複製 Wi-Fi 資料</button></div>
         <div class="wifi-card">
           <img src="assets/wifi-deco_be25_Guest-qr.png" alt="Wi-Fi QR Code">
           <div><span>SSID</span><strong>deco_be25_Guest</strong><span>密碼</span><strong>liou6868</strong><p>可直接掃描 QR Code 連線。</p></div>
@@ -191,13 +192,13 @@
     <section id="templates" class="page">
       <div class="grid-2 template-layout">
         <section class="panel">
-          <div class="panel-head"><h3>模板清單</h3><button id="addTemplateBtn" type="button">＋ 新增模板</button></div>
+          <div class="panel-head"><h3>模板清單</h3><button id="addTemplateBtn" type="button" data-icon="plus">新增模板</button></div>
           <div id="templateList"></div>
         </section>
         <section class="panel">
           <div class="panel-head template-editor-actions">
-            <h3 id="templateTitle">入住須知</h3>
-            <div><button id="saveTemplateBtn" type="button">儲存模板</button><button id="copyTemplateBtn" type="button">複製文字</button><button id="deleteTemplateBtn" class="danger" type="button">刪除模板</button></div>
+            <div><h3 id="templateTitle">入住須知</h3><p class="section-note">此區編輯模板內容；模板標題請在左側清單按「改標題」。</p></div>
+            <div><button id="saveTemplateBtn" type="button" data-icon="save">儲存模板</button><button id="copyTemplateBtn" type="button" data-icon="copy">複製文字</button><button id="deleteTemplateBtn" class="danger" type="button" data-icon="trash">刪除模板</button></div>
           </div>
           <textarea id="templateContent" rows="30"></textarea>
         </section>
@@ -288,9 +289,12 @@
 
 <dialog id="orderDialog">
 <form id="orderForm">
-  <div class="dialog-head"><h3 id="orderDialogTitle">新增訂單</h3><button type="button" data-close="orderDialog">✕</button></div>
+  <div class="dialog-head"><h3 id="orderDialogTitle">新增訂單</h3><button type="button" class="icon-only" data-icon="x" data-close="orderDialog" aria-label="關閉"></button></div>
   <input type="hidden" id="orderId">
   <div class="form-grid">
+    <label>訂房類型<select id="orderType"><option value="normal">一般訂房</option><option value="backfill">補登訂房</option></select></label>
+    <label>營運流程<select id="workflowStatus"><option>建立</option><option>已確認</option><option>入住</option><option>退房</option><option>待清掃</option><option>清掃中</option><option>完成清掃</option><option>可入住</option></select></label>
+    <fieldset id="backfillFields" class="wide backfill-fields hidden"><legend>補登紀錄</legend><div class="service-grid"><label>補登原因<input id="backfillReason" placeholder="必填，例如：電話訂房漏登"></label><label>補登時間<input id="backfillTime" readonly></label><label>補登人員（預留）<input id="backfillOperator" placeholder="可留空"></label></div></fieldset>
     <label>旅客姓名<input id="guestName" required></label>
     <label>聯絡電話<input id="guestPhone" required></label>
     <label>入住日期<input id="checkinDate" type="date" required></label>
@@ -337,9 +341,16 @@
 </form>
 </dialog>
 
+<dialog id="roomLockDialog">
+<form id="roomLockForm">
+ <div class="dialog-head"><h3>新增房號鎖定</h3><button type="button" class="icon-only" data-icon="x" data-close="roomLockDialog" aria-label="關閉"></button></div>
+ <div class="form-grid"><label>房間<select id="lockRoom"></select></label><label>狀態<select id="lockType"><option value="maintenance">維修中</option><option value="unavailable">暫停出租</option><option value="service">保養中</option></select></label><label>起日<input id="lockStart" type="date" required></label><label>迄日<input id="lockEnd" type="date" required></label><label class="wide">原因<input id="lockReason" required></label></div>
+ <div class="dialog-actions"><button type="button" data-close="roomLockDialog">取消</button><button type="submit" class="primary">建立鎖定</button></div>
+</form></dialog>
+
 <dialog id="paymentDialog">
 <form id="paymentForm">
-  <div class="dialog-head"><h3>登記收款</h3><button type="button" data-close="paymentDialog">✕</button></div>
+  <div class="dialog-head"><h3>登記收款</h3><button type="button" class="icon-only" data-icon="x" data-close="paymentDialog" aria-label="關閉"></button></div>
   <div class="form-grid">
     <label>日期<input id="paymentDate" type="date" required></label>
     <label>訂單<select id="paymentOrder" required></select></label>
@@ -354,22 +365,25 @@
 
 <dialog id="taskDialog">
 <form id="taskForm">
-  <div class="dialog-head"><h3>新增房務任務</h3><button type="button" data-close="taskDialog">✕</button></div>
+  <div class="dialog-head"><h3>編輯房務紀錄</h3><button type="button" class="icon-only" data-icon="x" data-close="taskDialog" aria-label="關閉"></button></div>
   <div class="form-grid">
-    <label>日期<input id="taskDate" type="date" required></label>
-    <label>住宿單位<select id="taskRoom" required></select></label>
-    <label>任務<input id="taskTitle" value="退房清潔" required></label>
-    <label>狀態<select id="taskStatus"><option>待清掃</option><option>已安排</option><option>清掃中</option><option>待複查</option><option>已完成</option></select></label>
-    <label>房務人員<input id="taskAssignee" placeholder="尚未指派"></label>
-    <label class="wide">備註<textarea id="taskNote" rows="3" placeholder="備品補充、設備異常等"></textarea></label>
+    <label>退房日期<input id="taskDate" type="date" readonly></label>
+    <label>住宿單位<input id="taskRoomLabel" readonly></label>
+    <label>房客<input id="taskGuest" readonly></label>
+    <label>預定退房時間<input id="taskCheckout" readonly></label>
+    <label>房務狀態<select id="taskStatus"><option>待清掃</option><option>清掃中</option><option>已完成</option></select></label>
+    <label>房務人員<input id="taskAssignee" placeholder="輸入房務人員姓名"></label>
+    <label>開始時間<input id="taskStarted" readonly></label>
+    <label>完成時間<input id="taskCompleted" readonly></label>
+    <label class="wide">房務備註<textarea id="taskNote" rows="4" placeholder="補充備品、設備異常、清潔狀況等"></textarea></label>
   </div>
-  <div class="dialog-actions"><button type="button" data-close="taskDialog">取消</button><button class="primary" type="submit">儲存</button></div>
+  <div class="dialog-actions"><button type="button" data-close="taskDialog">取消</button><button class="primary" type="submit">儲存紀錄</button></div>
 </form>
 </dialog>
 
 <dialog id="guestDialog">
 <form id="guestForm">
-  <div class="dialog-head"><h3>編輯旅客資料</h3><button type="button" data-close="guestDialog">✕</button></div>
+  <div class="dialog-head"><h3>編輯旅客資料</h3><button type="button" class="icon-only" data-icon="x" data-close="guestDialog" aria-label="關閉"></button></div>
   <input type="hidden" id="guestOriginalPhone">
   <div class="form-grid">
     <label>姓名<input id="profileName" required></label>
