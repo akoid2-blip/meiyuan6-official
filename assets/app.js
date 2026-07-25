@@ -39,7 +39,7 @@ const roomMaster=[
 ];
 const roomName = id => roomMaster.find(r=>r.id===id)?.name || id;
 
-const templates = {
+const defaultTemplates = {
  "入住須知":`🌿 眉原六民宿｜入住須知
 
 親愛的貴賓您好，感謝您選擇入住眉原六民宿。
@@ -69,7 +69,8 @@ const templates = {
 日期：{{早餐日期}}
 早餐店：{{早餐店}}
 份數：{{早餐份數}}
-送達時間：{{送達時間}}
+送餐天數：{{送餐天數}} 天
+每日送達時間：{{送達時間}}
 如需調整，請提前與管家聯繫。`,
  "叫車通知":`您好，您的叫車預約資料如下：
 日期：{{叫車日期}}
@@ -98,15 +99,15 @@ const defaultShortcuts=[
  {icon:"🌐",name:"眉原六官網",url:"https://meiyuan6.tw/"}
 ];
 const seedOrders=[
- {id:"MY6-260801",name:"陳小姐",phone:"0912-345-678",checkin:addDays(todayISO,1),checkout:addDays(todayISO,3),package:"小包棟（8～15人）",rooms:["R1","R2","R4"],count:10,source:"官方 LINE",status:"已付訂金",total:28000,paid:10000,note:"預計 16:00 抵達",breakfast:{date:addDays(todayISO,2),shop:"在地早餐店",qty:10,delivery:"08:00",done:false},taxi:{date:"",time:"",pickup:"",destination:"",guests:0,type:"",fare:0,done:false},earlyCheckin:"",lateCheckout:"",luggageStorage:true,checklist:{}},
- {id:"MY6-260802",name:"林先生",phone:"0988-123-456",checkin:addDays(todayISO,4),checkout:addDays(todayISO,5),package:"一般訂房",rooms:["R3","R6"],count:7,source:"電話",status:"已確認",total:12000,paid:0,note:"有長輩同行",breakfast:{date:"",shop:"",qty:0,delivery:"",done:false},taxi:{date:addDays(todayISO,5),time:"11:30",pickup:"眉原六民宿",destination:"埔里轉運站",guests:4,type:"一般計程車",fare:400,done:false},earlyCheckin:"",lateCheckout:"12:00",luggageStorage:false,checklist:{}}
+ {id:"MY6-260801",name:"陳小姐",phone:"0912-345-678",checkin:addDays(todayISO,1),checkout:addDays(todayISO,3),package:"小包棟（8～15人）",rooms:["R1","R2","R4"],count:10,source:"官方 LINE",status:"已付訂金",total:28000,paid:10000,note:"預計 16:00 抵達",breakfast:{date:addDays(todayISO,2),shop:"在地早餐店",qty:10,days:2,delivery:"08:00",done:false},taxi:{date:"",time:"",pickup:"",destination:"",guests:0,type:"",fare:0,done:false},earlyCheckin:"",lateCheckout:"",luggageStorage:true,checklist:{}},
+ {id:"MY6-260802",name:"林先生",phone:"0988-123-456",checkin:addDays(todayISO,4),checkout:addDays(todayISO,5),package:"一般訂房",rooms:["R3","R6"],count:7,source:"電話",status:"已確認",total:12000,paid:0,note:"有長輩同行",breakfast:{date:"",shop:"",qty:0,days:0,delivery:"",done:false},taxi:{date:addDays(todayISO,5),time:"11:30",pickup:"眉原六民宿",destination:"埔里轉運站",guests:4,type:"一般計程車",fare:400,done:false},earlyCheckin:"",lateCheckout:"12:00",luggageStorage:false,checklist:{}}
 ];
 const seedTasks=[
- {id:"T1",date:todayISO,room:"R4",title:"退房清潔",status:"尚未安排"},
- {id:"T2",date:todayISO,room:"R5",title:"備品補充",status:"清潔中"}
+ {id:"T1",date:todayISO,room:"R4",title:"退房清潔",status:"待清掃",assignee:"",note:"",orderId:"",guest:"",startedAt:"",completedAt:""},
+ {id:"T2",date:todayISO,room:"R5",title:"備品補充",status:"清掃中",assignee:"",note:"",orderId:"",guest:"",startedAt:"",completedAt:""}
 ];
 
-const STORAGE_SCHEMA_VERSION = 2;
+const STORAGE_SCHEMA_VERSION = 4;
 
 function safeJSON(key, fallback){
  try{
@@ -156,6 +157,7 @@ function normalizeOrder(raw, index=0){
      date:validISO(raw?.breakfast?.date || raw?.breakfastDate, ""),
      shop:String(raw?.breakfast?.shop || raw?.breakfastShop || ""),
      qty:Math.max(0,Number(raw?.breakfast?.qty ?? raw?.breakfastQty ?? 0)||0),
+     days:Math.max(0,Number(raw?.breakfast?.days ?? raw?.breakfastDays ?? ((raw?.breakfast?.qty||raw?.breakfastQty)?1:0))||0),
      delivery:String(raw?.breakfast?.delivery || raw?.breakfastDelivery || ""),
      done:Boolean(raw?.breakfast?.done ?? raw?.breakfastDone)
    },
@@ -176,12 +178,20 @@ function normalizeOrder(raw, index=0){
  };
 }
 function normalizeTask(raw,index=0){
+ const legacyStatus=String(raw?.status || "待清掃");
  return {
    id:String(raw?.id || `T-M${index}`),
    date:validISO(raw?.date,todayISO),
    room:normalizeRoomIds(raw?.room || raw?.roomId || raw?.unitId)[0] || roomMaster[index%roomMaster.length].id,
    title:String(raw?.title || raw?.task || "退房清潔"),
-   status:String(raw?.status || "尚未安排")
+   status:({"尚未安排":"待清掃","清潔中":"清掃中","完成":"已完成"}[legacyStatus] || legacyStatus),
+   assignee:String(raw?.assignee || raw?.staff || ""),
+   note:String(raw?.note || ""),
+   orderId:String(raw?.orderId || ""),
+   guest:String(raw?.guest || ""),
+   checkoutAt:String(raw?.checkoutAt || ""),
+   startedAt:String(raw?.startedAt || ""),
+   completedAt:String(raw?.completedAt || "")
  };
 }
 
@@ -192,6 +202,9 @@ let tasks=(Array.isArray(safeJSON("my6_tasks",null)) ? safeJSON("my6_tasks",null
 let guestProfiles=safeJSON("my6_guest_profiles",{});
 let settings={...defaultSettings,...safeJSON("my6_settings",{})};
 let shortcuts=Array.isArray(safeJSON("my6_shortcuts",null)) ? safeJSON("my6_shortcuts",null) : defaultShortcuts;
+const storedTemplates=safeJSON("my6_templates",null);
+let templates=(storedTemplates && typeof storedTemplates==="object" && Object.keys(storedTemplates).length) ? storedTemplates : {...defaultTemplates};
+let selectedTemplate=Object.keys(templates)[0] || "";
 let calDate=new Date();
 
 try{
@@ -203,7 +216,8 @@ try{
      tasks:safeJSON("my6_tasks",[]),
      guestProfiles:safeJSON("my6_guest_profiles",{}),
      settings:safeJSON("my6_settings",{}),
-     shortcuts:safeJSON("my6_shortcuts",[])
+     shortcuts:safeJSON("my6_shortcuts",[]),
+     templates:safeJSON("my6_templates",{})
    }));
    localStorage.setItem("my6_schema_version",String(STORAGE_SCHEMA_VERSION));
  }
@@ -218,6 +232,7 @@ function persist(){
  localStorage.setItem("my6_tasks",JSON.stringify(tasks));
  localStorage.setItem("my6_guest_profiles",JSON.stringify(guestProfiles));
  localStorage.setItem("my6_settings",JSON.stringify(settings));
+ localStorage.setItem("my6_templates",JSON.stringify(templates));
  localStorage.setItem("my6_shortcuts",JSON.stringify(shortcuts));
 }
 function toast(msg){
@@ -231,7 +246,7 @@ function hasConflict(candidate,ignoreId=""){
  return activeOrders().some(o=>o.id!==ignoreId && candidate.checkin<o.checkout && candidate.checkout>o.checkin && candidateRooms.some(r=>orderRooms(o).includes(r)));
 }
 function serviceTags(o){
- const a=[]; if(o.breakfast?.qty) a.push(`早餐 ${o.breakfast.qty}份${o.breakfast.done?"✓":""}`);
+ const a=[]; if(o.breakfast?.qty) a.push(`早餐 ${o.breakfast.qty}份／${o.breakfast.days||1}天${o.breakfast.done?"✓":""}`);
  if(o.taxi?.date) a.push(`叫車${o.taxi.done?"✓":""}`); if(o.earlyCheckin)a.push("提早入住"); if(o.lateCheckout)a.push("延後退房"); if(o.luggageStorage)a.push("寄放行李");
  return a;
 }
@@ -308,7 +323,7 @@ function renderDashboard(){
  ...tasks.filter(t=>t.date===todayISO&&t.status!=="已完成").map(t=>({title:`房務｜${roomName(t.room)}`,sub:`${t.title}・${t.status}`}))];
  $("#dailyOperations").innerHTML=ops.map(x=>`<div class="list-item"><div><strong>${esc(x.title)}</strong><small>${esc(x.sub)}</small></div></div>`).join("")||'<div class="empty">今日沒有排定工作。</div>';
  $("#alertList").innerHTML=alerts.map(a=>`<div class="list-item"><div><strong>${esc(a.title)}</strong><small>${esc(a.detail)}</small></div><span class="badge ${a.level}">${esc(a.label)}</span></div>`).join("")||'<div class="empty">目前沒有營運提醒。</div>';
- const lineQueue=[...inList.map(o=>({id:o.id,title:`入住提醒｜${o.name}`,detail:`今日 ${settings.checkinTime} 後入住`})),...activeOrders().filter(o=>o.checkin===addDays(todayISO,1)).map(o=>({id:o.id,title:`入住前通知｜${o.name}`,detail:`明日入住・${o.count} 人`})),...activeOrders().filter(o=>o.breakfast?.date===addDays(todayISO,1)&&o.breakfast?.qty&&!o.breakfast.done).map(o=>({id:o.id,title:`早餐確認｜${o.name}`,detail:`明日 ${o.breakfast.delivery||"待確認"}・${o.breakfast.qty} 份`}))].slice(0,8);
+ const lineQueue=[...inList.map(o=>({id:o.id,title:`入住提醒｜${o.name}`,detail:`今日 ${settings.checkinTime} 後入住`})),...activeOrders().filter(o=>o.checkin===addDays(todayISO,1)).map(o=>({id:o.id,title:`入住前通知｜${o.name}`,detail:`明日入住・${o.count} 人`})),...activeOrders().filter(o=>o.breakfast?.date===addDays(todayISO,1)&&o.breakfast?.qty&&!o.breakfast.done).map(o=>({id:o.id,title:`早餐確認｜${o.name}`,detail:`明日 ${o.breakfast.delivery||"待確認"}・${o.breakfast.qty} 份／${o.breakfast.days||1} 天`}))].slice(0,8);
  $("#lineQueueCount").textContent=`${lineQueue.length} 則`;
  $("#lineQueue").innerHTML=lineQueue.map(x=>`<div class="list-item"><div><strong>${esc(x.title)}</strong><small>${esc(x.detail)}</small></div><button class="line-action official-line-button" title="聯絡眉原六官方 LINE" onclick="window.copyLineMessage('${x.id}')">🟢 官方 LINE</button></div>`).join("")||'<div class="empty">今日沒有待發 LINE。</div>';
  loadPuliWeather();
@@ -316,7 +331,7 @@ function renderDashboard(){
  const upcoming=activeOrders().filter(o=>o.checkin>=todayISO).sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,6);
  $("#upcomingList").innerHTML=upcoming.map(o=>`<div class="list-item"><div><strong>${esc(o.name)}｜${fmtDate(o.checkin)}</strong><small>${esc(o.package)}・${o.count} 人</small></div><span class="badge ${statusClass(o.status)==="paid"?"green":"gold"}">${esc(o.status)}</span></div>`).join("")||'<div class="empty">目前沒有近期入住。</div>';
  const todos=activeOrders().flatMap(o=>{
-   const a=[]; if(o.breakfast?.qty&&!o.breakfast.done)a.push(`${o.name}｜早餐 ${o.breakfast.qty} 份`);
+   const a=[]; if(o.breakfast?.qty&&!o.breakfast.done)a.push(`${o.name}｜早餐 ${o.breakfast.qty} 份／${o.breakfast.days||1} 天`);
    if(o.taxi?.date&&!o.taxi.done)a.push(`${o.name}｜${o.taxi.date} ${o.taxi.time} 叫車`);
    return a;
  });
@@ -344,7 +359,7 @@ function renderOrders(){
  <td><div class="service-tags">${serviceTags(o).map(x=>`<span>${esc(x)}</span>`).join("")||"-"}</div></td>
  <td class="money-cell"><strong>${money(o.total)}</strong><span class="guest-detail">已收 ${money(o.paid)}・未收 ${money(Math.max(0,o.total-o.paid))}</span><div class="money-progress"><i style="width:${Math.min(100,o.total?o.paid/o.total*100:0)}%"></i></div></td>
  <td><span class="badge ${statusClass(o.status)==="paid"?"green":statusClass(o.status)==="hold"?"gold":"gray"}">${esc(o.status)}</span></td>
- <td><div class="table-actions"><button onclick="window.editOrder('${o.id}')">編輯</button><button class="official-line-button" title="聯絡眉原六官方 LINE" onclick="window.copyLineMessage('${o.id}')">🟢 官方 LINE</button><button onclick="window.deleteOrder('${o.id}')">刪除</button></div></td>
+ <td><div class="table-actions"><button onclick="window.editOrder('${o.id}')">編輯</button>${!["已入住","已退房","已取消"].includes(o.status)?`<button class="checkin-action" onclick="window.checkInOrder('${o.id}')">✅ 入住</button>`:""}${o.status==="已入住"?`<button class="checkout-action" onclick="window.checkoutOrder('${o.id}')">🚪 退房</button>`:""}<button class="official-line-button" title="聯絡眉原六官方 LINE" onclick="window.copyLineMessage('${o.id}')">🟢 官方 LINE</button><button onclick="window.deleteOrder('${o.id}')">刪除</button></div></td>
  </tr>`).join("")||'<tr><td colspan="8">沒有符合條件的訂單。</td></tr>';
  $("#paymentOrder").innerHTML=activeOrders().map(o=>`<option value="${o.id}">${o.id}｜${esc(o.name)}｜未收 ${money(o.total-o.paid)}</option>`).join("");
 }
@@ -353,7 +368,7 @@ function openOrder(o=null){
  $("#guestName").value=o?.name||""; $("#guestPhone").value=o?.phone||""; $("#checkinDate").value=o?.checkin||todayISO; $("#checkoutDate").value=o?.checkout||addDays(todayISO,1);
  $("#packageType").value=o?.package||"一般訂房"; $("#guestCount").value=o?.count||2; $("#guestCount").dataset.clearOnFocus="1"; $("#orderSource").value=o?.source||"官方 LINE"; $("#orderStatus").value=o?.status||"詢問中";
  $("#orderTotal").value=formatMoneyInput(o?.total||0); $("#orderPaid").value=formatMoneyInput(o?.paid||0); $("#orderNote").value=o?.note||"";
- $("#breakfastDate").value=o?.breakfast?.date||""; $("#breakfastShop").value=o?.breakfast?.shop||""; $("#breakfastQty").value=o?.breakfast?.qty||0; $("#breakfastDelivery").value=o?.breakfast?.delivery||""; $("#breakfastDone").checked=!!o?.breakfast?.done;
+ $("#breakfastDate").value=o?.breakfast?.date||""; $("#breakfastShop").value=o?.breakfast?.shop||""; $("#breakfastQty").value=o?.breakfast?.qty||0; $("#breakfastDays").value=o?.breakfast?.days||0; $("#breakfastDelivery").value=o?.breakfast?.delivery||""; $("#breakfastDone").checked=!!o?.breakfast?.done;
  $("#taxiDate").value=o?.taxi?.date||""; $("#taxiTime").value=o?.taxi?.time||""; $("#taxiPickup").value=o?.taxi?.pickup||""; $("#taxiDestination").value=o?.taxi?.destination||""; $("#taxiGuests").value=o?.taxi?.guests||0; $("#taxiType").value=o?.taxi?.type||""; $("#taxiFare").value=formatMoneyInput(o?.taxi?.fare||0); $("#taxiDone").checked=!!o?.taxi?.done;
  $("#earlyCheckin").value=o?.earlyCheckin||""; $("#lateCheckout").value=o?.lateCheckout||""; $("#luggageStorage").checked=!!o?.luggageStorage;
  $$('input[name="roomChoice"]').forEach(x=>x.checked=(o?.rooms||[]).includes(x.value));
@@ -393,7 +408,7 @@ function readOrderForm(){
  return {id:$("#orderId").value||("MY6-"+Date.now().toString().slice(-8)),name:$("#guestName").value.trim(),phone:$("#guestPhone").value.trim(),
  checkin:$("#checkinDate").value,checkout:$("#checkoutDate").value,package:$("#packageType").value,rooms,count:+$("#guestCount").value,source:$("#orderSource").value,status:$("#orderStatus").value,
  total:moneyNumber($("#orderTotal").value),paid:moneyNumber($("#orderPaid").value),note:$("#orderNote").value.trim(),
- breakfast:{date:$("#breakfastDate").value,shop:$("#breakfastShop").value.trim(),qty:+$("#breakfastQty").value,delivery:$("#breakfastDelivery").value,done:$("#breakfastDone").checked},
+ breakfast:{date:$("#breakfastDate").value,shop:$("#breakfastShop").value.trim(),qty:+$("#breakfastQty").value,days:+$("#breakfastDays").value,delivery:$("#breakfastDelivery").value,done:$("#breakfastDone").checked},
  taxi:{date:$("#taxiDate").value,time:$("#taxiTime").value,pickup:$("#taxiPickup").value.trim(),destination:$("#taxiDestination").value.trim(),guests:+$("#taxiGuests").value,type:$("#taxiType").value.trim(),fare:moneyNumber($("#taxiFare").value),done:$("#taxiDone").checked},
  earlyCheckin:$("#earlyCheckin").value,lateCheckout:$("#lateCheckout").value,luggageStorage:$("#luggageStorage").checked,checklist:orders.find(o=>o.id===$("#orderId").value)?.checklist||{}};
 }
@@ -401,6 +416,7 @@ $("#orderForm").addEventListener("submit",e=>{
  e.preventDefault(); const o=readOrderForm();
  if(!o.rooms.length)return toast("請至少選擇一個住宿單位");
  if(!Number.isFinite(o.count)||o.count<1)return toast("入住人數至少為 1 人");
+ if(o.breakfast.qty>0 && o.breakfast.days<1)return toast("有預訂早餐時，送餐天數至少為 1 天");
  if(o.checkout<=o.checkin)return toast("退房日期必須晚於入住日期");
  if(hasConflict(o,o.id)){ $("#conflictWarning").textContent="房況衝突：所選日期已有相同住宿單位被占用。";$("#conflictWarning").classList.remove("hidden");return; }
  const i=orders.findIndex(x=>x.id===o.id); if(i>=0)orders[i]=o;else orders.push(o); persist();$("#orderDialog").close();renderAll();toast("訂單已儲存");
@@ -413,14 +429,34 @@ window.openOrderFromCalendar=id=>{
  if(order) setTimeout(()=>openOrder(order),0);
 };
 window.deleteOrder=id=>{ if(confirm("確定刪除此訂單？")){orders=orders.filter(o=>o.id!==id);persist();renderAll();toast("訂單已刪除");}};
+window.checkInOrder=id=>{
+ const o=orders.find(x=>x.id===id); if(!o)return;
+ if(!confirm(`確認 ${o.name} 已完成入住？`))return;
+ o.status="已入住"; o.checklist=o.checklist||{}; o.checklist["完成入住"]=true;
+ persist();renderAll();toast("已完成入住登記");
+};
+window.checkoutOrder=id=>{
+ const o=orders.find(x=>x.id===id); if(!o)return;
+ if(!confirm(`確認 ${o.name} 已退房？系統將自動建立房務清掃工作。`))return;
+ o.status="已退房";
+ const checkoutAt=new Date().toISOString();
+ orderRooms(o).forEach(room=>{
+   const exists=tasks.some(t=>t.orderId===o.id&&t.room===room&&t.title==="退房清潔"&&t.status!=="已完成");
+   if(!exists)tasks.push({id:uid("T"),date:todayISO,room,title:"退房清潔",status:"待清掃",assignee:"",note:"",orderId:o.id,guest:o.name,checkoutAt,startedAt:"",completedAt:""});
+ });
+ persist();renderAll();navigate("housekeeping");toast("退房完成，房務任務已建立");
+};
 const LINE_MANAGER_LOGIN_URL="https://tw.linebiz.com/login/";
 function openOfficialLine(){
  const customerLineUrl=(settings.lineUrl||"https://lin.ee/933tuhU").trim();
  if(!/^https?:\/\//i.test(customerLineUrl)){toast("LINE 網址設定不正確");return;}
- const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
- if(mobile){
-   // Mobile: universal link lets the OS open LINE App when available.
-   window.location.href=customerLineUrl;
+ const ua=navigator.userAgent||"";
+ const isPhoneOrTablet=/Android|iPhone|iPad|iPod/i.test(ua);
+ // iPadOS 13+ may identify Safari as Macintosh when "Request Desktop Website" is enabled.
+ const isIPadOS=/Macintosh/i.test(ua) && navigator.maxTouchPoints>1;
+ if(isPhoneOrTablet || isIPadOS){
+   // Phone/iPad: always use the homestay customer LINE link, never the LINE OA manager site.
+   window.location.assign(customerLineUrl);
    return;
  }
 
@@ -500,7 +536,9 @@ function renderCalendar(){
        ${last?`<span class="resize-handle" draggable="true" data-id="${o.id}" data-mode="end" title="調整退房日期"></span>`:`<span class="event-spacer"></span>`}
      </div>`;
    }
-   html+=`<div class="calendar-cell ${muted?"muted":""}" data-date="${iso}"><div class="day-num">${d.getDate()}</div>${events}</div>`;
+   const cleaning=tasks.filter(t=>t.date===iso&&t.status!=="已完成");
+   const cleaningHtml=cleaning.length?`<div class="calendar-housekeeping" title="房務工作">🧹 ${cleaning.map(t=>roomName(t.room).match(/（([^）]+)）/)?.[1]||roomName(t.room)).join("、")}</div>`:"";
+   html+=`<div class="calendar-cell ${muted?"muted":""}" data-date="${iso}"><div class="day-num">${d.getDate()}</div>${events}${cleaningHtml}</div>`;
  }
  $("#calendarGrid").innerHTML=html;
  $$(".event,.resize-handle",$("#calendarGrid")).forEach(el=>el.addEventListener("dragstart",e=>{
@@ -549,12 +587,44 @@ $("#paymentForm").addEventListener("submit",e=>{
  const o=orders.find(x=>x.id===id);if(o)o.paid=Math.max(0,o.paid+amount);persist();$("#paymentDialog").close();renderAll();toast("收款已登記");
 });
 
-function renderTasks(){
- const groups=[["尚未安排",["尚未安排"]],["進行中",["已安排","清潔中","待複查"]],["已完成",["已完成"]]];
- $("#taskBoard").innerHTML=groups.map(([g,sts])=>`<div class="task-column"><h4>${g}</h4>${tasks.filter(t=>sts.includes(t.status)).map(t=>`<div class="task-card"><strong>${esc(roomName(t.room))}</strong><p>${esc(t.title)}</p><small>${t.date}｜${esc(t.status)}</small><br><button onclick="window.advanceTask('${t.id}')">更新狀態</button></div>`).join("")||"<small>目前沒有任務</small>"}</div>`).join("");
+function roomOperationalStatus(room){
+ const active=orders.some(o=>o.status==="已入住"&&orderRooms(o).includes(room));
+ if(active)return "入住中";
+ const roomTasks=tasks.filter(t=>t.room===room&&t.status!=="已完成").sort((a,b)=>b.date.localeCompare(a.date));
+ if(roomTasks.some(t=>["清掃中","待複查","已安排"].includes(t.status)))return "清掃中";
+ if(roomTasks.some(t=>t.status==="待清掃"))return "待清掃";
+ return "可入住";
 }
-window.advanceTask=id=>{const t=tasks.find(x=>x.id===id),seq=["尚未安排","已安排","清潔中","待複查","已完成"];t.status=seq[Math.min(seq.indexOf(t.status)+1,seq.length-1)];persist();renderAll();};
-$("#taskForm").addEventListener("submit",e=>{e.preventDefault();tasks.push({id:uid("T"),date:$("#taskDate").value,room:$("#taskRoom").value,title:$("#taskTitle").value,status:$("#taskStatus").value});persist();$("#taskDialog").close();renderAll();toast("房務任務已新增");});
+function renderTasks(){
+ const statuses=roomMaster.map(r=>({room:r,status:roomOperationalStatus(r.id)}));
+ const count=status=>statuses.filter(x=>x.status===status).length;
+ $("#hkOccupied").textContent=count("入住中"); $("#hkPending").textContent=count("待清掃");
+ $("#hkCleaning").textContent=count("清掃中"); $("#hkReady").textContent=count("可入住");
+ $("#roomStatusGrid").innerHTML=statuses.map(x=>`<article class="room-status-card status-${x.status}"><strong>${esc(x.room.name)}</strong><span>${x.status}</span></article>`).join("");
+ const groups=[["待清掃",["待清掃"]],["進行中",["已安排","清掃中","待複查"]],["已完成",["已完成"]]];
+ $("#taskBoard").innerHTML=groups.map(([g,sts])=>`<div class="task-column"><h4>${g}</h4>${tasks.filter(t=>sts.includes(t.status)).sort((a,b)=>b.date.localeCompare(a.date)).map(t=>`<div class="task-card"><div class="task-card-head"><strong>${esc(roomName(t.room))}</strong><span class="badge ${t.status==="已完成"?"green":t.status==="待清掃"?"gold":"gray"}">${esc(t.status)}</span></div><p>${esc(t.title)}${t.guest?`｜${esc(t.guest)}`:""}</p><small>${t.date}${t.assignee?`｜${esc(t.assignee)}`:"｜未指派"}</small>${t.note?`<div class="task-note">${esc(t.note)}</div>`:""}<div class="task-actions">${t.status!=="已完成"?`<button onclick="window.advanceTask('${t.id}')">${t.status==="待清掃"?"開始清掃":"更新狀態"}</button>`:""}<button onclick="window.editTask('${t.id}')">編輯</button></div></div>`).join("")||"<small>目前沒有任務</small>"}</div>`).join("");
+}
+window.advanceTask=id=>{
+ const t=tasks.find(x=>x.id===id); if(!t)return;
+ const seq=["待清掃","清掃中","待複查","已完成"];
+ const current=Math.max(0,seq.indexOf(t.status));
+ const next=seq[Math.min(current+1,seq.length-1)];
+ t.status=next;
+ if(next==="清掃中"&&!t.startedAt)t.startedAt=new Date().toISOString();
+ if(next==="已完成")t.completedAt=new Date().toISOString();
+ persist();renderAll();toast(next==="已完成"?"清掃完成，房間已恢復可入住":"房務狀態已更新");
+};
+window.editTask=id=>{
+ const t=tasks.find(x=>x.id===id); if(!t)return;
+ $("#taskForm").dataset.editId=id; $("#taskDate").value=t.date; $("#taskRoom").value=t.room; $("#taskTitle").value=t.title; $("#taskStatus").value=t.status; $("#taskAssignee").value=t.assignee||""; $("#taskNote").value=t.note||""; $("#taskDialog").showModal();
+};
+$("#taskForm").addEventListener("submit",e=>{
+ e.preventDefault(); const editId=e.currentTarget.dataset.editId;
+ const data={date:$("#taskDate").value,room:$("#taskRoom").value,title:$("#taskTitle").value,status:$("#taskStatus").value,assignee:$("#taskAssignee").value.trim(),note:$("#taskNote").value.trim()};
+ if(editId){const t=tasks.find(x=>x.id===editId);Object.assign(t,data);if(t.status==="清掃中"&&!t.startedAt)t.startedAt=new Date().toISOString();if(t.status==="已完成"&&!t.completedAt)t.completedAt=new Date().toISOString();}
+ else tasks.push({id:uid("T"),...data,orderId:"",guest:"",checkoutAt:"",startedAt:data.status==="清掃中"?new Date().toISOString():"",completedAt:data.status==="已完成"?new Date().toISOString():""});
+ delete e.currentTarget.dataset.editId;persist();$("#taskDialog").close();renderAll();toast(editId?"房務任務已更新":"房務任務已新增");
+});
 
 function buildGuestMap(){
  const map={};activeOrders().forEach(o=>{if(!map[o.phone])map[o.phone]={name:o.name,phone:o.phone,count:0,total:0,last:"",note:""};const g=map[o.phone];g.count++;g.total+=o.total;g.last=g.last>o.checkin?g.last:o.checkin;if(o.note)g.note=o.note;});
@@ -566,11 +636,39 @@ function renderGuests(){
 window.editGuest=phone=>{const g=buildGuestMap()[phone];$("#guestOriginalPhone").value=phone;$("#profileName").value=g.name||"";$("#profilePhone").value=g.phone||"";$("#profileLine").value=g.line||"";$("#profileEmail").value=g.email||"";$("#profilePlate").value=g.plate||"";$("#profilePet").value=g.pet||"";$("#profileNote").value=g.note||"";$("#guestDialog").showModal();};
 $("#guestForm").addEventListener("submit",e=>{e.preventDefault();const old=$("#guestOriginalPhone").value,phone=$("#profilePhone").value.trim(),p={name:$("#profileName").value.trim(),phone,line:$("#profileLine").value.trim(),email:$("#profileEmail").value.trim(),plate:$("#profilePlate").value.trim(),pet:$("#profilePet").value.trim(),note:$("#profileNote").value.trim()};orders.forEach(o=>{if(o.phone===old){o.phone=phone;o.name=p.name;}});delete guestProfiles[old];guestProfiles[phone]=p;persist();$("#guestDialog").close();renderAll();toast("旅客資料已更新");});
 
-function renderTemplates(){
- $("#templateList").innerHTML=Object.keys(templates).map((k,i)=>`<div class="template-item ${i===0?"active":""}" data-template="${esc(k)}">${esc(k)}</div>`).join("");
- if(!$("#templateContent").value){$("#templateTitle").textContent="入住須知";$("#templateContent").value=templates["入住須知"];}
- $$(".template-item").forEach(el=>el.onclick=()=>{$$(".template-item").forEach(x=>x.classList.remove("active"));el.classList.add("active");$("#templateTitle").textContent=el.dataset.template;$("#templateContent").value=templates[el.dataset.template];});
+function selectTemplate(name){
+ if(!templates[name])return;
+ selectedTemplate=name;
+ $("#templateTitle").textContent=name;
+ $("#templateContent").value=templates[name];
+ $$(".template-item").forEach(el=>el.classList.toggle("active",el.dataset.template===name));
 }
+function renderTemplates(){
+ const names=Object.keys(templates);
+ if(!names.length){templates={"新模板":"請輸入模板內容。"};selectedTemplate="新模板";persist();}
+ if(!templates[selectedTemplate])selectedTemplate=Object.keys(templates)[0];
+ $("#templateList").innerHTML=Object.keys(templates).map(k=>`<div class="template-item ${k===selectedTemplate?"active":""}" data-template="${esc(k)}"><span>${esc(k)}</span><small>點擊編輯</small></div>`).join("");
+ $$(".template-item").forEach(el=>el.onclick=()=>selectTemplate(el.dataset.template));
+ selectTemplate(selectedTemplate);
+}
+function addTemplate(){
+ const raw=prompt("請輸入新模板名稱：", "新模板");
+ const name=String(raw||"").trim();
+ if(!name)return;
+ if(templates[name])return toast("模板名稱已存在");
+ templates[name]="請輸入模板內容。";selectedTemplate=name;persist();renderTemplates();toast("模板已新增");
+}
+function saveCurrentTemplate(){
+ if(!selectedTemplate||!templates[selectedTemplate])return toast("請先選擇模板");
+ templates[selectedTemplate]=$("#templateContent").value;persist();renderTemplates();toast("模板已儲存");
+}
+function deleteCurrentTemplate(){
+ if(!selectedTemplate||!templates[selectedTemplate])return;
+ if(Object.keys(templates).length<=1)return toast("至少需保留一個模板");
+ if(!confirm(`確定刪除模板「${selectedTemplate}」？`))return;
+ delete templates[selectedTemplate];selectedTemplate=Object.keys(templates)[0];persist();renderTemplates();toast("模板已刪除");
+}
+
 function renderReports(){
  const month=todayISO.slice(0,7),list=activeOrders().filter(o=>o.checkin.startsWith(month));$("#reportOrders").textContent=list.length;$("#reportNights").textContent=list.reduce((s,o)=>s+daysBetween(o.checkin,o.checkout),0);$("#reportAvg").textContent=money(list.length?list.reduce((s,o)=>s+o.total,0)/list.length:0);
  const counts={};activeOrders().forEach(o=>counts[o.phone]=(counts[o.phone]||0)+1);const vals=Object.values(counts);$("#reportRepeat").textContent=(vals.length?Math.round(vals.filter(v=>v>1).length/vals.length*100):0)+"%";
@@ -591,11 +689,11 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.1 Official Stable",exportedAt:new Date().toISOString(),orders,payments,tasks,guestProfiles,settings,shortcuts};
+ const data={version:"Enterprise V1.1 Phase 1 RC3.2.3",exportedAt:new Date().toISOString(),orders,payments,tasks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){
- try{const data=JSON.parse(await file.text());orders=data.orders||[];payments=data.payments||[];tasks=data.tasks||[];guestProfiles=data.guestProfiles||{};settings={...defaultSettings,...(data.settings||{})};shortcuts=data.shortcuts||defaultShortcuts;persist();renderAll();toast("備份已匯入");}catch{toast("備份檔格式錯誤");}
+ try{const data=JSON.parse(await file.text());orders=(Array.isArray(data.orders)?data.orders:[]).map(normalizeOrder);payments=Array.isArray(data.payments)?data.payments:[];tasks=(Array.isArray(data.tasks)?data.tasks:[]).map(normalizeTask);guestProfiles=data.guestProfiles||{};settings={...defaultSettings,...(data.settings||{})};shortcuts=data.shortcuts||defaultShortcuts;templates=(data.templates && typeof data.templates==="object" && Object.keys(data.templates).length) ? data.templates : {...defaultTemplates};selectedTemplate=Object.keys(templates)[0]||"";persist();renderAll();toast("備份已匯入");}catch{toast("備份檔格式錯誤");}
 }
 
 function init(){
@@ -609,9 +707,12 @@ function init(){
  $("#quickAddOrder").onclick=$("#addOrderBtn").onclick=()=>openOrder();$("#packageType").onchange=handlePackageChange;
  $("#orderSearch").oninput=renderOrders;$("#statusFilter").onchange=renderOrders;
  $("#addPaymentBtn").onclick=()=>{$("#paymentForm").reset();$("#paymentDate").value=todayISO;renderOrders();$("#paymentDialog").showModal();};
- $("#addTaskBtn").onclick=()=>{$("#taskForm").reset();$("#taskDate").value=todayISO;$("#taskDialog").showModal();};
+ $("#addTaskBtn").onclick=()=>{$("#taskForm").reset();delete $("#taskForm").dataset.editId;$("#taskDate").value=todayISO;$("#taskStatus").value="待清掃";$("#taskDialog").showModal();};
  $$("[data-close]").forEach(b=>b.onclick=()=>$("#"+b.dataset.close).close());
  $("#prevMonth").onclick=()=>{calDate.setMonth(calDate.getMonth()-1);renderCalendar();};$("#nextMonth").onclick=()=>{calDate.setMonth(calDate.getMonth()+1);renderCalendar();};$("#calendarToday").onclick=()=>{calDate=new Date();renderCalendar();};
+ $("#addTemplateBtn").onclick=addTemplate;
+ $("#saveTemplateBtn").onclick=saveCurrentTemplate;
+ $("#deleteTemplateBtn").onclick=deleteCurrentTemplate;
  $("#copyTemplateBtn").onclick=async()=>{try{await navigator.clipboard.writeText($("#templateContent").value);toast("模板已複製");}catch{prompt("請複製",$("#templateContent").value);}};
  $("#copyWifiBtn").onclick=async()=>{const t="眉原六民宿 Wi-Fi\nSSID：deco_be25_Guest\n密碼：liou6868";try{await navigator.clipboard.writeText(t);toast("Wi-Fi 資料已複製");}catch{prompt("請複製",t);}};
  $("#openSettingsBtn").onclick=()=>navigate("settings");
@@ -620,7 +721,7 @@ function init(){
  $("#addShortcut").onclick=()=>{shortcuts.push({icon:"🔗",name:"新快捷",url:"https://"});renderSettings();};$("#saveShortcuts").onclick=collectShortcuts;
  $("#openOfficialLine").onclick=openOfficialLine;
  $("#exportData").onclick=exportBackup;$("#importData").onchange=e=>e.target.files[0]&&importBackup(e.target.files[0]);
- $("#resetDemoData").onclick=()=>{if(confirm("確定重設全部資料？")){orders=structuredClone(seedOrders);payments=[];tasks=structuredClone(seedTasks);guestProfiles={};settings={...defaultSettings};shortcuts=structuredClone(defaultShortcuts);persist();renderAll();toast("已重設為示範資料");}};
+ $("#resetDemoData").onclick=()=>{if(confirm("確定重設全部資料？")){orders=structuredClone(seedOrders).map(normalizeOrder);payments=[];tasks=structuredClone(seedTasks).map(normalizeTask);guestProfiles={};settings={...defaultSettings};shortcuts=structuredClone(defaultShortcuts);templates={...defaultTemplates};selectedTemplate=Object.keys(templates)[0];persist();renderAll();toast("已重設為示範資料");}};
  renderAll();
 }
 document.addEventListener("DOMContentLoaded",init);

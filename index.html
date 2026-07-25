@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#27463a">
-  <title>眉原六民宿｜Booking Admin Enterprise V1.1</title>
+  <title>眉原六民宿｜Booking Admin Enterprise V1.2</title>
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.1 · Phase 1 RC3</p>
+    <p>Enterprise V1.2 · Build 1</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -37,7 +37,7 @@
       <button data-page="reports">營運報表</button>
       <button data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.1<br>Phase 1 RC3</div>
+    <div class="version">Enterprise V1.2<br>Build 1</div>
     <button id="logoutBtn" class="logout">登出</button>
   </aside>
 
@@ -158,8 +158,15 @@
     </section>
 
     <section id="housekeeping" class="page">
+      <div class="stats housekeeping-stats">
+        <article><span>入住中</span><strong id="hkOccupied">0</strong></article>
+        <article><span>待清掃</span><strong id="hkPending">0</strong></article>
+        <article><span>清掃中</span><strong id="hkCleaning">0</strong></article>
+        <article><span>可入住</span><strong id="hkReady">0</strong></article>
+      </div>
       <section class="panel">
-        <div class="panel-head"><h3>房務管理</h3><button id="addTaskBtn" class="primary">＋ 新增任務</button></div>
+        <div class="panel-head"><div><h3>房務管理</h3><p class="section-note">退房後自動建立清掃工作；完成清掃後房間恢復可入住。</p></div><button id="addTaskBtn" class="primary">＋ 新增任務</button></div>
+        <div id="roomStatusGrid" class="room-status-grid"></div>
         <div id="taskBoard" class="task-board"></div>
       </section>
     </section>
@@ -184,11 +191,14 @@
     <section id="templates" class="page">
       <div class="grid-2 template-layout">
         <section class="panel">
-          <h3>模板清單</h3>
+          <div class="panel-head"><h3>模板清單</h3><button id="addTemplateBtn" type="button">＋ 新增模板</button></div>
           <div id="templateList"></div>
         </section>
         <section class="panel">
-          <div class="panel-head"><h3 id="templateTitle">入住須知</h3><button id="copyTemplateBtn">複製文字</button></div>
+          <div class="panel-head template-editor-actions">
+            <h3 id="templateTitle">入住須知</h3>
+            <div><button id="saveTemplateBtn" type="button">儲存模板</button><button id="copyTemplateBtn" type="button">複製文字</button><button id="deleteTemplateBtn" class="danger" type="button">刪除模板</button></div>
+          </div>
           <textarea id="templateContent" rows="30"></textarea>
         </section>
       </div>
@@ -298,7 +308,8 @@
         <label>早餐日期<input id="breakfastDate" type="date"></label>
         <label>早餐店<input id="breakfastShop" placeholder="例如：在地早餐店"></label>
         <label>早餐份數<input id="breakfastQty" type="number" min="0" value="0"></label>
-        <label>送達時間<input id="breakfastDelivery" type="time"></label>
+        <label>預訂送餐天數<input id="breakfastDays" type="number" min="0" value="0" placeholder="例如：2"></label>
+        <label>每日送達時間<input id="breakfastDelivery" type="time"></label>
         <label class="inline-check"><input id="breakfastDone" type="checkbox"> 已完成早餐代訂</label>
       </div>
       <hr>
@@ -348,7 +359,9 @@
     <label>日期<input id="taskDate" type="date" required></label>
     <label>住宿單位<select id="taskRoom" required></select></label>
     <label>任務<input id="taskTitle" value="退房清潔" required></label>
-    <label>狀態<select id="taskStatus"><option>尚未安排</option><option>已安排</option><option>清潔中</option><option>待複查</option><option>已完成</option></select></label>
+    <label>狀態<select id="taskStatus"><option>待清掃</option><option>已安排</option><option>清掃中</option><option>待複查</option><option>已完成</option></select></label>
+    <label>房務人員<input id="taskAssignee" placeholder="尚未指派"></label>
+    <label class="wide">備註<textarea id="taskNote" rows="3" placeholder="備品補充、設備異常等"></textarea></label>
   </div>
   <div class="dialog-actions"><button type="button" data-close="taskDialog">取消</button><button class="primary" type="submit">儲存</button></div>
 </form>
