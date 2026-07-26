@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## Enterprise V1.2 Build 2A RC4 Hotfix 2 — Mobile UX & Smart Template
+
+- 新增訂單選擇入住日期後，自動帶入隔日退房日期。
+- 使用者手動修改退房日期後，系統尊重手動值；日期不合法時仍自動修正。
+- 手機表單驗證失敗時，自動捲動、聚焦並標示第一個錯誤欄位。
+- 早餐及叫車通知支援訂單資料自動變數替換。
+- 模板中心新增可用變數面板、點擊插入、訂單選擇及即時預覽。
+- 複製模板改為複製已套用變數後的實際通知文字。
+- 缺少變數資料時顯示「（尚未提供）」，避免原始變數被直接送出。
+- Storage Schema 維持 12；本版不是 Official Stable，尚未 LOCK。
+
 ## Enterprise V1.2 Build 2A RC4 Hotfix 1 — 2026-07-26
 
 ### Fixed

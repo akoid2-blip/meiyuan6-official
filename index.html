@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · RC4 Hotfix 1</p>
+    <p>Enterprise V1.2 · Build 2A · RC4 Hotfix 2</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -37,7 +37,7 @@
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · RC4 Hotfix 1</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · RC4 Hotfix 2</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -204,7 +204,15 @@
             <div><h3 id="templateTitle">入住須知</h3><p class="section-note">此區編輯模板內容；模板標題請在左側清單按「改標題」。</p></div>
             <div><button id="saveTemplateBtn" type="button" data-icon="save">儲存模板</button><button id="copyTemplateBtn" type="button" data-icon="copy">複製文字</button><button id="deleteTemplateBtn" class="danger" type="button" data-icon="trash">刪除模板</button></div>
           </div>
-          <textarea id="templateContent" rows="30"></textarea>
+          <div class="template-smart-toolbar">
+            <label>預覽套用訂單<select id="templateOrderSelect"></select></label>
+            <p>模板中的 <code>{{變數}}</code> 會由訂單、早餐或叫車資料自動替換；缺少資料顯示「（尚未提供）」。</p>
+          </div>
+          <div class="template-smart-grid">
+            <div><h4>模板內容</h4><textarea id="templateContent" rows="24"></textarea></div>
+            <aside><h4>可用變數</h4><div id="templateVariablePanel" class="template-variable-panel"></div></aside>
+          </div>
+          <section class="template-preview-panel"><h4>實際套用預覽</h4><pre id="templatePreview"></pre></section>
         </section>
       </div>
     </section>
@@ -307,7 +315,7 @@
     <label>退房日期<input id="checkoutDate" type="date" required></label>
     <label>住宿方案<select id="packageType"><option>一般訂房</option><option>小包棟（8～15人）</option><option>全館包棟（16～27人）</option></select></label>
     <label>入住人數<input id="guestCount" type="number" min="1" value="2"></label>
-    <fieldset class="wide"><legend>住宿單位（可複選）</legend><div id="roomCheckboxes" class="checkbox-grid"></div></fieldset>
+    <fieldset id="roomSelectionFieldset" class="wide"><legend>住宿單位（可複選）</legend><div id="roomCheckboxes" class="checkbox-grid"></div></fieldset>
     <label>訂單來源<select id="orderSource"><option>官方 LINE</option><option>電話</option><option>Facebook</option><option>Google 商家</option><option>官網詢問</option><option>回訪旅客</option></select></label>
     <label>訂單狀態<select id="orderStatus"><option>詢問中</option><option>暫時保留</option><option>已確認</option><option>已付訂金</option><option>已付全額</option><option>已入住</option><option>已退房</option><option>已取消</option></select></label>
     <label>訂單總額<input id="orderTotal" type="text" inputmode="numeric" min="0" value="0"></label>

@@ -1,24 +1,16 @@
-# RC4 Hotfix 1 Acceptance Checklist
+# FINAL ACCEPTANCE CHECKLIST — RC4 Hotfix 2
 
-- [x] RC3 mobile responsive changes integrated.
-- [x] Accounting duplicate-recognition fix integrated.
-- [x] Backfilled order guest synchronization integrated.
-- [x] Desktop/mobile guest search integrated.
-- [x] Mobile single-record accordion and scrolling integrated.
-- [x] Wi-Fi excluded from guest filtering and accordion behavior.
-- [x] Short Windows-safe archive paths applied.
-- [x] Static QA completed.
-- [ ] Browser QA pending because automated navigation was blocked by the execution environment.
-- [ ] iPhone Safari real-device acceptance.
-- [ ] Android Chrome real-device acceptance.
-- [ ] iPad Safari real-device acceptance.
-- [ ] Official Stable approval.
+- [x] 入住日期自動帶入隔日退房
+- [x] 手動退房日期不被無條件覆蓋
+- [x] 手機錯誤欄位自動捲動與聚焦
+- [x] 早餐智慧模板變數
+- [x] 叫車智慧模板變數
+- [x] 可用變數點擊插入
+- [x] 訂單套用即時預覽
+- [x] 缺值不保留原始變數
+- [ ] iPhone Safari 實機驗收
+- [ ] Android Chrome 實機驗收
+- [ ] iPad Safari 實機驗收
+- [ ] Desktop Browser 實機驗收
 
-- [x] Login version label shows RC4 Hotfix 1.
-- [x] Sidebar version label shows RC4 Hotfix 1.
-- [x] Backup export metadata shows RC4 Hotfix 1.
-- [x] Storage Schema remains 12.
-- [ ] iPhone Safari real-device acceptance.
-- [ ] Android Chrome real-device acceptance.
-- [ ] iPad Safari portrait and landscape acceptance.
-- [ ] RC4 Hotfix 1 LOCK after real-device acceptance.
+Status: RC4 Hotfix 2 QA / Not Official Stable / Not LOCKED

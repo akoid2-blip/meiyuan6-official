@@ -2,17 +2,11 @@
   "product": "Meiyuan6 Booking Admin Enterprise",
   "version": "1.2",
   "build": "2A",
-  "release": "RC4 Hotfix 1",
-  "released": "2026-07-26",
-  "schema": 12,
-  "status": "RC4 Hotfix 1 QA",
-  "baseline": "Enterprise V1.2 Build 2A RC4",
-  "scope": "Version consistency across login, sidebar and backup exports; RC4 device acceptance preparation",
+  "release": "RC4 Hotfix 2",
+  "title": "Mobile UX & Smart Template",
+  "status": "RC4 Hotfix 2 QA",
+  "storageSchema": 12,
+  "date": "2026-07-26",
   "officialStable": false,
-  "qaTargets": [
-    "iPhone Safari profile",
-    "Android Chrome profile",
-    "iPad profile",
-    "Desktop Chromium"
-  ]
+  "locked": false
 }

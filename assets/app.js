@@ -99,24 +99,48 @@ const defaultTemplates = {
 密碼：liou6868
 
 祝您入住愉快。`,
- "早餐通知":`您好，您的早餐代訂資料如下：
-日期：{{早餐日期}}
+ "早餐通知":`您好，{{旅客姓名}}：
+
+您的早餐代訂資料如下：
+訂單編號：{{訂單編號}}
+住宿單位：{{住宿單位}}
+入住日期：{{入住日期}}
+退房日期：{{退房日期}}
+早餐日期：{{早餐日期}}
 早餐店：{{早餐店}}
-份數：{{早餐份數}}
+早餐份數：{{早餐份數}}
 送餐天數：{{送餐天數}} 天
 每日送達時間：{{送達時間}}
+聯絡電話：{{聯絡電話}}
+
 如需調整，請提前與管家聯繫。`,
- "叫車通知":`您好，您的叫車預約資料如下：
-日期：{{叫車日期}}
-時間：{{叫車時間}}
+ "叫車通知":`您好，{{旅客姓名}}：
+
+您的叫車預約資料如下：
+訂單編號：{{訂單編號}}
+住宿單位：{{住宿單位}}
+叫車日期：{{叫車日期}}
+叫車時間：{{叫車時間}}
 上車地點：{{上車地點}}
 目的地：{{目的地}}
-人數／車型：{{人數}}／{{車型}}
-車資：{{車資}}`,
+乘車人數：{{乘車人數}}
+車型：{{車型}}
+預估車資：{{預估車資}}
+聯絡電話：{{聯絡電話}}
+備註：{{備註}}
+
+如需調整，請提前與管家聯繫。`,
  "寵物入住須知":`寵物入住清潔費為 NT$500／隻，最多 4 隻。請自備糧食及尿布，寵物不得上沙發及床鋪；大型犬請使用牽繩或籠具。`,
  "全館包棟":`全館包棟適用 16～27 人，系統將自動鎖定全部住宿單位。`,
  "小包棟":`小包棟適用 8～15 人，住宿單位依訂單勾選內容為準。`
 };
+
+const TEMPLATE_VARIABLE_GROUPS={
+ "旅客與訂單":["旅客姓名","聯絡電話","訂單編號","住宿單位","入住日期","退房日期","備註"],
+ "早餐通知":["早餐日期","早餐店","早餐份數","送餐天數","送達時間"],
+ "叫車通知":["叫車日期","叫車時間","上車地點","目的地","乘車人數","車型","預估車資"]
+};
+const TEMPLATE_MISSING_VALUE="（尚未提供）";
 
 const defaultSettings={
  propertyName:"眉原六民宿", lineUrl:"https://lin.ee/933tuhU", fullCapacity:"16～27 人", smallCapacity:"8～15 人",
@@ -547,6 +571,7 @@ function openOrder(o=null,presetDate="",presetType="normal"){
  $("#guestName").value=o?.name||""; $("#guestPhone").value=o?.phone||"";
  $("#orderType").value=o?.orderType||(presetType==="backfill"?"backfill":"normal"); $("#backfillReason").value=o?.backfillReason||""; $("#backfillTime").value=o?.backfillTime?new Date(o.backfillTime).toLocaleString("zh-TW",{hour12:false}):"儲存時自動記錄"; $("#backfillOperator").value=o?.backfillOperator||""; toggleBackfillFields();
  const initialCheckin=o?.checkin||presetDate||todayISO; $("#checkinDate").value=initialCheckin; $("#checkoutDate").value=o?.checkout||addDays(initialCheckin,1);
+ $("#checkoutDate").dataset.autoCheckout=o?"0":"1"; clearOrderFieldErrors();
  $("#packageType").value=o?.package||"一般訂房"; $("#workflowStatus").value=o?.workflowStatus||"建立";
  const lifecycleSelect=$("#lifecycleStatus");
  if(lifecycleSelect){
@@ -599,6 +624,41 @@ function setupPeopleInput(){
 }
 setupPeopleInput();
 
+function clearOrderFieldErrors(){
+ $$("#orderForm .field-error").forEach(el=>el.classList.remove("field-error"));
+}
+function focusOrderField(target,message){
+ const el=typeof target==="string"?$(target):target;
+ if(!el){toast(message);return false;}
+ clearOrderFieldErrors();
+ const visual=el.closest("label,fieldset")||el;
+ visual.classList.add("field-error");
+ $("#conflictWarning").textContent=message;
+ $("#conflictWarning").classList.remove("hidden");
+ requestAnimationFrame(()=>{
+   visual.scrollIntoView({behavior:"smooth",block:"center"});
+   setTimeout(()=>{if(typeof el.focus==="function"&&!el.disabled)el.focus({preventScroll:true});},260);
+ });
+ toast(message);
+ return false;
+}
+function setupOrderDateAutomation(){
+ const checkin=$("#checkinDate"),checkout=$("#checkoutDate");
+ if(!checkin||!checkout||checkin.dataset.smartDateReady==="1")return;
+ checkin.dataset.smartDateReady="1";
+ checkin.addEventListener("change",()=>{
+   if(!checkin.value)return;
+   if(checkout.dataset.autoCheckout==="1"||!checkout.value||checkout.value<=checkin.value){
+     checkout.value=addDays(checkin.value,1);
+     checkout.dataset.autoCheckout="1";
+   }
+ });
+ checkout.addEventListener("change",()=>{
+   if(checkout.value&&checkin.value)checkout.dataset.autoCheckout=checkout.value===addDays(checkin.value,1)?"1":"0";
+ });
+}
+setupOrderDateAutomation();
+
 function readOrderForm(){
  const rooms=$$('input[name="roomChoice"]:checked').map(x=>x.value);
  return {id:$("#orderId").value||("MY6-"+Date.now().toString().slice(-8)),name:$("#guestName").value.trim(),phone:$("#guestPhone").value.trim(),
@@ -609,13 +669,23 @@ function readOrderForm(){
  taxi:{date:$("#taxiDate").value,time:$("#taxiTime").value,pickup:$("#taxiPickup").value.trim(),destination:$("#taxiDestination").value.trim(),guests:+$("#taxiGuests").value,type:$("#taxiType").value.trim(),fare:moneyNumber($("#taxiFare").value),done:$("#taxiDone").checked},
  earlyCheckin:$("#earlyCheckin").value,lateCheckout:$("#lateCheckout").value,luggageStorage:$("#luggageStorage").checked,checklist:orders.find(o=>o.id===$("#orderId").value)?.checklist||{}};
 }
+$("#orderForm").addEventListener("invalid",e=>{
+ e.preventDefault();
+ const labels={guestName:"請填寫旅客姓名",guestPhone:"請填寫聯絡電話",checkinDate:"請選擇入住日期",checkoutDate:"請選擇退房日期"};
+ focusOrderField(e.target,labels[e.target.id]||"請完成此必填欄位");
+},{capture:true});
+$("#orderForm").addEventListener("input",e=>{const visual=e.target.closest("label,fieldset");if(visual)visual.classList.remove("field-error");});
 $("#orderForm").addEventListener("submit",e=>{
- e.preventDefault(); const o=readOrderForm();
- if(!o.rooms.length)return toast("請至少選擇一個住宿單位");
- if(!Number.isFinite(o.count)||o.count<1)return toast("入住人數至少為 1 人");
- if(o.breakfast.qty>0 && o.breakfast.days<1)return toast("有預訂早餐時，送餐天數至少為 1 天");
- if(o.checkout<=o.checkin)return toast("退房日期必須晚於入住日期");
- const ruleError=validateBookingRules(o,o.id); if(ruleError){$("#conflictWarning").textContent=ruleError;$("#conflictWarning").classList.remove("hidden");return;}
+ e.preventDefault(); clearOrderFieldErrors(); const o=readOrderForm();
+ if(!o.name)return focusOrderField("#guestName","請填寫旅客姓名");
+ if(!o.phone)return focusOrderField("#guestPhone","請填寫聯絡電話");
+ if(!o.checkin)return focusOrderField("#checkinDate","請選擇入住日期");
+ if(!o.checkout)return focusOrderField("#checkoutDate","請選擇退房日期");
+ if(!o.rooms.length)return focusOrderField("#roomCheckboxes","請至少選擇一個住宿單位");
+ if(!Number.isFinite(o.count)||o.count<1)return focusOrderField("#guestCount","入住人數至少為 1 人");
+ if(o.breakfast.qty>0 && o.breakfast.days<1)return focusOrderField("#breakfastDays","有預訂早餐時，送餐天數至少為 1 天");
+ if(o.checkout<=o.checkin)return focusOrderField("#checkoutDate","退房日期必須晚於入住日期");
+ const ruleError=validateBookingRules(o,o.id); if(ruleError){focusOrderField("#checkinDate",ruleError);return;}
  if(o.isBackfill&&!o.backfillTime)o.backfillTime=new Date().toISOString();
  const i=orders.findIndex(x=>x.id===o.id); const previous=i>=0?orders[i]:null;
  const recordedNet=recordedPaymentNet(o.id);
@@ -1148,12 +1218,51 @@ function renderGuests(){
 window.editGuest=phone=>{const g=buildGuestMap()[phone];$("#guestOriginalPhone").value=phone;$("#profileName").value=g.name||"";$("#profilePhone").value=g.phone||"";$("#profileLine").value=g.line||"";$("#profileEmail").value=g.email||"";$("#profilePlate").value=g.plate||"";$("#profilePet").value=g.pet||"";$("#profileNote").value=g.note||"";$("#guestDialog").showModal();};
 $("#guestForm").addEventListener("submit",e=>{e.preventDefault();const old=$("#guestOriginalPhone").value,phone=$("#profilePhone").value.trim(),p={name:$("#profileName").value.trim(),phone,line:$("#profileLine").value.trim(),email:$("#profileEmail").value.trim(),plate:$("#profilePlate").value.trim(),pet:$("#profilePet").value.trim(),note:$("#profileNote").value.trim()};orders.forEach(o=>{if(o.phone===old){o.phone=phone;o.name=p.name;}});delete guestProfiles[old];guestProfiles[phone]=p;persist();$("#guestDialog").close();renderAll();toast("旅客資料已更新");});
 
+function templatePreviewOrder(){
+ const id=$("#templateOrderSelect")?.value;
+ return orders.find(o=>o.id===id)||activeOrders().sort((a,b)=>a.checkin.localeCompare(b.checkin))[0]||orders[0]||null;
+}
+function templateVariablesFor(order){
+ const o=order||{};
+ const rooms=orderRooms(o).map(roomName).join("、");
+ return {
+   "旅客姓名":o.name,"聯絡電話":o.phone,"訂單編號":o.id,"住宿單位":rooms,"入住日期":o.checkin,"退房日期":o.checkout,"備註":o.note,
+   "早餐日期":o.breakfast?.date,"早餐店":o.breakfast?.shop,"早餐份數":o.breakfast?.qty?`${o.breakfast.qty} 份`:"","送餐天數":o.breakfast?.days,"送達時間":o.breakfast?.delivery,
+   "叫車日期":o.taxi?.date,"叫車時間":o.taxi?.time,"上車地點":o.taxi?.pickup,"目的地":o.taxi?.destination,"乘車人數":o.taxi?.guests?`${o.taxi.guests} 人`:"","人數":o.taxi?.guests?`${o.taxi.guests} 人`:"","車型":o.taxi?.type,"預估車資":o.taxi?.fare?money(o.taxi.fare):"","車資":o.taxi?.fare?money(o.taxi.fare):""
+ };
+}
+function applyTemplateVariables(content,order=templatePreviewOrder()){
+ const vars=templateVariablesFor(order);
+ return String(content||"").replace(/\{\{([^{}]+)\}\}/g,(full,key)=>{
+   const value=vars[String(key).trim()];
+   return value===undefined||value===null||String(value).trim()===""?TEMPLATE_MISSING_VALUE:String(value);
+ });
+}
+function renderTemplateVariablePanel(){
+ const panel=$("#templateVariablePanel");if(!panel)return;
+ panel.innerHTML=Object.entries(TEMPLATE_VARIABLE_GROUPS).map(([group,names])=>`<section><h4>${esc(group)}</h4><div class="template-variable-buttons">${names.map(name=>`<button type="button" class="template-variable-btn" data-variable="${esc(name)}">{{${esc(name)}}}</button>`).join("")}</div></section>`).join("");
+ $$(".template-variable-btn").forEach(btn=>btn.onclick=()=>{
+   const input=$("#templateContent"),token=`{{${btn.dataset.variable}}}`,start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
+   input.setRangeText(token,start,end,"end");input.focus();renderTemplatePreview();
+ });
+}
+function renderTemplateOrderOptions(){
+ const select=$("#templateOrderSelect");if(!select)return;const current=select.value;
+ const list=[...orders].sort((a,b)=>String(b.checkin).localeCompare(String(a.checkin)));
+ select.innerHTML=list.map(o=>`<option value="${esc(o.id)}">${esc(o.id)}｜${esc(o.name)}｜${esc(o.checkin)}</option>`).join("")||'<option value="">尚無訂單資料</option>';
+ if(list.some(o=>o.id===current))select.value=current;
+}
+function renderTemplatePreview(){
+ const preview=$("#templatePreview");if(!preview)return;
+ preview.textContent=applyTemplateVariables($("#templateContent")?.value||"");
+}
 function selectTemplate(name){
  if(!templates[name])return;
  selectedTemplate=name;
  $("#templateTitle").textContent=name;
  $("#templateContent").value=templates[name];
  $$(".template-item").forEach(el=>el.classList.toggle("active",el.dataset.template===name));
+ renderTemplatePreview();
 }
 function renderTemplates(){
  const names=Object.keys(templates);
@@ -1164,6 +1273,8 @@ function renderTemplates(){
    el.onclick=e=>{if(e.target.closest("button"))return;selectTemplate(el.dataset.template);};
    el.querySelector(".template-rename-btn").onclick=e=>{e.stopPropagation();renameTemplate(el.dataset.template);};
  });
+ renderTemplateOrderOptions();
+ renderTemplateVariablePanel();
  selectTemplate(selectedTemplate);
 }
 function renameTemplate(oldName){
@@ -1213,7 +1324,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A RC4 Hotfix 1",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
+ const data={version:"Enterprise V1.2 Build 2A RC4 Hotfix 2",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){
@@ -1240,7 +1351,9 @@ $("#addRoomLockBtn")?.addEventListener("click",()=>openRoomLock());$("#packageTy
  $("#addTemplateBtn").onclick=addTemplate;
  $("#saveTemplateBtn").onclick=saveCurrentTemplate;
  $("#deleteTemplateBtn").onclick=deleteCurrentTemplate;
- $("#copyTemplateBtn").onclick=async()=>{try{await navigator.clipboard.writeText($("#templateContent").value);toast("模板已複製");}catch{prompt("請複製",$("#templateContent").value);}};
+ $("#templateContent")?.addEventListener("input",renderTemplatePreview);
+ $("#templateOrderSelect")?.addEventListener("change",renderTemplatePreview);
+ $("#copyTemplateBtn").onclick=async()=>{const text=applyTemplateVariables($("#templateContent").value);try{await navigator.clipboard.writeText(text);toast("已複製套用後文字");}catch{prompt("請複製",text);}};
  $("#copyWifiBtn").onclick=async()=>{const t="眉原六民宿 Wi-Fi\nSSID：deco_be25_Guest\n密碼：liou6868";try{await navigator.clipboard.writeText(t);toast("Wi-Fi 資料已複製");}catch{prompt("請複製",t);}};
  $("#openSettingsBtn").onclick=()=>navigate("settings");
  $$(".settings-tabs button").forEach(b=>b.onclick=()=>{$$(".settings-tabs button").forEach(x=>x.classList.toggle("active",x===b));$$(".settings-pane").forEach(p=>p.classList.toggle("active",p.dataset.pane===b.dataset.settingsTab));});
