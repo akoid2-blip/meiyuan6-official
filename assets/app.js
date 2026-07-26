@@ -581,18 +581,19 @@ function renderOrders(){
  const list=orders.filter(o=>(!st||lifecycleStatus(o)===st)&&(!q||[o.id,o.name,o.phone,o.package,o.checkin,o.checkout,...orderRooms(o).map(roomName)].join(" ").toLowerCase().includes(q))).sort((a,b)=>b.checkin.localeCompare(a.checkin));
  const orderCount=$("#orderResultCount");if(orderCount)orderCount.textContent=`顯示 ${list.length}／${orders.length} 筆`;
  renderOrderMobileCards(list);
- $("#orderTableBody").innerHTML=list.map(o=>`<tr>
+ $("#orderTableBody").innerHTML=list.map(o=>{const expanded=q&&list.length===1;return `<tr class="order-summary-row${expanded?" is-expanded":""}" data-order-id="${esc(o.id)}">
  <td><strong>${esc(o.id)}</strong>${o.isBackfill?`<span class="badge backfill" title="補登原因：${esc(o.backfillReason)}">補登</span>`:""}<span class="guest-detail">${esc(o.source)}</span>${o.isBackfill?`<span class="guest-detail backfill-meta">原因：${esc(o.backfillReason)}${o.backfillOperator?`・人員：${esc(o.backfillOperator)}`:""}${o.backfillTime?`・時間：${esc(new Date(o.backfillTime).toLocaleString("zh-TW",{hour12:false}))}`:""}</span>`:""}</td>
  <td><strong>${esc(o.name)}</strong><span class="guest-detail">${esc(o.phone)}</span></td>
  <td>${o.checkin}<br>至 ${o.checkout}</td>
  <td>${esc(o.package)}<span class="guest-detail">${orderRooms(o).map(roomName).map(esc).join("、")}</span></td>
  <td><div class="service-tags">${serviceTags(o).map(x=>`<span>${esc(x)}</span>`).join("")||"-"}</div></td>
  <td class="money-cell"><strong>${money(o.total)}</strong><span class="guest-detail">已收 ${money(o.paid)}・未收 ${money(Math.max(0,o.total-o.paid))}</span><div class="money-progress"><i style="width:${Math.min(100,o.total?o.paid/o.total*100:0)}%"></i></div></td>
- <td><span class="badge ${lifecycleClass(lifecycleStatus(o))}" title="${esc(lifecycleHistoryText(o))}">${esc(lifecycleStatus(o))}</span><span class="workflow-badge">${esc(o.workflowStatus)}</span>${(o.lifecycleHistory||[]).length?`<span class="guest-detail">歷程 ${(o.lifecycleHistory||[]).length} 筆</span>`:""}</td>
- </tr><tr class="order-action-row"><td colspan="7"><div class="order-action-row-inner"><span class="order-action-label">操作</span><div class="table-actions order-table-actions">${orderActionButtons(o)}</div></div></td></tr>`).join("")||'<tr><td colspan="7">沒有符合條件的訂單。</td></tr>';
+ <td><span class="badge ${lifecycleClass(lifecycleStatus(o))}" title="${esc(lifecycleHistoryText(o))}">${esc(lifecycleStatus(o))}</span><span class="workflow-badge">${esc(o.workflowStatus)}</span>${(o.lifecycleHistory||[]).length?`<span class="guest-detail">歷程 ${(o.lifecycleHistory||[]).length} 筆</span>`:""}<button type="button" class="order-row-toggle" aria-expanded="${expanded?"true":"false"}" onclick="window.toggleOrderRow('${o.id}')">${expanded?"收合":"展開"}</button></td>
+ </tr><tr id="order-action-${o.id}" class="order-action-row${expanded?"":" hidden"}"><td colspan="7"><div class="order-action-row-inner"><span class="order-action-label">操作</span><div class="table-actions order-table-actions">${orderActionButtons(o)}</div></div></td></tr>`}).join("")||'<tr><td colspan="7">沒有符合條件的訂單。</td></tr>';
  $("#paymentOrder").innerHTML=orders.filter(o=>!["已取消","No Show"].includes(lifecycleStatus(o))).map(o=>{const p=paymentSummary(o);return `<option value="${o.id}">${o.id}｜${esc(o.name)}｜剩餘 ${money(p.remaining)}</option>`}).join("");
  updatePaymentDialogSummary();
 }
+window.toggleOrderRow=id=>{const row=document.getElementById(`order-action-${id}`);const summary=document.querySelector(`.order-summary-row[data-order-id="${CSS.escape(id)}"]`);if(!row||!summary)return;const opening=row.classList.contains("hidden");row.classList.toggle("hidden",!opening);summary.classList.toggle("is-expanded",opening);const button=summary.querySelector(".order-row-toggle");if(button){button.textContent=opening?"收合":"展開";button.setAttribute("aria-expanded",opening?"true":"false");}};
 function openOrder(o=null,presetDate="",presetType="normal"){
  $("#orderForm").reset(); $("#orderId").value=o?.id||""; $("#orderDialogTitle").textContent=o?"編輯訂單":"新增訂單";
  $("#guestName").value=o?.name||""; $("#guestPhone").value=o?.phone||"";
@@ -1109,12 +1110,13 @@ function renderPayments(){
  renderPaymentMobileCards(list);
  const rows=list.map(o=>{
    const p=paymentSummary(o);
-   return `<tr class="payment-order-row"><td>${esc(o.id)}</td><td>${esc(o.name)}</td><td>${money(o.total)}</td><td>${money(p.additionalCharges)}</td><td>${money(p.adjustedTotal)}</td><td>${money(p.deposit)}</td><td>${money(p.net)}</td><td>${money(p.refunds)}</td><td>${money(p.remaining)}</td><td>${paymentStatus(p,p.adjustedTotal)}</td><td><button type="button" class="compact-button" data-icon="file-text" onclick="window.togglePaymentDetail('${o.id}')">明細</button></td></tr><tr id="payment-detail-${o.id}" class="payment-detail-row hidden"><td colspan="11"><div class="payment-detail-wrap"><div class="payment-summary-inline"><span>原始訂單<strong>${money(o.total)}</strong></span><span>加收費用<strong>+${money(p.additionalCharges)}</strong></span><span>最新應收<strong>${money(p.adjustedTotal)}</strong></span><span>預收訂金<strong>${money(p.deposit)}</strong></span><span>已收淨額<strong>${money(p.net)}</strong></span><span>已退款<strong>${money(p.refunds)}</strong></span><span>剩餘應收<strong>${money(p.remaining)}</strong></span></div><div class="table-wrap"><table class="payment-detail-table"><thead><tr><th>日期</th><th>類型</th><th>方式／說明</th><th>金額</th><th>核帳</th></tr></thead><tbody>${paymentDetailRows(o)}</tbody></table></div></div></td></tr>`;
- }).join("");
- $("#paymentTableBody").innerHTML=rows||'<tr><td colspan="11">尚無訂單。</td></tr>';
+   return `<tr class="payment-order-row"><td>${esc(o.id)}</td><td>${esc(o.name)}</td><td>${money(o.total)}</td><td>${money(p.additionalCharges)}</td><td>${money(p.adjustedTotal)}</td><td>${money(p.deposit)}</td><td>${money(p.net)}</td><td>${money(p.refunds)}</td><td>${money(p.remaining)}</td><td>${paymentStatus(p,p.adjustedTotal)}</td></tr><tr class="payment-action-row"><td colspan="10"><div class="payment-action-row-inner"><span class="payment-action-label">操作</span><div class="table-actions payment-table-actions"><button type="button" class="compact-button" data-icon="file-text" aria-expanded="false" onclick="window.togglePaymentDetail('${o.id}',this)">查看明細</button><button type="button" class="compact-button" data-icon="wallet" onclick="window.openPaymentForOrder('${o.id}')">登記收款／退款</button></div></div><div id="payment-detail-${o.id}" class="payment-detail-wrap hidden"><div class="payment-summary-inline"><span>原始訂單<strong>${money(o.total)}</strong></span><span>加收費用<strong>+${money(p.additionalCharges)}</strong></span><span>最新應收<strong>${money(p.adjustedTotal)}</strong></span><span>預收訂金<strong>${money(p.deposit)}</strong></span><span>已收淨額<strong>${money(p.net)}</strong></span><span>已退款<strong>${money(p.refunds)}</strong></span><span>剩餘應收<strong>${money(p.remaining)}</strong></span></div><div class="table-wrap"><table class="payment-detail-table"><thead><tr><th>日期</th><th>類型</th><th>方式／說明</th><th>金額</th><th>核帳</th></tr></thead><tbody>${paymentDetailRows(o)}</tbody></table></div></div></td></tr>`;
+ });
+ $("#paymentTableBody").innerHTML=rows||'<tr><td colspan="10">尚無訂單。</td></tr>';
  applyStaticIcons($("#payments"));
 }
-window.togglePaymentDetail=id=>{const row=document.getElementById(`payment-detail-${id}`);if(row)row.classList.toggle("hidden");};
+
+window.togglePaymentDetail=(id,button)=>{const box=document.getElementById(`payment-detail-${id}`);if(!box)return;const opening=box.classList.contains("hidden");box.classList.toggle("hidden",!opening);if(button){button.textContent=opening?"收合明細":"查看明細";button.setAttribute("aria-expanded",opening?"true":"false");applyStaticIcons(button.parentElement);}};
 function updatePaymentTypeFields(){
  const isCharge=$("#paymentType").value==="加收費用";
  const fields=$("#additionalChargeFields");
@@ -1393,7 +1395,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A RC4 Hotfix 8",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
+ const data={version:"Enterprise V1.2 Build 2A RC5",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){

@@ -2,13 +2,13 @@
   "product": "Meiyuan6 Booking Admin Enterprise",
   "version": "1.2",
   "build": "Enterprise V1.2 Build 2A",
-  "release": "RC4 Hotfix 8",
-  "title": "Payment Status & Mobile Template Width",
-  "status": "RC4 Hotfix 8 QA Candidate",
+  "release": "RC5",
+  "title": "Unified Management UI",
+  "status": "RC5 QA Candidate",
   "storageSchema": 12,
   "date": "2026-07-27",
   "officialStable": false,
   "locked": false,
-  "name": "Enterprise V1.2 Build 2A RC4 Hotfix 8 — Payment Status & Mobile Template Width",
+  "name": "Enterprise V1.2 Build 2A RC5 — Unified Management UI",
   "updated": "2026-07-27"
 }

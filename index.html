@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · RC4 Hotfix 8</p>
+    <p>Enterprise V1.2 · Build 2A · RC5</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -37,7 +37,7 @@
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · RC4 Hotfix 8</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · RC5</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -128,7 +128,7 @@
           <input id="orderSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、房間或方案">
           <select id="statusFilter"><option value="">全部生命週期</option><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select>
         </div>
-        <div id="orderMobileList" class="order-mobile-list"></div>
+        <div id="orderMobileList" class="order-mobile-list unified-management-list"></div>
         <div class="table-wrap order-desktop-table"><table>
           <thead><tr><th>訂單</th><th>旅客</th><th>住宿日期</th><th>方案／房間</th><th>服務</th><th>金額</th><th>狀態</th></tr></thead>
           <tbody id="orderTableBody"></tbody>
@@ -140,7 +140,7 @@
       <section class="panel">
         <div class="panel-head management-panel-head"><div><h3>入住管理</h3><span id="checkinResultCount" class="management-result-count" aria-live="polite"></span></div><button data-page-jump="templates" data-icon="file-text">提取入住須知</button></div>
         <div class="management-search-bar" role="search"><input id="checkinSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、房間或入住日期"><button id="clearCheckinSearch" type="button">清除</button></div>
-        <div id="checkinList"></div>
+        <div id="checkinList" class="unified-management-list"></div>
       </section>
     </section>
 
@@ -148,7 +148,7 @@
       <section class="panel">
         <div class="panel-head management-panel-head"><div><h3>收款管理</h3><span id="paymentResultCount" class="management-result-count" aria-live="polite"></span></div><button id="addPaymentBtn" class="primary" data-icon="wallet">登記收款</button></div>
         <div class="management-search-bar" role="search"><input id="paymentSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、收款狀態或房間"><button id="clearPaymentSearch" type="button">清除</button></div>
-        <div id="paymentMobileList" class="payment-mobile-list"></div>
+        <div id="paymentMobileList" class="payment-mobile-list unified-management-list"></div>
         <div class="table-wrap payment-desktop-table"><table>
           <thead><tr><th>訂單</th><th>旅客</th><th>原始訂單</th><th>加收費用</th><th>最新應收</th><th>預收訂金</th><th>已收淨額</th><th>已退款</th><th>剩餘應收</th><th>狀態</th></tr></thead>
           <tbody id="paymentTableBody"></tbody>
@@ -184,7 +184,7 @@
           <thead><tr><th>姓名</th><th>聯絡方式</th><th>入住次數</th><th>累計消費</th><th>最近入住</th><th>備註</th><th>操作</th></tr></thead>
           <tbody id="guestTableBody"></tbody>
         </table></div>
-        <div id="guestMobileList" class="guest-mobile-list"></div>
+        <div id="guestMobileList" class="guest-mobile-list unified-management-list"></div>
       </section>
       <section class="panel wifi-panel">
         <div class="panel-head"><h3>住客 Wi-Fi</h3><button id="copyWifiBtn" data-icon="copy">複製 Wi-Fi 資料</button></div>

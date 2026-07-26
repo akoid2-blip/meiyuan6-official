@@ -330,3 +330,80 @@ th,td{padding:9px 8px;line-height:1.35;vertical-align:middle}tbody tr{height:54p
  #templates .template-item{width:100%;min-width:0;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
  #templates .template-item>span{min-width:0;overflow-wrap:anywhere}
 }
+
+
+/* Enterprise V1.2 Build 2A RC4 Hotfix 9 — Collapsible Order & Payment Actions */
+.order-summary-row{cursor:default}
+.order-summary-row.is-expanded td{background:rgba(239,246,241,.42)}
+.order-row-toggle{display:block;margin-top:8px;min-height:30px;padding:5px 10px;border-radius:8px;background:#edf4ef;color:var(--brand);font-size:12px;font-weight:850}
+.order-action-row.hidden,.payment-detail-wrap.hidden{display:none}
+.payment-desktop-table table{table-layout:auto}
+.payment-desktop-table .payment-order-row>td{border-bottom:0;padding-bottom:8px;vertical-align:middle}
+.payment-action-row td{padding:0 10px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(247,245,239,.58),rgba(255,255,255,0))}
+.payment-action-row-inner{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px dashed var(--line)}
+.payment-action-label{flex:0 0 auto;color:var(--muted);font-size:12px;font-weight:850;letter-spacing:.08em}
+.payment-table-actions{display:flex;flex-wrap:wrap;gap:8px}
+.payment-detail-wrap{margin-top:2px;padding:14px 0 2px;border-top:1px solid var(--line)}
+@media(max-width:960px){.payment-action-row-inner{align-items:flex-start;flex-direction:column}.payment-table-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.payment-table-actions button{width:100%}}
+
+
+/* Enterprise V1.2 Build 2A RC5 — Unified Management UI */
+/* Orders, check-in, payments and guests now share one responsive accordion card foundation. */
+#orders .order-desktop-table,
+#payments .payment-desktop-table,
+#guests .guest-desktop-table{display:none!important}
+#orders .order-mobile-list,
+#payments .payment-mobile-list,
+#guests .guest-mobile-list,
+#checkin .unified-management-list{display:grid!important;gap:12px;width:100%;min-width:0}
+.unified-management-list .management-mobile-card,
+#guests .guest-mobile-card{display:block;width:100%;min-width:0;margin:0;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 4px 16px rgba(35,49,41,.045)}
+.unified-management-list .management-mobile-summary,
+#guests .guest-mobile-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;min-height:76px;padding:15px 18px;cursor:pointer;list-style:none;transition:background .18s ease}
+.unified-management-list .management-mobile-summary:hover,
+#guests .guest-mobile-summary:hover{background:#faf9f6}
+.unified-management-list .management-mobile-card[open]>.management-mobile-summary,
+#guests .guest-mobile-card[open]>.guest-mobile-summary{background:#f3f7f4;border-bottom:1px solid var(--line)}
+.unified-management-list .management-mobile-body,
+#guests .guest-mobile-body{padding:18px}
+.unified-management-list .management-mobile-identity strong,
+#guests .guest-mobile-identity strong{font-size:17px;line-height:1.35}
+.unified-management-list .management-mobile-summary-meta,
+#guests .guest-mobile-summary-meta{min-width:112px;text-align:right}
+.unified-management-list .mobile-card-actions,
+#guests .guest-mobile-edit{margin-top:16px}
+.unified-management-list .mobile-card-actions{display:flex;flex-wrap:wrap;gap:9px}
+.unified-management-list .mobile-card-actions button{width:auto;min-width:128px;min-height:40px}
+.unified-management-list .order-mobile-card dl{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.unified-management-list .order-mobile-card dl .wide{grid-column:auto}
+.unified-management-list .payment-mobile-summary{grid-template-columns:repeat(4,minmax(0,1fr))}
+#checkin .checklist{grid-template-columns:repeat(4,minmax(0,1fr))}
+#guests .guest-mobile-body dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+#guests .guest-mobile-body dl .wide{grid-column:span 2}
+.management-expand-label,.guest-expand-label{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;color:var(--brand);font-weight:850}
+.management-expand-label::before,.guest-expand-label::before{content:"▼";font-size:10px;transition:transform .18s ease}
+.management-mobile-card[open] .management-expand-label::before,.guest-mobile-card[open] .guest-expand-label::before{transform:rotate(180deg)}
+.management-mobile-card[open]>.management-mobile-summary .management-expand-label::after{content:"收合"}
+.guest-mobile-card[open]>.guest-mobile-summary .guest-expand-label{font-size:0}
+.guest-mobile-card[open]>.guest-mobile-summary .guest-expand-label::after{content:"收合";font-size:12px}
+@media(max-width:900px){
+ .unified-management-list .order-mobile-card dl{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .unified-management-list .order-mobile-card dl .wide{grid-column:1/-1}
+ .unified-management-list .payment-mobile-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #checkin .checklist{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #guests .guest-mobile-body dl{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+ #orders .order-mobile-list,#payments .payment-mobile-list,#guests .guest-mobile-list,#checkin .unified-management-list{display:block!important}
+ .unified-management-list .management-mobile-card,#guests .guest-mobile-card{margin-bottom:12px}
+ .unified-management-list .management-mobile-summary,#guests .guest-mobile-summary{padding:14px 15px;gap:10px}
+ .unified-management-list .management-mobile-body,#guests .guest-mobile-body{padding:14px 15px 16px}
+ .unified-management-list .mobile-card-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .unified-management-list .mobile-card-actions button{width:100%;min-width:0}
+ #guests .guest-mobile-body dl{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){
+ .unified-management-list .mobile-card-actions{grid-template-columns:1fr}
+ .unified-management-list .payment-mobile-summary,#checkin .checklist,#guests .guest-mobile-body dl{grid-template-columns:1fr}
+ #guests .guest-mobile-body dl .wide{grid-column:auto}
+}

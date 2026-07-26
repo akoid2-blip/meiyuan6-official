@@ -1,3 +1,24 @@
+# CHANGELOG
+
+## Enterprise V1.2 Build 2A RC5 — Unified Management UI (2026-07-27)
+
+- 將訂單、入住、收款、旅客管理統一為共用 Accordion Card UI。
+- 桌機主要管理介面由表格改為可收合卡片。
+- 四個管理模組預設收合，搜尋結果僅一筆時自動展開。
+- 統一展開提示、卡片 Header、Body、Actions 與 Responsive 行為。
+- 保留收款第二層帳務明細與既有業務邏輯。
+- Storage Schema 維持 12，無資料遷移。
+
+## Enterprise V1.2 Build 2A RC4 Hotfix 9 — Collapsible Order & Payment Action Layout
+
+- 收款管理移除右側無表頭的明細欄，表頭與資料統一為 10 欄。
+- 每筆收款資料下方新增操作列，集中放置查看明細及登記收款／退款。
+- 收款帳務明細改為在該筆操作列下方展開／收合。
+- 桌機訂單操作列預設收合，並在狀態欄提供展開／收合按鈕。
+- 搜尋僅剩一筆訂單時，桌機訂單操作列自動展開。
+- README、VERSION、UI 與備份版本資訊更新為 RC4 Hotfix 9。
+- Storage Schema 維持 12；本版仍為 QA Candidate，未 LOCK、非 Official Stable。
+
 # Enterprise V1.2 Build 2A RC4 Hotfix 8
 
 ## Payment Status & Mobile Template Width
