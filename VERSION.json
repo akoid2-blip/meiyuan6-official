@@ -2,13 +2,13 @@
   "product": "Meiyuan6 Booking Admin Enterprise",
   "version": "1.2",
   "build": "Enterprise V1.2 Build 2A",
-  "release": "RC5.1",
-  "title": "Payment Record Description & Flexible Charge Method",
-  "status": "RC5.1 QA Candidate",
+  "release": "RC6-Service-M1",
+  "title": "Operation Workflow & Automation — Service Management Milestone 1",
+  "status": "RC6 Development Milestone Candidate",
   "storageSchema": 12,
   "date": "2026-07-27",
   "officialStable": false,
   "locked": false,
-  "name": "Enterprise V1.2 Build 2A RC5.1 — Payment Record Description & Flexible Charge Method",
+  "name": "Enterprise V1.2 Build 2A RC6 — Service Management Milestone 1",
   "updated": "2026-07-27"
 }

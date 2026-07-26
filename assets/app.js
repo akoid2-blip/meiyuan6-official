@@ -168,6 +168,20 @@ const seedOrders=[
 const seedTasks=[];
 
 const STORAGE_SCHEMA_VERSION = 12;
+const SERVICE_TYPES=["早餐代訂","接送／叫車","提前入住","延後退房","加床","寵物住宿","特殊需求"];
+const SERVICE_STATUSES=["待安排","已完成"];
+const SERVICE_PAYMENT_STATUSES=["未收款","部分收款","已收款","免費"];
+function normalizeService(raw,index=0){
+ return {id:String(raw?.id||`S-${Date.now().toString(36)}-${index}`),type:SERVICE_TYPES.includes(String(raw?.type))?String(raw.type):"特殊需求",status:SERVICE_STATUSES.includes(String(raw?.status))?String(raw.status):"待安排",fee:Math.max(0,Number(raw?.fee||0)||0),paymentStatus:SERVICE_PAYMENT_STATUSES.includes(String(raw?.paymentStatus))?String(raw.paymentStatus):((Number(raw?.fee||0)||0)>0?"未收款":"免費"),date:validISO(raw?.date,""),time:String(raw?.time||""),note:String(raw?.note||""),createdAt:String(raw?.createdAt||new Date().toISOString()),updatedAt:String(raw?.updatedAt||"")};
+}
+function legacyServices(raw){
+ const list=[];
+ if(raw?.breakfast && Number(raw.breakfast.qty)>0)list.push(normalizeService({id:"legacy-breakfast",type:"早餐代訂",status:raw.breakfast.done?"已完成":"待安排",fee:0,paymentStatus:"免費",date:raw.breakfast.date,time:raw.breakfast.delivery,note:`${raw.breakfast.shop||"早餐代訂"}・${raw.breakfast.qty}份／${raw.breakfast.days||1}天`},0));
+ if(raw?.taxi && raw.taxi.date)list.push(normalizeService({id:"legacy-taxi",type:"接送／叫車",status:raw.taxi.done?"已完成":"待安排",fee:Number(raw.taxi.fare||0),paymentStatus:Number(raw.taxi.fare||0)>0?"未收款":"免費",date:raw.taxi.date,time:raw.taxi.time,note:`${raw.taxi.pickup||""}${raw.taxi.destination?` → ${raw.taxi.destination}`:""}${raw.taxi.guests?`・${raw.taxi.guests}人`:""}`},1));
+ if(raw?.earlyCheckin)list.push(normalizeService({id:"legacy-early",type:"提前入住",status:"待安排",fee:0,paymentStatus:"免費",date:raw.checkin,time:raw.earlyCheckin,note:"由舊版訂單資料轉入"},2));
+ if(raw?.lateCheckout)list.push(normalizeService({id:"legacy-late",type:"延後退房",status:"待安排",fee:0,paymentStatus:"免費",date:raw.checkout,time:raw.lateCheckout,note:"由舊版訂單資料轉入"},3));
+ return list;
+}
 
 function safeJSON(key, fallback){
  try{
@@ -243,6 +257,7 @@ function normalizeOrder(raw, index=0){
    earlyCheckin:String(raw?.earlyCheckin || ""),
    lateCheckout:String(raw?.lateCheckout || ""),
    luggageStorage:Boolean(raw?.luggageStorage),
+   services:(Array.isArray(raw?.services)?raw.services:legacyServices(raw)).map(normalizeService),
    checklist:(raw?.checklist && typeof raw.checklist==="object") ? raw.checklist : {}
  };
 }
@@ -461,9 +476,10 @@ function validateBookingRules(candidate,ignoreId=""){
  return "";
 }
 function serviceTags(o){
- const a=[]; if(o.breakfast?.qty) a.push(`早餐 ${o.breakfast.qty}份／${o.breakfast.days||1}天${o.breakfast.done?"✓":""}`);
- if(o.taxi?.date) a.push(`叫車${o.taxi.done?"✓":""}`); if(o.earlyCheckin)a.push("提早入住"); if(o.lateCheckout)a.push("延後退房"); if(o.luggageStorage)a.push("寄放行李");
- return a;
+ const list=Array.isArray(o.services)?o.services:legacyServices(o);
+ const tags=list.map(s=>`${s.type}${s.status==="已完成"?"✓":""}`);
+ if(o.luggageStorage)tags.push("寄放行李");
+ return [...new Set(tags)];
 }
 function navigate(page){
  $$(".page").forEach(x=>x.classList.toggle("active",x.id===page));
@@ -487,6 +503,7 @@ function renderAll(){
  safeRender("orders",renderOrders);
  safeRender("checkin",renderCheckin);
  safeRender("payments",renderPayments);
+ safeRender("services",renderServices);
  safeRender("tasks",renderTasks);
  safeRender("guests",renderGuests);
  safeRender("templates",renderTemplates);
@@ -696,7 +713,7 @@ function readOrderForm(){
  total:moneyNumber($("#orderTotal").value),paid:moneyNumber($("#orderPaid").value),note:$("#orderNote").value.trim(),
  breakfast:{date:$("#breakfastDate").value,shop:$("#breakfastShop").value.trim(),qty:+$("#breakfastQty").value,days:+$("#breakfastDays").value,delivery:$("#breakfastDelivery").value,done:$("#breakfastDone").checked},
  taxi:{date:$("#taxiDate").value,time:$("#taxiTime").value,pickup:$("#taxiPickup").value.trim(),destination:$("#taxiDestination").value.trim(),guests:+$("#taxiGuests").value,type:$("#taxiType").value.trim(),fare:moneyNumber($("#taxiFare").value),done:$("#taxiDone").checked},
- earlyCheckin:$("#earlyCheckin").value,lateCheckout:$("#lateCheckout").value,luggageStorage:$("#luggageStorage").checked,checklist:orders.find(o=>o.id===$("#orderId").value)?.checklist||{}};
+ earlyCheckin:$("#earlyCheckin").value,lateCheckout:$("#lateCheckout").value,luggageStorage:$("#luggageStorage").checked,services:orders.find(o=>o.id===$("#orderId").value)?.services||[],checklist:orders.find(o=>o.id===$("#orderId").value)?.checklist||{}};
 }
 $("#orderForm").addEventListener("invalid",e=>{
  e.preventDefault();
@@ -1076,6 +1093,31 @@ function renderCheckin(){
 
 window.toggleCheck=(id,key,val)=>{const o=orders.find(x=>x.id===id);o.checklist=o.checklist||{};o.checklist[key]=val;if(key==="完成入住"&&val)o.status="已入住";persist();renderAll();};
 
+
+function allServiceRows(){return orders.flatMap(order=>(order.services||[]).map(service=>({order,service})));}
+function servicePaymentClass(s){return ({"已收款":"green","免費":"gray","部分收款":"gold","未收款":"red"}[s]||"gray");}
+function renderServices(){
+ const box=$("#serviceManagementList");if(!box)return;
+ const q=String($("#serviceSearch")?.value||"").trim().toLocaleLowerCase("zh-TW"),status=$("#serviceStatusFilter")?.value||"",payment=$("#servicePaymentFilter")?.value||"";
+ let rows=allServiceRows().filter(({order,service})=>(!status||service.status===status)&&(!payment||service.paymentStatus===payment)&&(!q||[order.id,order.name,order.phone,service.type,service.note].join(" ").toLocaleLowerCase("zh-TW").includes(q)));
+ rows.sort((a,b)=>String(a.service.date||a.order.checkin).localeCompare(String(b.service.date||b.order.checkin)));
+ $("#serviceResultCount").textContent=`${rows.length} 筆`;
+ box.innerHTML=rows.map(({order,service})=>`<article class="service-management-card"><div class="service-card-main"><div><span class="service-order-id">${esc(order.id)}</span><h4>${esc(service.type)}｜${esc(order.name)}</h4><p>${esc(service.date||"日期未定")}${service.time?` ${esc(service.time)}`:""}・${esc(service.note||"無備註")}</p></div><div class="service-card-badges"><span class="badge ${service.status==="已完成"?"green":"gold"}">${esc(service.status)}</span><span class="badge ${servicePaymentClass(service.paymentStatus)}">${esc(service.paymentStatus)}</span></div></div><div class="service-card-footer"><strong>${service.paymentStatus==="免費"?"免費":money(service.fee)}</strong><div class="table-actions"><button onclick="window.editService('${order.id}','${service.id}')">編輯</button><button class="danger" onclick="window.deleteService('${order.id}','${service.id}')">刪除</button></div></div></article>`).join("")||'<div class="empty">沒有符合條件的住宿服務。</div>';
+}
+function openServiceDialog(orderId="",service=null){
+ const select=$("#serviceOrderId");select.innerHTML=orders.map(o=>`<option value="${o.id}">${o.id}｜${esc(o.name)}｜${o.checkin}</option>`).join("");
+ $("#serviceDialogTitle").textContent=service?"編輯住宿服務":"新增住宿服務";$("#serviceId").value=service?.id||"";select.value=orderId||orders[0]?.id||"";select.disabled=!!service;
+ $("#serviceType").value=service?.type||"早餐代訂";$("#serviceStatus").value=service?.status||"待安排";$("#serviceFee").value=formatMoneyInput(service?.fee||0);$("#servicePaymentStatus").value=service?.paymentStatus||"未收款";$("#serviceDate").value=service?.date||"";$("#serviceTime").value=service?.time||"";$("#serviceNote").value=service?.note||"";$("#serviceDialog").showModal();
+}
+window.editService=(orderId,serviceId)=>{const order=orders.find(o=>o.id===orderId),service=order?.services?.find(s=>s.id===serviceId);if(service)openServiceDialog(orderId,service);};
+window.deleteService=(orderId,serviceId)=>{if(!confirm("確定刪除此住宿服務？"))return;const order=orders.find(o=>o.id===orderId);if(!order)return;order.services=(order.services||[]).filter(s=>s.id!==serviceId);persist();renderAll();toast("住宿服務已刪除");};
+$("#addServiceBtn")?.addEventListener("click",()=>openServiceDialog());
+["serviceSearch","serviceStatusFilter","servicePaymentFilter"].forEach(id=>$("#"+id)?.addEventListener(id==="serviceSearch"?"input":"change",renderServices));
+$("#serviceFee")?.addEventListener("focus",e=>{e.target.value=moneyNumber(e.target.value)?String(moneyNumber(e.target.value)):"";e.target.select();});
+$("#serviceFee")?.addEventListener("input",e=>{e.target.value=String(e.target.value||"").replace(/[^0-9]/g,"").replace(/^0+(?=\d)/,"");});
+$("#serviceFee")?.addEventListener("blur",e=>{e.target.value=formatMoneyInput(e.target.value);});
+$("#serviceForm")?.addEventListener("submit",e=>{e.preventDefault();const order=orders.find(o=>o.id===$("#serviceOrderId").value);if(!order)return toast("請選擇訂單");const id=$("#serviceId").value||uid("S"),existing=(order.services||[]).find(s=>s.id===id);const service=normalizeService({id,type:$("#serviceType").value,status:$("#serviceStatus").value,fee:moneyNumber($("#serviceFee").value),paymentStatus:$("#servicePaymentStatus").value,date:$("#serviceDate").value,time:$("#serviceTime").value,note:$("#serviceNote").value.trim(),createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()});order.services=order.services||[];const i=order.services.findIndex(s=>s.id===id);if(i>=0)order.services[i]=service;else order.services.push(service);persist();$("#serviceDialog").close();renderAll();toast("住宿服務已儲存");});
+
 function paymentStatus(summary,total){
  if(summary.over>0)return '<span class="badge red">異常帳款</span>';
  if(summary.net===0)return '<span class="badge gray">未收款</span>';
@@ -1404,7 +1446,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A RC5.1",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
+ const data={version:"Enterprise V1.2 Build 2A RC6 Service Management Milestone 1",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){

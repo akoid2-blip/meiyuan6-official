@@ -108,3 +108,21 @@
 ### Status
 - RC4 Integration QA.
 - Not Official Stable.
+
+## Enterprise V1.2 Build 2A RC6 — Service Management Milestone 1 (2026-07-27)
+
+### Added
+- 新增獨立「住宿服務」管理頁。
+- 統一服務類型：早餐代訂、接送／叫車、提前入住、延後退房、加床、寵物住宿、特殊需求。
+- 每筆服務支援處理狀態、費用、收款狀態、日期、時間與備註。
+- 新增服務搜尋、處理狀態篩選與收款狀態篩選。
+- 新增服務建立、編輯與刪除操作。
+
+### Compatibility
+- Storage Schema 維持 v12。
+- 保留既有 breakfast、taxi、earlyCheckin、lateCheckout 欄位與通知模板。
+- 舊資料載入時自動映射為統一 services 清單，不破壞既有訂單資料。
+- 服務費用不會自動改變訂單應收，需入帳時仍由收款管理的「加收費用」處理。
+
+### Status
+- RC6 開發里程碑，尚未宣告 Official Stable。

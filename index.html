@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · RC5.1.1</p>
+    <p>Enterprise V1.2 · Build 2A · RC6 Service M1</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -31,13 +31,14 @@
       <button data-icon="clipboard" data-page="orders">訂單管理</button>
       <button data-icon="login" data-page="checkin">入住管理</button>
       <button data-icon="wallet" data-page="payments">收款管理</button>
+      <button data-icon="concierge" data-page="services">住宿服務</button>
       <button data-icon="sparkles" data-page="housekeeping">房務管理</button>
       <button data-icon="users" data-page="guests">旅客資料</button>
       <button data-icon="file-text" data-page="templates">模板中心</button>
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · RC5.1</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · RC6 Service M1</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -153,6 +154,22 @@
           <thead><tr><th>訂單</th><th>旅客</th><th>原始訂單</th><th>加收費用</th><th>最新應收</th><th>預收訂金</th><th>已收淨額</th><th>已退款</th><th>剩餘應收</th><th>狀態</th></tr></thead>
           <tbody id="paymentTableBody"></tbody>
         </table></div>
+      </section>
+    </section>
+
+    <section id="services" class="page">
+      <section class="panel">
+        <div class="panel-head service-management-head">
+          <div><h3>住宿服務管理</h3><p class="section-note">集中管理早餐、接送、提前入住、延後退房、加床、寵物與特殊需求。</p></div>
+          <button id="addServiceBtn" class="primary" data-icon="plus">新增服務</button>
+        </div>
+        <div class="service-toolbar">
+          <input id="serviceSearch" type="search" placeholder="搜尋訂單、旅客或服務">
+          <select id="serviceStatusFilter"><option value="">全部狀態</option><option>待安排</option><option>已完成</option></select>
+          <select id="servicePaymentFilter"><option value="">全部收款狀態</option><option>未收款</option><option>部分收款</option><option>已收款</option><option>免費</option></select>
+          <span id="serviceResultCount" class="badge green">0 筆</span>
+        </div>
+        <div id="serviceManagementList" class="service-management-list"></div>
       </section>
     </section>
 
@@ -425,6 +442,25 @@
   <div id="paymentDialogSummary" class="payment-dialog-summary" aria-live="polite"></div>
   <p class="section-note">一般收款仍受剩餘應收限制；收款可填寫備註。退款必須填寫原因與說明。加收費用不受原始訂單金額限制，且收款方式可自由選擇。</p>
   <div class="dialog-actions"><button type="button" data-close="paymentDialog">取消</button><button class="primary" type="submit">儲存</button></div>
+</form>
+</dialog>
+
+<dialog id="serviceDialog">
+<form id="serviceForm">
+  <div class="dialog-head"><h3 id="serviceDialogTitle">新增住宿服務</h3><button type="button" class="icon-only" data-icon="x" data-close="serviceDialog" aria-label="關閉"></button></div>
+  <input id="serviceId" type="hidden">
+  <div class="form-grid">
+    <label class="wide">訂單<select id="serviceOrderId" required></select></label>
+    <label>服務項目<select id="serviceType" required><option>早餐代訂</option><option>接送／叫車</option><option>提前入住</option><option>延後退房</option><option>加床</option><option>寵物住宿</option><option>特殊需求</option></select></label>
+    <label>處理狀態<select id="serviceStatus"><option>待安排</option><option>已完成</option></select></label>
+    <label>費用<input id="serviceFee" type="text" inputmode="numeric" value="0"></label>
+    <label>收款狀態<select id="servicePaymentStatus"><option>未收款</option><option>部分收款</option><option>已收款</option><option>免費</option></select></label>
+    <label>服務日期<input id="serviceDate" type="date"></label>
+    <label>服務時間<input id="serviceTime" type="time"></label>
+    <label class="wide">備註<textarea id="serviceNote" rows="4" maxlength="300" placeholder="例如：早餐 10 份、08:00 送達；需要嬰兒床一張"></textarea></label>
+  </div>
+  <p class="section-note">服務費用僅作服務追蹤，不會自動改變訂單應收；需要入帳時請至收款管理登記加收費用。</p>
+  <div class="dialog-actions"><button type="button" data-close="serviceDialog">取消</button><button class="primary" type="submit">儲存服務</button></div>
 </form>
 </dialog>
 
