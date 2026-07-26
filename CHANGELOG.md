@@ -1,3 +1,13 @@
+# Enterprise V1.2 Build 2A RC4 Hotfix 8
+
+## Payment Status & Mobile Template Width
+
+- 修正桌機收款管理的狀態判定，統一顯示「未收款／部分收款／已結清」，並與手機版使用相同應收基準。
+- 帳款已結清且無異常溢收時，普通收款紀錄中的待核帳項目會自動轉為已核帳。
+- 加收費用維持原有獨立核帳邏輯，避免自動核帳造成重複實收。
+- 手機模板清單卡片改為滿版寬度，修正 flex 版面因 `align-items:start` 造成的內容寬度縮限。
+- Storage Schema 維持 12；本版仍為 QA Candidate，未 LOCK、非 Official Stable。
+
 # Enterprise V1.2 Build 2A RC4 Hotfix 7
 
 ## Template Workspace Layout Optimization

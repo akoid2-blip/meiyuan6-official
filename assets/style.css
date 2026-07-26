@@ -320,3 +320,13 @@ th,td{padding:9px 8px;line-height:1.35;vertical-align:middle}tbody tr{height:54p
 .template-variable-empty{grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
 @media(max-width:900px){.template-section-head{display:grid;align-items:stretch}.template-variable-search-label{width:100%}}
 @media(max-width:760px){.template-variables-section{margin:0;padding:0;border:0;background:transparent}.template-section-head{margin-bottom:10px}.template-variable-panel{grid-template-columns:1fr}.template-common-variables{grid-column:auto}}
+
+
+/* Enterprise V1.2 Build 2A RC4 Hotfix 8 — Payment Status & Mobile Template Width */
+@media(max-width:650px){
+ #templates .template-layout{display:flex;flex-direction:column;align-items:stretch;width:100%;min-width:0}
+ #templates .template-layout>.panel{width:100%;max-width:none;min-width:0;box-sizing:border-box}
+ #templates #templateList{width:100%;min-width:0}
+ #templates .template-item{width:100%;min-width:0;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+ #templates .template-item>span{min-width:0;overflow-wrap:anywhere}
+}

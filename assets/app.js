@@ -305,6 +305,17 @@ function paymentSummary(order){
  const over=Math.max(0,net-adjustedTotal);
  return {opening,receipts,refunds,deposit:opening+depositRecords,additionalCharges,settledAdditionalCharges,adjustedTotal,net,remaining,over,records,chargeRecords,settledChargeRecords,receiptRecords};
 }
+function autoVerifySettledPayments(order){
+ const summary=paymentSummary(order);
+ if(summary.remaining!==0||summary.over>0)return 0;
+ let changed=0;
+ summary.records.forEach(p=>{
+   if(!p.verified&&p.amount>0&&p.type!=="加收費用"){p.verified=true;changed+=1;}
+ });
+ return changed;
+}
+function autoVerifyAllSettledPayments(){return orders.reduce((sum,order)=>sum+autoVerifySettledPayments(order),0);}
+
 function hasCompletedDeposit(order){
  const summary=paymentSummary(order);
  const verifiedDeposit=summary.receiptRecords.some(p=>p.type==="訂金"&&p.amount>0&&p.verified);
@@ -357,6 +368,8 @@ let roomLocks=(Array.isArray(safeJSON("my6_room_locks",[])) ? safeJSON("my6_room
 }));
 let calDate=new Date();
 reconcileOpeningPaid();
+const autoVerifiedPaymentsOnLoad=autoVerifyAllSettledPayments();
+if(autoVerifiedPaymentsOnLoad) localStorage.setItem("my6_payments",JSON.stringify(payments));
 
 try{
  const oldVersion=Number(localStorage.getItem("my6_schema_version")||0);
@@ -383,6 +396,7 @@ function persist(){
  orders=orders.map(normalizeOrder);
  payments=payments.map(normalizePayment);
  reconcileOpeningPaid();
+ autoVerifyAllSettledPayments();
  tasks=tasks.map(normalizeTask);
  syncGuestProfilesFromOrders();
  localStorage.setItem("my6_schema_version",String(STORAGE_SCHEMA_VERSION));
@@ -1095,7 +1109,7 @@ function renderPayments(){
  renderPaymentMobileCards(list);
  const rows=list.map(o=>{
    const p=paymentSummary(o);
-   return `<tr class="payment-order-row"><td>${esc(o.id)}</td><td>${esc(o.name)}</td><td>${money(o.total)}</td><td>${money(p.additionalCharges)}</td><td>${money(p.adjustedTotal)}</td><td>${money(p.deposit)}</td><td>${money(p.net)}</td><td>${money(p.refunds)}</td><td>${money(p.remaining)}</td><td>${paymentStatus(p)}</td><td><button type="button" class="compact-button" data-icon="file-text" onclick="window.togglePaymentDetail('${o.id}')">明細</button></td></tr><tr id="payment-detail-${o.id}" class="payment-detail-row hidden"><td colspan="11"><div class="payment-detail-wrap"><div class="payment-summary-inline"><span>原始訂單<strong>${money(o.total)}</strong></span><span>加收費用<strong>+${money(p.additionalCharges)}</strong></span><span>最新應收<strong>${money(p.adjustedTotal)}</strong></span><span>預收訂金<strong>${money(p.deposit)}</strong></span><span>已收淨額<strong>${money(p.net)}</strong></span><span>已退款<strong>${money(p.refunds)}</strong></span><span>剩餘應收<strong>${money(p.remaining)}</strong></span></div><div class="table-wrap"><table class="payment-detail-table"><thead><tr><th>日期</th><th>類型</th><th>方式／說明</th><th>金額</th><th>核帳</th></tr></thead><tbody>${paymentDetailRows(o)}</tbody></table></div></div></td></tr>`;
+   return `<tr class="payment-order-row"><td>${esc(o.id)}</td><td>${esc(o.name)}</td><td>${money(o.total)}</td><td>${money(p.additionalCharges)}</td><td>${money(p.adjustedTotal)}</td><td>${money(p.deposit)}</td><td>${money(p.net)}</td><td>${money(p.refunds)}</td><td>${money(p.remaining)}</td><td>${paymentStatus(p,p.adjustedTotal)}</td><td><button type="button" class="compact-button" data-icon="file-text" onclick="window.togglePaymentDetail('${o.id}')">明細</button></td></tr><tr id="payment-detail-${o.id}" class="payment-detail-row hidden"><td colspan="11"><div class="payment-detail-wrap"><div class="payment-summary-inline"><span>原始訂單<strong>${money(o.total)}</strong></span><span>加收費用<strong>+${money(p.additionalCharges)}</strong></span><span>最新應收<strong>${money(p.adjustedTotal)}</strong></span><span>預收訂金<strong>${money(p.deposit)}</strong></span><span>已收淨額<strong>${money(p.net)}</strong></span><span>已退款<strong>${money(p.refunds)}</strong></span><span>剩餘應收<strong>${money(p.remaining)}</strong></span></div><div class="table-wrap"><table class="payment-detail-table"><thead><tr><th>日期</th><th>類型</th><th>方式／說明</th><th>金額</th><th>核帳</th></tr></thead><tbody>${paymentDetailRows(o)}</tbody></table></div></div></td></tr>`;
  }).join("");
  $("#paymentTableBody").innerHTML=rows||'<tr><td colspan="11">尚無訂單。</td></tr>';
  applyStaticIcons($("#payments"));
@@ -1379,7 +1393,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A RC4 Hotfix 7",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
+ const data={version:"Enterprise V1.2 Build 2A RC4 Hotfix 8",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){

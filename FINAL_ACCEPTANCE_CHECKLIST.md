@@ -32,3 +32,15 @@ Status: RC4 Hotfix 2 QA / Not Official Stable / Not LOCKED
 - [ ] 手機卡片展開後操作區位於最下方。
 - [ ] 刪除按鈕位於最後且不易誤觸。
 - [ ] 既有訂單生命週期、收款、LINE 與日期／房間調整功能正常。
+
+
+## RC4 Hotfix 8
+
+- [x] 桌機與手機收款狀態一致
+- [x] 未收款／部分收款／已結清判定修正
+- [x] 已結清一般待核帳收款自動核帳
+- [x] 加收費用維持獨立核帳邏輯
+- [x] 手機模板清單卡片滿版
+- [ ] iPhone Safari 實機驗收
+- [ ] Android Chrome 實機驗收
+- [ ] iPad Safari 實機驗收

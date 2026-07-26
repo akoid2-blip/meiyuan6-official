@@ -1,4 +1,4 @@
-# Enterprise V1.2 Build 2A RC4 Hotfix 7 — Template Variable UX Optimization
+# Enterprise V1.2 Build 2A RC4 Hotfix 8 — Payment Status & Mobile Template Width
 
 RC4 整合目前已完成的 Build 2A 功能，並將交付資料夾與 QA 文件名稱縮短，以避免 Windows 檔案總管解壓縮錯誤 `0x80010135：路徑太長`。
 
@@ -20,7 +20,7 @@ RC4 整合目前已完成的 Build 2A 功能，並將交付資料夾與 QA 文�
 
 ## 版本狀態
 
-- Release Candidate：RC4 Hotfix 7
+- Release Candidate：RC4 Hotfix 8
 - Schema：12
 - 非 Official Stable
 - 本版需完成實機 iPhone Safari、Android Chrome 與 iPad 驗收後，才可進入後續 Stable 評估。
@@ -40,7 +40,7 @@ RC4 整合目前已完成的 Build 2A 功能，並將交付資料夾與 QA 文�
 - 模板中心：可選訂單預覽、點擊插入變數、即時顯示套用結果。
 - 缺值規則：顯示「（尚未提供）」，不保留未替換的 `{{變數}}`。
 
-本版本仍為 RC4 Hotfix 7 QA，尚未宣告 Official Stable 或 LOCK。
+本版本仍為 RC4 Hotfix 8 QA，尚未宣告 Official Stable 或 LOCK。
 
 ## RC4 Hotfix 7 — 入住管理訂金自動核對
 
@@ -56,3 +56,10 @@ RC4 整合目前已完成的 Build 2A 功能，並將交付資料夾與 QA 文�
 - 操作列支援自動換行，保留編輯、調整日期／房間、變更狀態、入住／退房、收款、官方 LINE 與刪除。
 - 手機版操作維持在單筆收合卡片展開內容底部，採兩欄排列，小螢幕自動切為單欄。
 - 刪除按鈕固定在最後並跨滿整列，以降低誤觸。
+
+## RC4 Hotfix 8 — 收款狀態與手機模板清單
+
+- 桌機與手機收款狀態統一為未收款、部分收款、已結清。
+- 已結清帳款的普通待核帳收款會自動轉為已核帳。
+- 加收費用不套用一般收款自動核帳，避免重複認列。
+- 手機模板清單卡片填滿可用寬度。
