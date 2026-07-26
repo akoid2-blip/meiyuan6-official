@@ -1,14 +1,24 @@
-# FINAL ACCEPTANCE CHECKLIST — Build 2A RC3
+# RC4 Hotfix 1 Acceptance Checklist
 
-- [x] Mobile payment card layout
-- [x] Mobile payment/refund/additional-charge bottom sheet
-- [x] Payment summary and long-text overflow protection
-- [x] Mobile order card layout and operations
-- [x] Mobile calendar non-drag adjustment flow
-- [x] Conflict, lock, past-date and lifecycle validation
-- [x] Desktop drag retained
-- [x] Responsive Chromium QA profiles
-- [x] VERSION / CHANGELOG / README / QA report
-- [x] ZIP and SHA-256
+- [x] RC3 mobile responsive changes integrated.
+- [x] Accounting duplicate-recognition fix integrated.
+- [x] Backfilled order guest synchronization integrated.
+- [x] Desktop/mobile guest search integrated.
+- [x] Mobile single-record accordion and scrolling integrated.
+- [x] Wi-Fi excluded from guest filtering and accordion behavior.
+- [x] Short Windows-safe archive paths applied.
+- [x] Static QA completed.
+- [ ] Browser QA pending because automated navigation was blocked by the execution environment.
+- [ ] iPhone Safari real-device acceptance.
+- [ ] Android Chrome real-device acceptance.
+- [ ] iPad Safari real-device acceptance.
+- [ ] Official Stable approval.
 
-Status: Milestone A4 RC3 LOCK / Build 2A LOCK. Not Official Stable.
+- [x] Login version label shows RC4 Hotfix 1.
+- [x] Sidebar version label shows RC4 Hotfix 1.
+- [x] Backup export metadata shows RC4 Hotfix 1.
+- [x] Storage Schema remains 12.
+- [ ] iPhone Safari real-device acceptance.
+- [ ] Android Chrome real-device acceptance.
+- [ ] iPad Safari portrait and landscape acceptance.
+- [ ] RC4 Hotfix 1 LOCK after real-device acceptance.

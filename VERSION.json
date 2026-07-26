@@ -2,18 +2,17 @@
   "product": "Meiyuan6 Booking Admin Enterprise",
   "version": "1.2",
   "build": "2A",
-  "milestone": "A4",
-  "release": "RC3 Hotfix 1",
+  "release": "RC4 Hotfix 1",
   "released": "2026-07-26",
   "schema": 12,
-  "status": "Milestone A4 RC3 Hotfix 1 QA / Build 2A LOCK maintained",
-  "baseline": "Milestone A4 RC3 — Mobile & Responsive Integration",
-  "scope": "Verified Additional Charge Settlement & Backfill Guest Profile Sync",
+  "status": "RC4 Hotfix 1 QA",
+  "baseline": "Enterprise V1.2 Build 2A RC4",
+  "scope": "Version consistency across login, sidebar and backup exports; RC4 device acceptance preparation",
   "officialStable": false,
   "qaTargets": [
-    "iPhone Safari responsive profile",
-    "Android Chrome responsive profile",
-    "iPad responsive profile",
+    "iPhone Safari profile",
+    "Android Chrome profile",
+    "iPad profile",
     "Desktop Chromium"
   ]
 }

@@ -1132,11 +1132,18 @@ function buildGuestMap(){
  const map={};orders.filter(o=>o&&!NON_OCCUPYING_STATES.has(lifecycleStatus(o))).forEach(o=>{const phone=String(o.phone||"").trim();if(!phone)return;if(!map[phone])map[phone]={name:o.name,phone,count:0,total:0,last:"",note:""};const g=map[phone];g.count++;g.total+=paymentSummary(o).adjustedTotal;g.last=g.last>o.checkin?g.last:o.checkin;if(o.note)g.note=o.note;});
  Object.keys(map).forEach(p=>Object.assign(map[p],guestProfiles[p]||{}));return map;
 }
+function guestSearchText(g){
+ return [g.name,g.phone,g.line,g.email,g.plate,g.pet,g.note,g.last].map(v=>String(v||"").toLocaleLowerCase("zh-TW")).join(" ");
+}
 function renderGuests(){
- const guests=Object.values(buildGuestMap());
- $("#guestTableBody").innerHTML=guests.map(g=>`<tr><td><strong>${esc(g.name)}</strong>${g.line?`<span class="guest-detail">LINE：${esc(g.line)}</span>`:""}</td><td>${esc(g.phone)}${g.email?`<span class="guest-detail">${esc(g.email)}</span>`:""}</td><td>${g.count}</td><td>${money(g.total)}</td><td>${g.last}</td><td>${esc(g.note||"-")}${g.plate?`<span class="guest-detail">車牌：${esc(g.plate)}</span>`:""}</td><td><button class="guest-edit-btn" onclick="window.editGuest('${esc(g.phone)}')">${uiIcon("edit")}編輯旅客</button></td></tr>`).join("")||'<tr><td colspan="7">尚無旅客資料。</td></tr>';
+ const allGuests=Object.values(buildGuestMap()).sort((a,b)=>String(b.last||"").localeCompare(String(a.last||""),"zh-TW")||String(a.name||"").localeCompare(String(b.name||""),"zh-TW"));
+ const query=String($("#guestSearch")?.value||"").trim().toLocaleLowerCase("zh-TW");
+ const guests=query?allGuests.filter(g=>guestSearchText(g).includes(query)):allGuests;
+ const count=$("#guestResultCount");
+ if(count)count.textContent=query?`找到 ${guests.length}／${allGuests.length} 筆`:`共 ${allGuests.length} 筆`;
+ $("#guestTableBody").innerHTML=guests.map(g=>`<tr><td><strong>${esc(g.name)}</strong>${g.line?`<span class="guest-detail">LINE：${esc(g.line)}</span>`:""}</td><td>${esc(g.phone)}${g.email?`<span class="guest-detail">${esc(g.email)}</span>`:""}</td><td>${g.count}</td><td>${money(g.total)}</td><td>${esc(g.last||"-")}</td><td>${esc(g.note||"-")}${g.plate?`<span class="guest-detail">車牌：${esc(g.plate)}</span>`:""}</td><td><button class="guest-edit-btn" onclick="window.editGuest('${esc(g.phone)}')">${uiIcon("edit")}編輯旅客</button></td></tr>`).join("")||`<tr><td colspan="7">${query?"找不到符合條件的旅客資料。":"尚無旅客資料。"}</td></tr>`;
  const mobile=$("#guestMobileList");
- if(mobile)mobile.innerHTML=guests.map(g=>`<article class="guest-mobile-card"><div class="guest-mobile-head"><div><strong>${esc(g.name)}</strong><span>${esc(g.phone)}</span></div><button class="guest-edit-btn" onclick="window.editGuest('${esc(g.phone)}')">${uiIcon("edit")}編輯旅客</button></div><dl><div><dt>LINE</dt><dd>${esc(g.line||"-")}</dd></div><div><dt>E-mail</dt><dd>${esc(g.email||"-")}</dd></div><div><dt>入住次數</dt><dd>${g.count}</dd></div><div><dt>累計消費</dt><dd>${money(g.total)}</dd></div><div><dt>最近入住</dt><dd>${esc(g.last||"-")}</dd></div><div><dt>車牌</dt><dd>${esc(g.plate||"-")}</dd></div><div class="wide"><dt>備註</dt><dd>${esc(g.note||"-")}</dd></div></dl></article>`).join("")||'<div class="empty">尚無旅客資料。</div>';
+ if(mobile)mobile.innerHTML=guests.map((g,index)=>`<details class="guest-mobile-card"${query&&guests.length===1?" open":""}><summary class="guest-mobile-summary"><span class="guest-mobile-identity"><strong>${esc(g.name)}</strong><span>${esc(g.phone)}</span></span><span class="guest-mobile-summary-meta"><span>${esc(g.last||"尚無日期")}</span><span class="guest-expand-label" aria-hidden="true">展開</span></span></summary><div class="guest-mobile-body"><dl><div><dt>LINE</dt><dd>${esc(g.line||"-")}</dd></div><div><dt>E-mail</dt><dd>${esc(g.email||"-")}</dd></div><div><dt>入住次數</dt><dd>${g.count}</dd></div><div><dt>累計消費</dt><dd>${money(g.total)}</dd></div><div><dt>最近入住</dt><dd>${esc(g.last||"-")}</dd></div><div><dt>車牌</dt><dd>${esc(g.plate||"-")}</dd></div><div><dt>寵物資料</dt><dd>${esc(g.pet||"-")}</dd></div><div class="wide"><dt>備註</dt><dd>${esc(g.note||"-")}</dd></div></dl><button class="guest-edit-btn guest-mobile-edit" onclick="window.editGuest('${esc(g.phone)}')">${uiIcon("edit")}編輯旅客</button></div></details>`).join("")||`<div class="empty">${query?"找不到符合條件的旅客資料。":"尚無旅客資料。"}</div>`;
 }
 window.editGuest=phone=>{const g=buildGuestMap()[phone];$("#guestOriginalPhone").value=phone;$("#profileName").value=g.name||"";$("#profilePhone").value=g.phone||"";$("#profileLine").value=g.line||"";$("#profileEmail").value=g.email||"";$("#profilePlate").value=g.plate||"";$("#profilePet").value=g.pet||"";$("#profileNote").value=g.note||"";$("#guestDialog").showModal();};
 $("#guestForm").addEventListener("submit",e=>{e.preventDefault();const old=$("#guestOriginalPhone").value,phone=$("#profilePhone").value.trim(),p={name:$("#profileName").value.trim(),phone,line:$("#profileLine").value.trim(),email:$("#profileEmail").value.trim(),plate:$("#profilePlate").value.trim(),pet:$("#profilePet").value.trim(),note:$("#profileNote").value.trim()};orders.forEach(o=>{if(o.phone===old){o.phone=phone;o.name=p.name;}});delete guestProfiles[old];guestProfiles[phone]=p;persist();$("#guestDialog").close();renderAll();toast("旅客資料已更新");});
@@ -1206,7 +1213,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A Milestone A4 RC3 Hotfix 1",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
+ const data={version:"Enterprise V1.2 Build 2A RC4 Hotfix 1",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){
@@ -1225,6 +1232,8 @@ function init(){
  $("#quickAddOrder").onclick=$("#addOrderBtn").onclick=()=>openOrder();
 $("#addRoomLockBtn")?.addEventListener("click",()=>openRoomLock());$("#packageType").onchange=handlePackageChange;
  $("#orderSearch").oninput=renderOrders;$("#statusFilter").onchange=renderOrders;
+ $("#guestSearch")?.addEventListener("input",renderGuests);
+ $("#clearGuestSearch")?.addEventListener("click",()=>{const input=$("#guestSearch");if(input){input.value="";input.focus();}renderGuests();});
  $("#addPaymentBtn").onclick=()=>{$("#paymentForm").reset();$("#paymentDate").value=todayISO;$("#paymentDescription").value="";renderOrders();updatePaymentDialogSummary();$("#paymentDialog").showModal();};
  $$("[data-close]").forEach(b=>b.onclick=()=>$("#"+b.dataset.close).close());
  $("#prevMonth").onclick=()=>{calDate.setMonth(calDate.getMonth()-1);renderCalendar();};$("#nextMonth").onclick=()=>{calDate.setMonth(calDate.getMonth()+1);renderCalendar();};$("#calendarToday").onclick=()=>{calDate=new Date();renderCalendar();};

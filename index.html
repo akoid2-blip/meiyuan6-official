@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · A4 RC3</p>
+    <p>Enterprise V1.2 · Build 2A · RC4 Hotfix 1</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -37,7 +37,7 @@
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · A4 RC3</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · RC4 Hotfix 1</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -170,7 +170,14 @@
 
     <section id="guests" class="page">
       <section class="panel">
-        <div class="panel-head"><h3>旅客資料</h3></div>
+        <div class="panel-head guest-panel-head">
+          <div><h3>旅客資料</h3><p class="section-note">可搜尋姓名、電話、LINE、E-mail、車牌與備註；住客 Wi-Fi 不受搜尋影響。</p></div>
+          <span id="guestResultCount" class="guest-result-count" aria-live="polite"></span>
+        </div>
+        <div class="guest-search-bar" role="search">
+          <label class="guest-search-field" for="guestSearch"><span class="sr-only">搜尋旅客資料</span><input id="guestSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、LINE、E-mail、車牌或備註"></label>
+          <button id="clearGuestSearch" type="button" class="guest-search-clear">清除</button>
+        </div>
         <div class="table-wrap guest-desktop-table"><table>
           <thead><tr><th>姓名</th><th>聯絡方式</th><th>入住次數</th><th>累計消費</th><th>最近入住</th><th>備註</th><th>操作</th></tr></thead>
           <tbody id="guestTableBody"></tbody>

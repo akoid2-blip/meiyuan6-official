@@ -1,93 +1,25 @@
 # CHANGELOG
 
-## Enterprise V1.2 Build 2A — Milestone A4 RC3 Hotfix 1 — 2026-07-26
+## Enterprise V1.2 Build 2A RC4 Hotfix 1 — 2026-07-26
 
-- 修正已核帳加收費用的帳務認列：同一筆紀錄同時增加最新應收並計入已收淨額，不再要求另登尾款。
-- 首頁「今日已收」改為加總實際收款；已核帳加收費用只計一次，待核帳加收費用不列入今日實收。
-- Schema 升級至 12，首次載入會備份舊資料，並清理同訂單、同日、同額的「已核帳加收費用＋已核帳尾款」舊版重複紀錄。
-- 修正訂單已收金額與 openingPaid 對帳，避免編輯訂單後把已核帳加收費用重複算入。
-- 補登訂單儲存時同步建立／更新旅客資料，並保留既有 LINE、E-mail、車牌與旅客備註。
-- 旅客累計消費改採最新應收總額，包含加收費用。
-- 狀態：RC3 Hotfix 1；非 Official Stable。
+### Fixed
+- Corrected login screen version label from A4 RC3 to RC4 Hotfix 1.
+- Corrected sidebar version label from A4 RC3 to RC4 Hotfix 1.
+- Corrected backup export metadata from RC3 Hotfix 2 to RC4 Hotfix 1.
+- Kept storage schema at 12; no booking data migration is required.
 
-## Enterprise V1.2 Build 2A — Milestone A4 RC3 Mobile & Responsive Integration — 2026-07-26
+## Enterprise V1.2 Build 2A RC4 — 2026-07-26
 
-- 手機版訂單管理新增原生卡片清單，保留搜尋與生命週期篩選。
-- 手機卡片提供編輯、調整日期／房間、狀態流程、收款、官方 LINE 與刪除操作。
-- 手機版收款管理改為卡片式摘要與可展開帳務明細，不再依賴桌機寬表格。
-- 登記收款、退款、加收費用視窗於手機改為底部全螢幕抽屜，含安全區與固定操作列。
-- 新增「調整日期／房間」流程；手機房況日曆不再安裝觸控拖曳。
-- 調整流程執行日期先後、過期日期、房號鎖定、房況衝突、住宿單位與合法狀態檢查。
-- 桌機房況日曆仍保留拖曳平移及入住／退房邊界調整。
-- 付款摘要、長文字、按鈕與帳務明細加入 overflow-wrap 與單欄響應式控制。
-- 完成 Chromium 響應式 Browser QA：390×844、820×1180、1440×900。
-- 狀態：Milestone A4 RC3 LOCK / Build 2A LOCK；非 Official Stable。
+### Integrated
+- Milestone A4 RC3 Mobile & Responsive Integration.
+- RC3 Hotfix 1 Accounting & Guest Profile.
+- RC3 Hotfix 2 Guest Search & Mobile Accordion.
 
+### Packaging
+- Shortened the archive root directory to `Meiyuan6_Admin_RC4`.
+- Moved historical QA reports to `docs/qa` and shortened filenames.
+- Removed repeated long release names from internal paths to prevent Windows Explorer error 0x80010135.
 
-## Enterprise V1.2 Build 2A — Milestone A4 RC2 Hotfix 2
-### Additional Charge Control — 2026-07-26
-
-- 加收費用改為獨立應收調整，不再視為一般收款。
-- 加收費用不受原始訂單金額限制，建立後自動增加最新應收總額。
-- 加收費用強制填寫分類與至少 2 個字的說明。
-- 新增延遲退房、額外入住人數、寵物清潔費、設備損壞、加購服務與其他分類。
-- 新增重複加收偵測：同訂單、日期、金額、分類與說明相同時阻止建立。
-- 收款上限改依「最新應收總額」計算；一般收款仍禁止超收。
-- 退款上限維持不得超過目前已收淨額。
-- 收款管理新增原始訂單、加收費用、最新應收欄位及完整流水說明。
-- LocalStorage／匯入匯出資料新增 category、description 欄位並向下相容。
-- Schema 升級至 10。
-
-## Enterprise V1.2 Build 2A — Milestone A4 RC2 Hotfix
-### Payment Integrity Control — 2026-07-26
-
-- 收款管理改為「一張訂單一列」，付款明細改為展開檢視。
-- 訂單既有預收訂金自動納入付款摘要，不需重複登記。
-- 新增訂單總額、預收訂金、已收淨額、已退款、剩餘應收與核帳狀態。
-- 阻止收款超過剩餘應收金額。
-- 阻止退款超過目前已收淨額。
-- 阻止同一訂單、日期、類型、方式與金額的重複入帳。
-- 匯入與 LocalStorage 資料新增付款紀錄正規化及既有訂金遷移。
-- 訂單表單修改已收金額時，同步維護預收款基準並阻止超收。
-- 完整保留 Enterprise UI v1.0 Compact 規格。
-
-## Enterprise V1.2 Build 2A — Milestone A4 RC2
-- 修正 LocalStorage／備份匯入後生命週期狀態與歷程遺失問題。
-- 建立單一生命週期轉換核心，統一表單、快捷入住、快捷退房與營運流程的狀態紀錄。
-- 退房清掃任務改由單一函式建立，避免重複產生房務工作。
-- 編輯訂單時只顯示目前狀態與合法下一狀態；終止狀態鎖定不可再變更。
-- 生命週期歷程顯示由最近 3 筆提升為最近 5 筆。
-- 套用 Enterprise UI v1.0 Official Design Lock：縮小按鈕、Icon、間距及列高，統一桌機操作密度。
-- Schema 升級至 8，保留 A1、A2、A3 已鎖定功能。
-
-## Enterprise V1.2 Build 2A — Milestone A4 RC1
-- 新增訂單生命週期：詢問中、待確認、已確認、已入住、已退房、已取消、No Show。
-- 新增合法狀態流轉限制，禁止跳過必要流程或由終止狀態回復。
-- 每次狀態變更保留來源狀態、目標狀態、操作人員與時間。
-- 訂單列表新增生命週期 Badge、歷程筆數與狀態篩選。
-- 已取消與 No Show 不再占用房況；已入住仍持續占用。
-- 已退房狀態自動建立退房清掃工作，延續既有房務流程。
-- 以 Milestone A3 Locked 為基線，保留 A1 日期核心、A2 補登訂房與 A3 房號鎖定。
-
-## Enterprise V1.2 Build 2A — Milestone A3 RC1
-- 新增房號鎖定建立、編輯與解除。
-- 支援單日及連續日期區間鎖定。
-- 鎖定原因可使用常用選項或自行輸入。
-- 新增操作人員、建立時間、修改時間與操作稽核紀錄。
-- 房況日曆顯示鎖定數量，單筆鎖定可直接開啟編輯。
-- 鎖定期間禁止建立一般訂房與補登訂房。
-- 禁止同一房號的鎖定期間互相重疊。
-- 鎖定期間已有有效訂單時，禁止建立鎖定。
-- 保留已 Lock 的 A1 日期規則與 A2 補登訂房規則。
-
-## Enterprise V1.2 Build 2A — Milestone A2 RC1
-
-- A1 房況日曆核心維持 Locked，不變更既有日期判斷。
-- 新增一般訂房／補登訂房模式。
-- 一般訂房禁止建立過去日期。
-- 補登訂房允許建立過去日期，且補登原因必填。
-- 補登時間於首次儲存時自動記錄，編輯時保留原始時間。
-- 補登人員保留為可選欄位。
-- 訂單清單加入補登 Badge、原因、人員與時間摘要。
-- 點擊房況日曆的過去日期，直接開啟補登訂房表單並帶入日期。
-- 保留來源版本既有 UI 與其他模組；本 RC 僅驗收 A2 功能。
+### Status
+- RC4 Integration QA.
+- Not Official Stable.
