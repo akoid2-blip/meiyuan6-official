@@ -138,7 +138,7 @@ const seedOrders=[
 ];
 const seedTasks=[];
 
-const STORAGE_SCHEMA_VERSION = 10;
+const STORAGE_SCHEMA_VERSION = 12;
 
 function safeJSON(key, fallback){
  try{
@@ -253,31 +253,55 @@ function normalizePayment(raw,index=0){
  };
 }
 function paymentRecords(orderId){return payments.filter(p=>p.orderId===orderId);}
+function recordedPaymentNet(orderId){
+ return paymentRecords(orderId).reduce((sum,p)=>{
+   if(p.type==="加收費用") return sum+(p.verified&&p.amount>0?p.amount:0);
+   return sum+p.amount;
+ },0);
+}
 function paymentSummary(order){
  const records=paymentRecords(order.id);
  const opening=Math.max(0,Number(order.openingPaid)||0);
  const chargeRecords=records.filter(p=>p.type==="加收費用"&&p.amount>0);
  const additionalCharges=chargeRecords.reduce((s,p)=>s+p.amount,0);
+ const settledChargeRecords=chargeRecords.filter(p=>p.verified);
+ const settledAdditionalCharges=settledChargeRecords.reduce((s,p)=>s+p.amount,0);
  const receiptRecords=records.filter(p=>p.type!=="加收費用"&&p.amount>0);
  const receipts=receiptRecords.reduce((s,p)=>s+p.amount,0);
  const refunds=Math.abs(records.filter(p=>p.amount<0).reduce((s,p)=>s+p.amount,0));
  const depositRecords=receiptRecords.filter(p=>p.type==="訂金").reduce((s,p)=>s+p.amount,0);
  const adjustedTotal=Math.max(0,Number(order.total||0)+additionalCharges);
- const net=Math.max(0,opening+receipts-refunds);
+ const net=Math.max(0,opening+receipts+settledAdditionalCharges-refunds);
  const remaining=Math.max(0,adjustedTotal-net);
  const over=Math.max(0,net-adjustedTotal);
- return {opening,receipts,refunds,deposit:opening+depositRecords,additionalCharges,adjustedTotal,net,remaining,over,records,chargeRecords,receiptRecords};
+ return {opening,receipts,refunds,deposit:opening+depositRecords,additionalCharges,settledAdditionalCharges,adjustedTotal,net,remaining,over,records,chargeRecords,settledChargeRecords,receiptRecords};
 }
-function syncOrderPaid(order){order.paid=Math.min(paymentSummary(order).adjustedTotal,paymentSummary(order).net);}
+function syncOrderPaid(order){const summary=paymentSummary(order);order.paid=Math.min(summary.adjustedTotal,summary.net);}
 function reconcileOpeningPaid(){
  orders.forEach(order=>{
-   const recorded=paymentRecords(order.id).filter(p=>p.type!=="加收費用").reduce((s,p)=>s+p.amount,0);
+   const recorded=recordedPaymentNet(order.id);
    if(!Number.isFinite(Number(order.openingPaid)) || (Number(order.openingPaid)===0 && Number(order.paid)>Math.max(0,recorded))){
      order.openingPaid=Math.max(0,Number(order.paid||0)-Math.max(0,recorded));
    }
    syncOrderPaid(order);
  });
 }
+function migrateLegacyDuplicateChargePayments(){
+ const removeIds=new Set();
+ payments.filter(p=>p.type==="加收費用"&&p.verified&&p.amount>0).forEach(charge=>{
+   const duplicate=payments.find(p=>!removeIds.has(p.id)&&p.orderId===charge.orderId&&p.date===charge.date&&p.type==="尾款"&&p.amount===charge.amount&&p.verified);
+   if(duplicate)removeIds.add(duplicate.id);
+ });
+ if(removeIds.size)payments=payments.filter(p=>!removeIds.has(p.id));
+ return removeIds.size;
+}
+function upsertGuestProfileFromOrder(order){
+ const phone=String(order?.phone||"").trim();
+ if(!phone)return;
+ const current=(guestProfiles[phone]&&typeof guestProfiles[phone]==="object")?guestProfiles[phone]:{};
+ guestProfiles[phone]={...current,name:String(order.name||current.name||"未命名旅客"),phone,note:current.note||String(order.note||"")};
+}
+function syncGuestProfilesFromOrders(){orders.forEach(upsertGuestProfileFromOrder);}
 const storedOrders = safeJSON("my6_orders", null);
 let orders=(Array.isArray(storedOrders) && storedOrders.length ? storedOrders : seedOrders).map(normalizeOrder);
 let payments=(Array.isArray(safeJSON("my6_payments",[])) ? safeJSON("my6_payments",[]) : []).map(normalizePayment);
@@ -311,7 +335,11 @@ try{
      templates:safeJSON("my6_templates",{}),
      roomLocks:safeJSON("my6_room_locks",[])
    }));
+   migrateLegacyDuplicateChargePayments();
+   syncGuestProfilesFromOrders();
    localStorage.setItem("my6_schema_version",String(STORAGE_SCHEMA_VERSION));
+   localStorage.setItem("my6_payments",JSON.stringify(payments));
+   localStorage.setItem("my6_guest_profiles",JSON.stringify(guestProfiles));
  }
 }catch(error){ console.warn("Schema backup failed",error); }
 
@@ -320,6 +348,7 @@ function persist(){
  payments=payments.map(normalizePayment);
  reconcileOpeningPaid();
  tasks=tasks.map(normalizeTask);
+ syncGuestProfilesFromOrders();
  localStorage.setItem("my6_schema_version",String(STORAGE_SCHEMA_VERSION));
  localStorage.setItem("my6_orders",JSON.stringify(orders));
  localStorage.setItem("my6_payments",JSON.stringify(payments));
@@ -445,8 +474,11 @@ function renderDashboard(){
  const today=activeOrders().filter(o=>todayISO>=o.checkin&&todayISO<o.checkout);
  const inList=activeOrders().filter(o=>o.checkin===todayISO), outList=activeOrders().filter(o=>o.checkout===todayISO);
  const occupied=new Set(today.flatMap(o=>orderRooms(o))).size;
- const due=inList.reduce((s,o)=>s+Math.max(0,o.total-o.paid),0);
- const paidToday=payments.filter(p=>p.date===todayISO).reduce((s,p)=>s+p.amount,0);
+ const due=inList.reduce((s,o)=>s+paymentSummary(o).remaining,0);
+ const paidToday=Math.max(0,payments.filter(p=>p.date===todayISO).reduce((s,p)=>{
+   if(p.type==="加收費用")return s+(p.verified&&p.amount>0?p.amount:0);
+   return s+p.amount;
+ },0));
  const pendingCleaning=tasks.filter(t=>t.date<=todayISO&&t.status!=="已完成").length;
  const alerts=getAlerts();
  $("#statCheckin").textContent=inList.length; $("#statCheckout").textContent=outList.length;
@@ -586,7 +618,7 @@ $("#orderForm").addEventListener("submit",e=>{
  const ruleError=validateBookingRules(o,o.id); if(ruleError){$("#conflictWarning").textContent=ruleError;$("#conflictWarning").classList.remove("hidden");return;}
  if(o.isBackfill&&!o.backfillTime)o.backfillTime=new Date().toISOString();
  const i=orders.findIndex(x=>x.id===o.id); const previous=i>=0?orders[i]:null;
- const recordedNet=paymentRecords(o.id).filter(p=>p.type!=="加收費用").reduce((sum,p)=>sum+p.amount,0);
+ const recordedNet=recordedPaymentNet(o.id);
  o.openingPaid=Math.max(0,o.paid-recordedNet);
  const editedSummary=paymentSummary({...o,openingPaid:o.openingPaid});
  if(o.paid>editedSummary.adjustedTotal)return toast("已收金額不可超過最新應收總額");
@@ -603,7 +635,7 @@ $("#orderForm").addEventListener("submit",e=>{
    appendLifecycleHistory(o,"",o.lifecycleStatus,o.lifecycleOperator);
  }
  delete o.lifecycleOperator;
- if(i>=0)orders[i]=o;else orders.push(o); persist();$("#orderDialog").close();renderAll();toast("訂單已儲存");
+ if(i>=0)orders[i]=o;else orders.push(o); upsertGuestProfileFromOrder(o);persist();$("#orderDialog").close();renderAll();toast(o.isBackfill?"補登訂單與旅客資料已儲存":"訂單已儲存");
 });
 window.editOrder=id=>openOrder(orders.find(o=>o.id===id));
 window.openOrderFromCalendar=id=>{
@@ -1097,7 +1129,7 @@ $("#taskForm").addEventListener("submit",e=>{
 });
 
 function buildGuestMap(){
- const map={};activeOrders().forEach(o=>{if(!map[o.phone])map[o.phone]={name:o.name,phone:o.phone,count:0,total:0,last:"",note:""};const g=map[o.phone];g.count++;g.total+=o.total;g.last=g.last>o.checkin?g.last:o.checkin;if(o.note)g.note=o.note;});
+ const map={};orders.filter(o=>o&&!NON_OCCUPYING_STATES.has(lifecycleStatus(o))).forEach(o=>{const phone=String(o.phone||"").trim();if(!phone)return;if(!map[phone])map[phone]={name:o.name,phone,count:0,total:0,last:"",note:""};const g=map[phone];g.count++;g.total+=paymentSummary(o).adjustedTotal;g.last=g.last>o.checkin?g.last:o.checkin;if(o.note)g.note=o.note;});
  Object.keys(map).forEach(p=>Object.assign(map[p],guestProfiles[p]||{}));return map;
 }
 function renderGuests(){
@@ -1174,7 +1206,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A Milestone A4 RC2 Hotfix 2",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
+ const data={version:"Enterprise V1.2 Build 2A Milestone A4 RC3 Hotfix 1",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){

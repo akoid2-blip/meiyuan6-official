@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## Enterprise V1.2 Build 2A — Milestone A4 RC3 Hotfix 1 — 2026-07-26
+
+- 修正已核帳加收費用的帳務認列：同一筆紀錄同時增加最新應收並計入已收淨額，不再要求另登尾款。
+- 首頁「今日已收」改為加總實際收款；已核帳加收費用只計一次，待核帳加收費用不列入今日實收。
+- Schema 升級至 12，首次載入會備份舊資料，並清理同訂單、同日、同額的「已核帳加收費用＋已核帳尾款」舊版重複紀錄。
+- 修正訂單已收金額與 openingPaid 對帳，避免編輯訂單後把已核帳加收費用重複算入。
+- 補登訂單儲存時同步建立／更新旅客資料，並保留既有 LINE、E-mail、車牌與旅客備註。
+- 旅客累計消費改採最新應收總額，包含加收費用。
+- 狀態：RC3 Hotfix 1；非 Official Stable。
+
 ## Enterprise V1.2 Build 2A — Milestone A4 RC3 Mobile & Responsive Integration — 2026-07-26
 
 - 手機版訂單管理新增原生卡片清單，保留搜尋與生命週期篩選。

@@ -1,4 +1,19 @@
-# 眉原六訂房管理系統
+# Meiyuan6 Booking Admin Enterprise V1.2 Build 2A
+
+## Milestone A4 RC3 Hotfix 1 — Accounting & Guest Profile
+
+本版本直接修正 RC3 的帳務認列與補登旅客同步問題。
+
+### 核心規則
+
+- 加收費用建立後立即增加「最新應收」。
+- 加收費用標記為「已核帳」時，同一筆即視為已實收，不需要再建立尾款。
+- 待核帳加收費用只增加應收，不列入已收淨額與首頁今日已收。
+- 首次載入舊資料時，系統會先建立 LocalStorage 備份，再清除符合舊版重複模式的尾款紀錄。
+- 補登訂單儲存後，旅客姓名、電話與訂單備註同步帶入旅客資料。
+
+> Release status: RC3 Hotfix 1 / Not Official Stable
+
 
 Enterprise V1.2 Build 2A — Milestone A3 RC1
 
