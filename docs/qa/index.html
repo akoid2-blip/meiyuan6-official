@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#27463a">
+  <title>眉原六民宿｜Booking Admin Enterprise V1.2</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="toast" class="toast" role="status"></div>
+
+<section id="loginView" class="login-shell">
+  <form id="loginForm" class="login-card">
+    <div class="brand-mark">眉原六</div>
+    <h1>訂房後台管理系統</h1>
+    <p>Enterprise V1.2 · Build 2A · RC4 Hotfix 4</p>
+    <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
+    <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
+    <button class="primary full" type="submit">登入系統</button>
+    <small>本機正式營運版｜測試帳號：admin／123456</small>
+  </form>
+</section>
+
+<div id="appView" class="app hidden">
+  <aside class="sidebar">
+    <div class="sidebar-brand"><strong>眉原六民宿</strong><span>Booking Admin</span></div>
+    <nav id="nav">
+      <button data-icon="home" data-page="dashboard" class="active">首頁總覽</button>
+      <button data-icon="calendar" data-page="calendar">房況日曆</button>
+      <button data-icon="clipboard" data-page="orders">訂單管理</button>
+      <button data-icon="login" data-page="checkin">入住管理</button>
+      <button data-icon="wallet" data-page="payments">收款管理</button>
+      <button data-icon="sparkles" data-page="housekeeping">房務管理</button>
+      <button data-icon="users" data-page="guests">旅客資料</button>
+      <button data-icon="file-text" data-page="templates">模板中心</button>
+      <button data-icon="chart" data-page="reports">營運報表</button>
+      <button data-icon="settings" data-page="settings">系統設定</button>
+    </nav>
+    <div class="version">Enterprise V1.2<br>Build 2A · RC4 Hotfix 4</div>
+    <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h2 id="pageTitle">首頁總覽</h2><p id="todayText"></p></div>
+      <div class="topbar-actions">
+        <button id="openSettingsBtn" data-icon="settings">系統設定</button>
+        <button id="quickAddOrder" class="primary" data-icon="plus">新增訂單</button>
+      </div>
+    </header>
+
+    <section id="dashboard" class="page active">
+      <div class="stats stats-8">
+        <article><span>今日入住</span><strong id="statCheckin">0</strong></article>
+        <article><span>今日退房</span><strong id="statCheckout">0</strong></article>
+        <article><span>今日住宿</span><strong id="statGuests">0 人</strong></article>
+        <article><span>住房使用率</span><strong id="statOccupancy">0%</strong></article>
+        <article><span>今日應收</span><strong id="statDue">NT$0</strong></article>
+        <article><span>今日已收</span><strong id="statPaid">NT$0</strong></article>
+        <article><span>待清潔</span><strong id="statCleaning">0</strong></article>
+        <article><span>營運提醒</span><strong id="statAlerts">0</strong></article>
+      </div>
+
+      <div class="dashboard-workspace">
+        <section class="panel workspace-card">
+          <div class="panel-head"><div><h3>今日營運中心</h3><p class="section-note">入住、退房與房務工作一次掌握</p></div><button data-page-jump="checkin" data-icon="login">入住管理</button></div>
+          <div id="dailyOperations" class="operations-list"></div>
+        </section>
+        <section class="panel workspace-card">
+          <div class="panel-head"><div><h3>今日待發 LINE</h3><p class="section-note">依入住與服務時程自動整理</p></div><span id="lineQueueCount" class="badge gold">0 則</span></div>
+          <div id="lineQueue" class="operations-list"></div>
+        </section>
+      </div>
+
+      <section class="panel weather-card weather-strip" aria-label="埔里即時天氣">
+        <div class="weather-strip-title"><span class="weather-title-icon" aria-hidden="true">🌤️</span><strong>埔里天氣</strong><span id="weatherStatus" class="badge green">更新中</span></div>
+        <div id="weatherCardBody" class="weather-body"><span class="weather-icon" aria-hidden="true">🌡️</span><span class="weather-temp">--°</span><span class="weather-condition">資料載入中</span><span>最高 --°</span><span>最低 --°</span><span>降雨 --%</span><span class="weather-updated">更新中</span></div>
+      </section>
+
+      <div class="grid-2 dashboard-secondary">
+        <section class="panel">
+          <div class="panel-head"><h3>營運提醒</h3><span class="badge gold">自動檢查</span></div>
+          <div id="alertList"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h3>服務待辦</h3><button data-page-jump="orders" data-icon="clipboard">訂單服務</button></div>
+          <div id="serviceTodoList"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head"><h3>常用快捷中心</h3><button data-page-jump="settings" data-icon="settings">管理快捷</button></div>
+        <div id="shortcutGrid" class="shortcut-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h3>近期入住</h3><button data-page-jump="orders" data-icon="arrow-right">查看全部</button></div>
+        <div id="upcomingList" class="upcoming-grid"></div>
+      </section>
+    </section>
+
+    <section id="calendar" class="page">
+      <section class="panel">
+        <div class="panel-head calendar-head">
+          <div>
+            <h3>房況日曆</h3>
+            <p class="section-note desktop-calendar-help">桌機可拖曳整張訂單平移日期，或拖曳左右把手調整入住／退房日期。</p><p class="section-note mobile-calendar-help">手機請點選訂單，再使用「調整日期／房間」；不需拖曳。</p>
+          </div>
+          <div class="legend">
+            <span><i class="dot confirmed"></i>已確認</span>
+            <span><i class="dot hold"></i>暫時保留</span>
+            <span><i class="dot paid"></i>已付訂金／全額</span>
+          </div>
+        </div>
+        <div class="calendar-controls">
+          <button id="prevMonth" class="icon-only" data-icon="chevron-left" aria-label="上個月"></button><strong id="calendarTitle"></strong><button id="nextMonth" class="icon-only" data-icon="chevron-right" aria-label="下個月"></button>
+          <button id="calendarToday">今天</button><button id="addRoomLockBtn" data-icon="lock">房號鎖定</button>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div><div class="room-lock-panel"><h4>房號鎖定紀錄</h4><div id="roomLockList"></div></div>
+      </section>
+    </section>
+
+    <section id="orders" class="page">
+      <section class="panel">
+        <div class="panel-head management-panel-head"><div><h3>訂單管理</h3><span id="orderResultCount" class="management-result-count" aria-live="polite"></span></div><button id="addOrderBtn" class="primary" data-icon="plus">新增訂單</button></div>
+        <div class="filters management-search-bar">
+          <input id="orderSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、房間或方案">
+          <select id="statusFilter"><option value="">全部生命週期</option><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select>
+        </div>
+        <div id="orderMobileList" class="order-mobile-list"></div>
+        <div class="table-wrap order-desktop-table"><table>
+          <thead><tr><th>訂單</th><th>旅客</th><th>住宿日期</th><th>方案／房間</th><th>服務</th><th>金額</th><th>狀態</th><th>操作</th></tr></thead>
+          <tbody id="orderTableBody"></tbody>
+        </table></div>
+      </section>
+    </section>
+
+    <section id="checkin" class="page">
+      <section class="panel">
+        <div class="panel-head management-panel-head"><div><h3>入住管理</h3><span id="checkinResultCount" class="management-result-count" aria-live="polite"></span></div><button data-page-jump="templates" data-icon="file-text">提取入住須知</button></div>
+        <div class="management-search-bar" role="search"><input id="checkinSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、房間或入住日期"><button id="clearCheckinSearch" type="button">清除</button></div>
+        <div id="checkinList"></div>
+      </section>
+    </section>
+
+    <section id="payments" class="page">
+      <section class="panel">
+        <div class="panel-head management-panel-head"><div><h3>收款管理</h3><span id="paymentResultCount" class="management-result-count" aria-live="polite"></span></div><button id="addPaymentBtn" class="primary" data-icon="wallet">登記收款</button></div>
+        <div class="management-search-bar" role="search"><input id="paymentSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、收款狀態或房間"><button id="clearPaymentSearch" type="button">清除</button></div>
+        <div id="paymentMobileList" class="payment-mobile-list"></div>
+        <div class="table-wrap payment-desktop-table"><table>
+          <thead><tr><th>訂單</th><th>旅客</th><th>原始訂單</th><th>加收費用</th><th>最新應收</th><th>預收訂金</th><th>已收淨額</th><th>已退款</th><th>剩餘應收</th><th>狀態</th><th>操作</th></tr></thead>
+          <tbody id="paymentTableBody"></tbody>
+        </table></div>
+      </section>
+    </section>
+
+    <section id="housekeeping" class="page">
+      <div class="stats housekeeping-stats">
+        <article><span>入住中</span><strong id="hkOccupied">0</strong></article>
+        <article><span>待清掃</span><strong id="hkPending">0</strong></article>
+        <article><span>清掃中</span><strong id="hkCleaning">0</strong></article>
+        <article><span>可入住</span><strong id="hkReady">0</strong></article>
+      </div>
+      <section class="panel">
+        <div class="panel-head"><div><h3>房務管理</h3><p class="section-note">房務工作由訂單退房自動建立；房務人員只需開始清掃、填寫紀錄並完成清掃。</p></div></div>
+        <div id="roomStatusGrid" class="room-status-grid"></div>
+        <div id="taskBoard" class="task-board"></div>
+      </section>
+    </section>
+
+    <section id="guests" class="page">
+      <section class="panel">
+        <div class="panel-head guest-panel-head">
+          <div><h3>旅客資料</h3><p class="section-note">可搜尋姓名、電話、LINE、E-mail、車牌與備註；住客 Wi-Fi 不受搜尋影響。</p></div>
+          <span id="guestResultCount" class="guest-result-count" aria-live="polite"></span>
+        </div>
+        <div class="guest-search-bar" role="search">
+          <label class="guest-search-field" for="guestSearch"><span class="sr-only">搜尋旅客資料</span><input id="guestSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、LINE、E-mail、車牌或備註"></label>
+          <button id="clearGuestSearch" type="button" class="guest-search-clear">清除</button>
+        </div>
+        <div class="table-wrap guest-desktop-table"><table>
+          <thead><tr><th>姓名</th><th>聯絡方式</th><th>入住次數</th><th>累計消費</th><th>最近入住</th><th>備註</th><th>操作</th></tr></thead>
+          <tbody id="guestTableBody"></tbody>
+        </table></div>
+        <div id="guestMobileList" class="guest-mobile-list"></div>
+      </section>
+      <section class="panel wifi-panel">
+        <div class="panel-head"><h3>住客 Wi-Fi</h3><button id="copyWifiBtn" data-icon="copy">複製 Wi-Fi 資料</button></div>
+        <div class="wifi-card">
+          <img src="assets/wifi-deco_be25_Guest-qr.png" alt="Wi-Fi QR Code">
+          <div><span>SSID</span><strong>deco_be25_Guest</strong><span>密碼</span><strong>liou6868</strong><p>可直接掃描 QR Code 連線。</p></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="templates" class="page">
+      <div class="grid-2 template-layout">
+        <section class="panel">
+          <div class="panel-head"><h3>模板清單</h3><button id="addTemplateBtn" type="button" data-icon="plus">新增模板</button></div>
+          <div id="templateList"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head template-editor-actions">
+            <div><h3 id="templateTitle">入住須知</h3><p class="section-note">此區編輯模板內容；模板標題請在左側清單按「改標題」。</p></div>
+            <div><button id="saveTemplateBtn" type="button" data-icon="save">儲存模板</button><button id="copyTemplateBtn" type="button" data-icon="copy">複製文字</button><button id="deleteTemplateBtn" class="danger" type="button" data-icon="trash">刪除模板</button></div>
+          </div>
+          <div class="template-smart-toolbar">
+            <label>預覽套用訂單<select id="templateOrderSelect"></select></label>
+            <p>模板中的 <code>{{變數}}</code> 會由訂單、早餐或叫車資料自動替換；缺少資料顯示「（尚未提供）」。</p>
+          </div>
+          <div class="template-smart-grid">
+            <div><h4>模板內容</h4><textarea id="templateContent" rows="24"></textarea></div>
+            <aside><h4>可用變數</h4><div id="templateVariablePanel" class="template-variable-panel"></div></aside>
+          </div>
+          <section class="template-preview-panel"><h4>實際套用預覽</h4><pre id="templatePreview"></pre></section>
+        </section>
+      </div>
+    </section>
+
+    <section id="reports" class="page">
+      <div class="stats">
+        <article><span>本月訂單數</span><strong id="reportOrders">0</strong></article>
+        <article><span>本月住房晚數</span><strong id="reportNights">0</strong></article>
+        <article><span>平均訂單金額</span><strong id="reportAvg">NT$0</strong></article>
+        <article><span>回訪旅客</span><strong id="reportRepeat">0%</strong></article>
+      </div>
+      <section class="panel"><h3>訂房來源分析</h3><div id="sourceBars" class="bars"></div></section>
+    </section>
+
+    <section id="settings" class="page">
+      <div class="settings-tabs">
+        <button class="active" data-settings-tab="general">基本設定</button>
+        <button data-settings-tab="registration">登記與保險</button>
+        <button data-settings-tab="shortcuts">快捷中心</button>
+        <button data-settings-tab="integrations">外部整合</button>
+        <button data-settings-tab="data">資料管理</button>
+      </div>
+
+      <section class="panel settings-pane active" data-pane="general">
+        <div class="panel-head"><div><h3>基本設定</h3><p class="section-note">設定會儲存在目前瀏覽器。</p></div><span class="badge green">可操作</span></div>
+        <div class="form-grid">
+          <label>民宿名稱<input id="settingPropertyName"></label>
+          <label>手機官方 LINE 網址<input id="settingLineUrl"></label>
+          <label>全館包棟人數<input id="settingFullCapacity"></label>
+          <label>小包棟人數<input id="settingSmallCapacity"></label>
+          <label>入住時間<input id="settingCheckinTime" type="time"></label>
+          <label>退房時間<input id="settingCheckoutTime" type="time"></label>
+          <label>提早入住／延後退房每小時費用<input id="settingHourlyFee" type="number"></label>
+          <label>寵物清潔費<input id="settingPetFee" type="number"></label>
+        </div>
+        <div class="settings-actions"><button id="resetSettings">恢復預設</button><button class="primary" id="saveSettings">儲存設定</button></div>
+      </section>
+
+      <section class="panel settings-pane" data-pane="registration">
+        <div class="panel-head"><div><h3>民宿登記與保險</h3><p class="section-note">到期前 90、30、7 天及逾期會顯示提醒。</p></div><span class="badge gold">到期監控</span></div>
+        <div class="form-grid">
+          <label>登記日期<input id="registrationDate"></label>
+          <label>文號<input id="registrationDocNo"></label>
+          <label>民宿登記證號<input id="registrationLicense"></label>
+          <label>保險公司<input id="insuranceCompany"></label>
+          <label>保單號碼<input id="insurancePolicy"></label>
+          <label>保險起始時間<input id="insuranceStart" type="datetime-local"></label>
+          <label>保險到期時間<input id="insuranceEnd" type="datetime-local"></label>
+        </div>
+        <button id="saveRegistration" class="primary">儲存登記與保險資料</button>
+      </section>
+
+      <section class="panel settings-pane" data-pane="shortcuts">
+        <div class="panel-head"><div><h3>快捷中心設定</h3><p class="section-note">名稱、網址與圖示可調整；網址將以新分頁開啟。</p></div><button id="addShortcut">＋ 新增快捷</button></div>
+        <div id="shortcutEditor"></div>
+        <button id="saveShortcuts" class="primary">儲存快捷中心</button>
+      </section>
+
+      <section class="panel settings-pane" data-pane="integrations">
+        <div class="panel-head"><div><h3>外部整合</h3><p class="section-note">V1.1 先完成架構與人工快捷；API 自動化留待 V1.2。</p></div><span class="badge gray">擴充預留</span></div>
+        <div class="integration-card">
+          <div><strong>眉原六官方 LINE</strong><p>手機開啟眉原六官方 LINE；桌機優先嘗試 LINE 應用程式，未成功則進入 LINE 官方帳號管理後台。</p></div>
+          <div class="integration-actions"><button id="openOfficialLine" class="official-line-button" title="聯絡眉原六官方 LINE">🟢 官方 LINE</button><span class="badge green">人工快捷已啟用</span></div>
+        </div>
+        <div class="integration-card disabled">
+          <div><strong>LINE Messaging API</strong><p>入住前自動通知、Webhook、旅客身分綁定與訊息紀錄。</p></div>
+          <span class="badge gray">V1.2 預留</span>
+        </div>
+        <div class="integration-card disabled">
+          <div><strong>Google Calendar／OTA</strong><p>未啟用，避免目前版本複雜化。</p></div>
+          <span class="badge gray">未啟用</span>
+        </div>
+      </section>
+
+      <section class="panel settings-pane" data-pane="data">
+        <div class="panel-head"><div><h3>資料管理</h3><p class="section-note">匯出 JSON 可作為本機備份；匯入會覆蓋目前資料。</p></div></div>
+        <div class="data-actions">
+          <button id="exportData" class="primary">匯出完整備份</button>
+          <label class="file-button">匯入備份<input id="importData" type="file" accept=".json"></label>
+          <button id="resetDemoData" class="danger">重設為示範資料</button>
+        </div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<dialog id="orderDialog">
+<form id="orderForm">
+  <div class="dialog-head"><h3 id="orderDialogTitle">新增訂單</h3><button type="button" class="icon-only" data-icon="x" data-close="orderDialog" aria-label="關閉"></button></div>
+  <input type="hidden" id="orderId">
+  <div class="form-grid">
+    <label>訂房類型<select id="orderType"><option value="normal">一般訂房</option><option value="backfill">補登訂房</option></select></label>
+    <label>營運流程<select id="workflowStatus"><option>建立</option><option>已確認</option><option>入住</option><option>退房</option><option>待清掃</option><option>清掃中</option><option>完成清掃</option><option>可入住</option></select></label>
+    <label>訂單生命週期<select id="lifecycleStatus"><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select></label>
+    <label>狀態操作人員<input id="lifecycleOperator" placeholder="例如：管理員"></label>
+    <fieldset id="backfillFields" class="wide backfill-fields hidden"><legend>補登紀錄</legend><div class="service-grid"><label>補登原因<input id="backfillReason" placeholder="必填，例如：電話訂房漏登"></label><label>補登時間<input id="backfillTime" readonly></label><label>補登人員（預留）<input id="backfillOperator" placeholder="可留空"></label></div></fieldset>
+    <label>旅客姓名<input id="guestName" required></label>
+    <label>聯絡電話<input id="guestPhone" required></label>
+    <label>入住日期<input id="checkinDate" type="date" required></label>
+    <label>退房日期<input id="checkoutDate" type="date" required></label>
+    <label>住宿方案<select id="packageType"><option>一般訂房</option><option>小包棟（8～15人）</option><option>全館包棟（16～27人）</option></select></label>
+    <label>入住人數<input id="guestCount" type="number" min="1" value="2"></label>
+    <fieldset id="roomSelectionFieldset" class="wide"><legend>住宿單位（可複選）</legend><div id="roomCheckboxes" class="checkbox-grid"></div></fieldset>
+    <label>訂單來源<select id="orderSource"><option>官方 LINE</option><option>電話</option><option>Facebook</option><option>Google 商家</option><option>官網詢問</option><option>回訪旅客</option></select></label>
+    <label>訂單狀態<select id="orderStatus"><option>詢問中</option><option>暫時保留</option><option>已確認</option><option>已付訂金</option><option>已付全額</option><option>已入住</option><option>已退房</option><option>已取消</option></select></label>
+    <label>訂單總額<input id="orderTotal" type="text" inputmode="numeric" min="0" value="0"></label>
+    <label>已收金額<input id="orderPaid" type="text" inputmode="numeric" min="0" value="0"></label>
+    <fieldset class="wide service-fieldset">
+      <legend>加值服務</legend>
+      <div class="service-grid">
+        <label>早餐日期<input id="breakfastDate" type="date"></label>
+        <label>早餐店<input id="breakfastShop" placeholder="例如：在地早餐店"></label>
+        <label>早餐份數<input id="breakfastQty" type="number" min="0" value="0"></label>
+        <label>預訂送餐天數<input id="breakfastDays" type="number" min="0" value="0" placeholder="例如：2"></label>
+        <label>每日送達時間<input id="breakfastDelivery" type="time"></label>
+        <label class="inline-check"><input id="breakfastDone" type="checkbox"> 已完成早餐代訂</label>
+      </div>
+      <hr>
+      <div class="service-grid">
+        <label>叫車日期<input id="taxiDate" type="date"></label>
+        <label>叫車時間<input id="taxiTime" type="time"></label>
+        <label>上車地點<input id="taxiPickup"></label>
+        <label>目的地<input id="taxiDestination"></label>
+        <label>人數<input id="taxiGuests" type="number" min="0" value="0"></label>
+        <label>車型<input id="taxiType" placeholder="一般／多元／九人座"></label>
+        <label>車資<input id="taxiFare" type="text" inputmode="numeric" min="0" value="0"></label>
+        <label class="inline-check"><input id="taxiDone" type="checkbox"> 已完成叫車預約</label>
+      </div>
+      <hr>
+      <div class="service-grid">
+        <label>提早入住<input id="earlyCheckin" type="time"></label>
+        <label>延後退房<input id="lateCheckout" type="time"></label>
+        <label class="inline-check"><input id="luggageStorage" type="checkbox"> 行李寄放</label>
+      </div>
+    </fieldset>
+    <label class="wide">備註<textarea id="orderNote" rows="3"></textarea></label>
+  </div>
+  <div id="conflictWarning" class="warning hidden"></div>
+  <div class="dialog-actions"><button type="button" data-close="orderDialog">取消</button><button type="submit" class="primary">儲存訂單</button></div>
+</form>
+</dialog>
+
+
+<dialog id="calendarAdjustDialog" class="mobile-sheet-dialog">
+<form id="calendarAdjustForm">
+  <div class="dialog-head"><div><h3>調整日期／房間</h3><p id="calendarAdjustOrderLabel" class="section-note"></p></div><button type="button" class="icon-only" data-icon="x" data-close="calendarAdjustDialog" aria-label="關閉"></button></div>
+  <input id="calendarAdjustOrderId" type="hidden">
+  <div class="form-grid mobile-single-column">
+    <label>入住日期<input id="calendarAdjustCheckin" type="date" required></label>
+    <label>退房日期<input id="calendarAdjustCheckout" type="date" required></label>
+    <fieldset class="wide"><legend>住宿單位</legend><div id="calendarAdjustRooms" class="checkbox-grid"></div></fieldset>
+  </div>
+  <div id="calendarAdjustWarning" class="warning hidden" aria-live="polite"></div>
+  <p class="section-note">儲存前會檢查日期先後、過期日期、房間鎖定、訂單狀態與房況衝突。</p>
+  <div class="dialog-actions"><button type="button" data-close="calendarAdjustDialog">取消</button><button class="primary" type="submit">確認調整</button></div>
+</form>
+</dialog>
+
+<dialog id="roomLockDialog">
+<form id="roomLockForm">
+ <input id="lockId" type="hidden">
+ <div class="dialog-head"><h3 id="roomLockDialogTitle">新增房號鎖定</h3><button type="button" class="icon-only" data-icon="x" data-close="roomLockDialog" aria-label="關閉"></button></div>
+ <div class="form-grid">
+  <label>房間<select id="lockRoom"></select></label>
+  <label>狀態<select id="lockType"><option value="maintenance">維修中</option><option value="unavailable">暫停出租</option><option value="service">保養中</option></select></label>
+  <label>起日<input id="lockStart" type="date" required></label>
+  <label>迄日<input id="lockEnd" type="date" required></label>
+  <label>操作人員<input id="lockOperator" placeholder="例如：管家／管理員"></label>
+  <label class="wide">鎖定原因<input id="lockReason" list="lockReasonOptions" required placeholder="請選擇或輸入原因"></label>
+  <datalist id="lockReasonOptions"><option value="房間維修"><option value="清潔保養"><option value="業主保留"><option value="包棟保留"><option value="其他"></datalist>
+ </div>
+ <div class="dialog-actions"><button type="button" data-close="roomLockDialog">取消</button><button type="submit" class="primary" id="lockSubmitLabel">建立鎖定</button></div>
+</form></dialog>
+
+<dialog id="paymentDialog" class="mobile-sheet-dialog">
+<form id="paymentForm">
+  <div class="dialog-head"><h3>登記收款</h3><button type="button" class="icon-only" data-icon="x" data-close="paymentDialog" aria-label="關閉"></button></div>
+  <div class="form-grid">
+    <label>日期<input id="paymentDate" type="date" required></label>
+    <label>訂單<select id="paymentOrder" required></select></label>
+    <label>類型<select id="paymentType"><option>訂金</option><option>尾款</option><option>全額</option><option>加收費用</option><option>退款</option></select></label>
+    <label>方式<select id="paymentMethod"><option>現金</option><option>轉帳</option><option>信用卡</option><option>LINE Pay</option><option>其他</option></select></label>
+    <label>金額<input id="paymentAmount" type="text" inputmode="numeric" min="1" required></label>
+    <label>核帳<select id="paymentVerified"><option value="true">已核帳</option><option value="false">待核帳</option></select></label>
+    <div id="additionalChargeFields" class="wide additional-charge-fields hidden">
+      <label>加收分類<select id="paymentCategory"><option value="">請選擇</option><option>延遲退房</option><option>額外入住人數</option><option>寵物清潔費</option><option>設備損壞</option><option>加購服務</option><option>其他</option></select></label>
+      <label class="wide">加收費用說明<textarea id="paymentDescription" rows="3" maxlength="200" placeholder="必填，例如：延遲退房 1 小時"></textarea></label>
+    </div>
+  </div>
+  <div id="paymentDialogSummary" class="payment-dialog-summary" aria-live="polite"></div>
+  <p class="section-note">一般收款仍受剩餘應收限制；加收費用不受原始訂單金額限制，但必須填寫分類與說明，並自動增加最新應收總額。</p>
+  <div class="dialog-actions"><button type="button" data-close="paymentDialog">取消</button><button class="primary" type="submit">儲存</button></div>
+</form>
+</dialog>
+
+<dialog id="taskDialog">
+<form id="taskForm">
+  <div class="dialog-head"><h3>編輯房務紀錄</h3><button type="button" class="icon-only" data-icon="x" data-close="taskDialog" aria-label="關閉"></button></div>
+  <div class="form-grid">
+    <label>退房日期<input id="taskDate" type="date" readonly></label>
+    <label>住宿單位<input id="taskRoomLabel" readonly></label>
+    <label>房客<input id="taskGuest" readonly></label>
+    <label>預定退房時間<input id="taskCheckout" readonly></label>
+    <label>房務狀態<select id="taskStatus"><option>待清掃</option><option>清掃中</option><option>已完成</option></select></label>
+    <label>房務人員<input id="taskAssignee" placeholder="輸入房務人員姓名"></label>
+    <label>開始時間<input id="taskStarted" readonly></label>
+    <label>完成時間<input id="taskCompleted" readonly></label>
+    <label class="wide">房務備註<textarea id="taskNote" rows="4" placeholder="補充備品、設備異常、清潔狀況等"></textarea></label>
+  </div>
+  <div class="dialog-actions"><button type="button" data-close="taskDialog">取消</button><button class="primary" type="submit">儲存紀錄</button></div>
+</form>
+</dialog>
+
+<dialog id="guestDialog">
+<form id="guestForm">
+  <div class="dialog-head"><h3>編輯旅客資料</h3><button type="button" class="icon-only" data-icon="x" data-close="guestDialog" aria-label="關閉"></button></div>
+  <input type="hidden" id="guestOriginalPhone">
+  <div class="form-grid">
+    <label>姓名<input id="profileName" required></label>
+    <label>電話<input id="profilePhone" required></label>
+    <label>LINE 顯示名稱<input id="profileLine"></label>
+    <label>E-mail<input id="profileEmail" type="email"></label>
+    <label>車牌<input id="profilePlate"></label>
+    <label>寵物資訊<input id="profilePet"></label>
+    <label class="wide">備註<textarea id="profileNote" rows="3"></textarea></label>
+  </div>
+  <div class="dialog-actions"><button type="button" data-close="guestDialog">取消</button><button class="primary" type="submit">儲存</button></div>
+</form>
+</dialog>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "product": "Meiyuan6 Booking Admin Enterprise",
+  "version": "1.2",
+  "build": "2A",
+  "release": "RC4 Hotfix 4",
+  "title": "Automatic Deposit Check-in Verification",
+  "status": "RC4 Hotfix 4 QA",
+  "storageSchema": 12,
+  "date": "2026-07-26",
+  "officialStable": false,
+  "locked": false,
+  "name": "Enterprise V1.2 Build 2A RC4 Hotfix 4 — Automatic Deposit Check-in Verification",
+  "updated": "2026-07-26"
+}
