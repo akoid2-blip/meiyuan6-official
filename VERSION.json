@@ -2,13 +2,13 @@
   "product": "Meiyuan6 Booking Admin Enterprise",
   "version": "1.2",
   "build": "Enterprise V1.2 Build 2A",
-  "release": "RC5",
-  "title": "Unified Management UI",
-  "status": "RC5 QA Candidate",
+  "release": "RC5.1",
+  "title": "Payment Record Description & Flexible Charge Method",
+  "status": "RC5.1 QA Candidate",
   "storageSchema": 12,
   "date": "2026-07-27",
   "officialStable": false,
   "locked": false,
-  "name": "Enterprise V1.2 Build 2A RC5 — Unified Management UI",
+  "name": "Enterprise V1.2 Build 2A RC5.1 — Payment Record Description & Flexible Charge Method",
   "updated": "2026-07-27"
 }

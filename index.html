@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · RC5</p>
+    <p>Enterprise V1.2 · Build 2A · RC5.1.1</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -37,7 +37,7 @@
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · RC5</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · RC5.1</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -410,13 +410,20 @@
     <label>方式<select id="paymentMethod"><option>現金</option><option>轉帳</option><option>信用卡</option><option>LINE Pay</option><option>其他</option></select></label>
     <label>金額<input id="paymentAmount" type="text" inputmode="numeric" min="1" required></label>
     <label>核帳<select id="paymentVerified"><option value="true">已核帳</option><option value="false">待核帳</option></select></label>
+    <div id="receiptNoteFields" class="wide payment-context-fields">
+      <label class="wide">收款說明（備註）<textarea id="paymentNote" rows="3" maxlength="200" placeholder="選填，例如：現場現金補款、匯款末五碼 25890"></textarea></label>
+    </div>
     <div id="additionalChargeFields" class="wide additional-charge-fields hidden">
       <label>加收分類<select id="paymentCategory"><option value="">請選擇</option><option>延遲退房</option><option>額外入住人數</option><option>寵物清潔費</option><option>設備損壞</option><option>加購服務</option><option>其他</option></select></label>
       <label class="wide">加收費用說明<textarea id="paymentDescription" rows="3" maxlength="200" placeholder="必填，例如：延遲退房 1 小時"></textarea></label>
     </div>
+    <div id="refundFields" class="wide payment-context-fields hidden">
+      <label>退款原因<select id="refundReason"><option value="">請選擇</option><option>房客取消訂房</option><option>重複付款</option><option>房型或日期調整</option><option>多收款退回</option><option>系統更正</option><option>現場協議退款</option><option>其他</option></select></label>
+      <label class="wide">退款說明<textarea id="refundDescription" rows="3" maxlength="200" placeholder="必填，請記錄退款原因與處理內容"></textarea></label>
+    </div>
   </div>
   <div id="paymentDialogSummary" class="payment-dialog-summary" aria-live="polite"></div>
-  <p class="section-note">一般收款仍受剩餘應收限制；加收費用不受原始訂單金額限制，但必須填寫分類與說明，並自動增加最新應收總額。</p>
+  <p class="section-note">一般收款仍受剩餘應收限制；收款可填寫備註。退款必須填寫原因與說明。加收費用不受原始訂單金額限制，且收款方式可自由選擇。</p>
   <div class="dialog-actions"><button type="button" data-close="paymentDialog">取消</button><button class="primary" type="submit">儲存</button></div>
 </form>
 </dialog>

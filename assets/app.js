@@ -275,6 +275,7 @@ function normalizePayment(raw,index=0){
    orderId:String(raw?.orderId||""),
    type,method:String(raw?.method||"現金"),amount,
    category:String(raw?.category||""),
+   refundReason:String(raw?.refundReason||""),
    description:String(raw?.description||raw?.note||""),
    verified:Boolean(raw?.verified),
    createdAt:String(raw?.createdAt||new Date().toISOString()),
@@ -1085,14 +1086,14 @@ function paymentDetailRows(order){
  const summary=paymentSummary(order);
  const opening=summary.opening>0?`<tr><td>—</td><td>訂單預收訂金</td><td>訂單建立時帶入</td><td>${money(summary.opening)}</td><td><span class="badge green">已納入</span></td></tr>`:"";
  const records=summary.records.slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).map(p=>{
-   const detail=p.type==="加收費用" ? `${esc(p.category||"其他")}｜${esc(p.description||"未填說明")}` : esc(p.description||p.method);
+   const detail=p.type==="加收費用" ? `${esc(p.method)}｜${esc(p.category||"其他")}｜${esc(p.description||"未填說明")}` : (p.type==="退款" ? `${esc(p.method)}｜${esc(p.refundReason||"未填原因")}｜${esc(p.description||"未填說明")}` : `${esc(p.method)}${p.description?`｜${esc(p.description)}`:""}`);
    return `<tr><td>${esc(p.date)}</td><td>${esc(p.type)}</td><td>${detail}</td><td class="${p.amount<0?'amount-negative':(p.type==='加收費用'?'amount-charge':'')}">${p.amount<0?'-':''}${money(Math.abs(p.amount))}</td><td>${p.verified?'<span class="badge green">已核帳</span>':'<span class="badge gold">待核帳</span>'}</td></tr>`;
  }).join("");
  return opening+records||'<tr><td colspan="5">尚無收付款紀錄。</td></tr>';
 }
 function paymentRecordCards(order){
  const summary=paymentSummary(order);const items=[];if(summary.opening>0)items.push(`<div class="payment-record-card"><span>訂單預收訂金</span><strong>${money(summary.opening)}</strong><small>訂單建立時帶入・已納入</small></div>`);
- summary.records.slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).forEach(p=>items.push(`<div class="payment-record-card"><span>${esc(p.date)}・${esc(p.type)}</span><strong class="${p.amount<0?'amount-negative':''}">${p.amount<0?'-':''}${money(Math.abs(p.amount))}</strong><small>${p.type==="加收費用"?`${esc(p.category||"其他")}｜${esc(p.description||"")}`:esc(p.method)}・${p.verified?"已核帳":"待核帳"}</small></div>`));return items.join("")||'<div class="empty">尚無收付款紀錄。</div>';
+ summary.records.slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).forEach(p=>{const info=p.type==="加收費用"?`${esc(p.method)}｜${esc(p.category||"其他")}｜${esc(p.description||"")}`:(p.type==="退款"?`${esc(p.method)}｜${esc(p.refundReason||"未填原因")}｜${esc(p.description||"")}`:`${esc(p.method)}${p.description?`｜${esc(p.description)}`:""}`);items.push(`<div class="payment-record-card"><span>${esc(p.date)}・${esc(p.type)}</span><strong class="${p.amount<0?'amount-negative':''}">${p.amount<0?'-':''}${money(Math.abs(p.amount))}</strong><small>${info}・${p.verified?"已核帳":"待核帳"}</small></div>`)});return items.join("")||'<div class="empty">尚無收付款紀錄。</div>';
 }
 function renderPaymentMobileCards(list){
  const box=$("#paymentMobileList");if(!box)return;
@@ -1101,7 +1102,7 @@ function renderPaymentMobileCards(list){
  applyStaticIcons(box);
 }
 
-window.openPaymentForOrder=id=>{navigate("payments");$("#paymentForm").reset();$("#paymentDate").value=todayISO;renderOrders();$("#paymentOrder").value=id;$("#paymentDescription").value="";updatePaymentDialogSummary();$("#paymentDialog").showModal();};
+window.openPaymentForOrder=id=>{navigate("payments");$("#paymentForm").reset();$("#paymentDate").value=todayISO;renderOrders();$("#paymentOrder").value=id;updatePaymentDialogSummary();$("#paymentDialog").showModal();};
 function renderPayments(){
  const q=String($("#paymentSearch")?.value||"").trim().toLocaleLowerCase("zh-TW");
  const sorted=orders.slice().sort((a,b)=>b.checkin.localeCompare(a.checkin));
@@ -1118,13 +1119,17 @@ function renderPayments(){
 
 window.togglePaymentDetail=(id,button)=>{const box=document.getElementById(`payment-detail-${id}`);if(!box)return;const opening=box.classList.contains("hidden");box.classList.toggle("hidden",!opening);if(button){button.textContent=opening?"收合明細":"查看明細";button.setAttribute("aria-expanded",opening?"true":"false");applyStaticIcons(button.parentElement);}};
 function updatePaymentTypeFields(){
- const isCharge=$("#paymentType").value==="加收費用";
- const fields=$("#additionalChargeFields");
- if(fields)fields.classList.toggle("hidden",!isCharge);
+ const type=$("#paymentType").value;
+ const isCharge=type==="加收費用";
+ const isRefund=type==="退款";
+ $("#additionalChargeFields")?.classList.toggle("hidden",!isCharge);
+ $("#refundFields")?.classList.toggle("hidden",!isRefund);
+ $("#receiptNoteFields")?.classList.toggle("hidden",isCharge||isRefund);
  $("#paymentCategory").required=isCharge;
  $("#paymentDescription").required=isCharge;
- $("#paymentMethod").disabled=isCharge;
- if(isCharge)$("#paymentMethod").value="其他";
+ $("#refundReason").required=isRefund;
+ $("#refundDescription").required=isRefund;
+ $("#paymentMethod").disabled=false;
 }
 function updatePaymentDialogSummary(){
  const order=orders.find(o=>o.id===$("#paymentOrder").value);
@@ -1142,21 +1147,25 @@ $("#paymentForm").addEventListener("submit",e=>{
  const raw=Math.abs(moneyNumber($("#paymentAmount").value));
  const type=$("#paymentType").value,method=$("#paymentMethod").value,date=$("#paymentDate").value;
  const category=$("#paymentCategory").value.trim();
- const description=$("#paymentDescription").value.trim();
+ const refundReason=$("#refundReason").value.trim();
+ const description=type==="加收費用"?$("#paymentDescription").value.trim():(type==="退款"?$("#refundDescription").value.trim():$("#paymentNote").value.trim());
  if(!order)return toast("找不到指定訂單");
  if(raw<=0)return toast(type==="加收費用"?"加收金額必須大於 0":"收款金額必須大於 0");
  const summary=paymentSummary(order);
  if(type==="加收費用"){
    if(!category)return toast("請選擇加收費用分類");
    if(description.length<2)return toast("請填寫至少 2 個字的加收費用說明");
- }else if(type!=="退款" && raw>summary.remaining){
+ }else if(type==="退款"){
+   if(!refundReason)return toast("請選擇退款原因");
+   if(description.length<2)return toast("請填寫至少 2 個字的退款說明");
+ }else if(raw>summary.remaining){
    return toast(`本次收款超過剩餘應收，最多可收 ${money(summary.remaining)}`);
  }
  if(type==="退款" && raw>summary.net)return toast(`退款超過目前已收淨額，最多可退 ${money(summary.net)}`);
- const duplicate=payments.some(p=>p.orderId===id&&p.date===date&&p.type===type&&Math.abs(p.amount)===raw&&(type==="加收費用" ? p.category===category&&p.description===description : p.method===method));
+ const duplicate=payments.some(p=>p.orderId===id&&p.date===date&&p.type===type&&Math.abs(p.amount)===raw&&p.method===method&&(type==="加收費用" ? p.category===category&&p.description===description : (type==="退款" ? p.refundReason===refundReason&&p.description===description : p.description===description)));
  if(duplicate)return toast(type==="加收費用"?"偵測到相同加收費用，已阻止重複建立":"偵測到相同收付款紀錄，已阻止重複入帳");
  const amount=type==="退款"?-raw:raw;
- payments.push(normalizePayment({id:uid("P"),date,orderId:id,type,method:type==="加收費用"?"—":method,amount,category,description,verified:$("#paymentVerified").value==="true",createdAt:new Date().toISOString(),operator:"管理員"}));
+ payments.push(normalizePayment({id:uid("P"),date,orderId:id,type,method,amount,category,refundReason,description,verified:$("#paymentVerified").value==="true",createdAt:new Date().toISOString(),operator:"管理員"}));
  syncOrderPaid(order);
  const updated=paymentSummary(order);
  if(type==="加收費用"&&updated.remaining>0&&order.status==="已付全額"&&!['已入住','已退房','已取消','No Show'].includes(lifecycleStatus(order)))order.status=updated.net>0?"已付訂金":"已確認";
@@ -1395,7 +1404,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A RC5",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
+ const data={version:"Enterprise V1.2 Build 2A RC5.1",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){
@@ -1418,7 +1427,7 @@ $("#addRoomLockBtn")?.addEventListener("click",()=>openRoomLock());$("#packageTy
  $("#paymentSearch")?.addEventListener("input",renderPayments);$("#clearPaymentSearch")?.addEventListener("click",()=>{const x=$("#paymentSearch");if(x){x.value="";x.focus();}renderPayments();});
  $("#guestSearch")?.addEventListener("input",renderGuests);
  $("#clearGuestSearch")?.addEventListener("click",()=>{const input=$("#guestSearch");if(input){input.value="";input.focus();}renderGuests();});
- $("#addPaymentBtn").onclick=()=>{$("#paymentForm").reset();$("#paymentDate").value=todayISO;$("#paymentDescription").value="";renderOrders();updatePaymentDialogSummary();$("#paymentDialog").showModal();};
+ $("#addPaymentBtn").onclick=()=>{$("#paymentForm").reset();$("#paymentDate").value=todayISO;renderOrders();updatePaymentDialogSummary();$("#paymentDialog").showModal();};
  $$("[data-close]").forEach(b=>b.onclick=()=>$("#"+b.dataset.close).close());
  $("#prevMonth").onclick=()=>{calDate.setMonth(calDate.getMonth()-1);renderCalendar();};$("#nextMonth").onclick=()=>{calDate.setMonth(calDate.getMonth()+1);renderCalendar();};$("#calendarToday").onclick=()=>{calDate=new Date();renderCalendar();};
  $("#addTemplateBtn").onclick=addTemplate;

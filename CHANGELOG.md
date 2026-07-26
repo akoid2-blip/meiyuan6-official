@@ -1,3 +1,11 @@
+# Enterprise V1.2 Build 2A RC5.1 — Payment Record Description & Flexible Charge Method
+
+- 登記收款新增選填收款說明（備註）。
+- 退款新增必填退款原因與退款說明。
+- 加收費用解除收款方式鎖定，保留使用者選擇。
+- 帳務明細同步呈現付款方式、退款原因與說明。
+- Storage Schema 維持 12。
+
 # CHANGELOG
 
 ## Enterprise V1.2 Build 2A RC5 — Unified Management UI (2026-07-27)

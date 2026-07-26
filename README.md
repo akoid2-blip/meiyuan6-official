@@ -1,4 +1,4 @@
-# Enterprise V1.2 Build 2A RC5
+# Enterprise V1.2 Build 2A RC5.1 — Payment Record Description & Flexible Charge Method
 ## Unified Management UI
 
 本版以 RC4 Hotfix 9 為基準，將訂單、入住、收款與旅客管理統一為同一套響應式收合卡片介面。
@@ -30,14 +30,22 @@
 
 ## 使用方式
 
-解壓縮後直接開啟 `index.html` 測試。部署時，上傳 `Meiyuan6_Admin_RC5` 資料夾內全部內容，並保持 `assets` 相對路徑不變。
+解壓縮後直接開啟 `index.html` 測試。部署時，上傳 `Meiyuan6_Admin_RC5_1` 資料夾內全部內容，並保持 `assets` 相對路徑不變。
 
 ## 版本狀態
 
-- Release Candidate：RC5
+- Release Candidate：RC5.1
 - Storage Schema：12
 - QA Candidate
 - 尚未 LOCK
 - 非 Official Stable
 
-進入 RC5 LOCK 前，仍需完成桌機 Chrome／Edge、iPhone Safari、Android Chrome 與 iPad Safari 實機操作驗收。
+進入 RC5.1 LOCK 前，仍需完成桌機 Chrome／Edge、iPhone Safari、Android Chrome 與 iPad Safari 實機操作驗收。
+
+
+## RC5.1 收付款紀錄強化
+- 登記收款新增「收款說明（備註）」欄位。
+- 登記退款新增必填「退款原因」與「退款說明」。
+- 加收費用的收款方式解除鎖定，可選擇現金、轉帳、信用卡、LINE Pay 或其他。
+- 帳務明細與手機卡片同步顯示收款方式、原因及說明。
+- Storage Schema 維持 12，既有資料可直接沿用。
