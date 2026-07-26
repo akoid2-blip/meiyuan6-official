@@ -140,6 +140,11 @@ const TEMPLATE_VARIABLE_GROUPS={
  "早餐通知":["早餐日期","早餐店","早餐份數","送餐天數","送達時間"],
  "叫車通知":["叫車日期","叫車時間","上車地點","目的地","乘車人數","車型","預估車資"]
 };
+const TEMPLATE_COMMON_VARIABLES={
+ "旅客與訂單":["旅客姓名","聯絡電話","訂單編號","住宿單位","入住日期","退房日期"],
+ "早餐通知":["旅客姓名","早餐日期","早餐店","早餐份數","送餐天數","送達時間"],
+ "叫車通知":["旅客姓名","叫車日期","叫車時間","上車地點","目的地","乘車人數","聯絡電話"]
+};
 const TEMPLATE_MISSING_VALUE="（尚未提供）";
 
 const defaultSettings={
@@ -299,6 +304,13 @@ function paymentSummary(order){
  const remaining=Math.max(0,adjustedTotal-net);
  const over=Math.max(0,net-adjustedTotal);
  return {opening,receipts,refunds,deposit:opening+depositRecords,additionalCharges,settledAdditionalCharges,adjustedTotal,net,remaining,over,records,chargeRecords,settledChargeRecords,receiptRecords};
+}
+function hasCompletedDeposit(order){
+ const summary=paymentSummary(order);
+ const verifiedDeposit=summary.receiptRecords.some(p=>p.type==="訂金"&&p.amount>0&&p.verified);
+ const legacyOpening=summary.opening>0;
+ const paidStatus=["已付訂金","已付全額","已入住","已退房"].includes(lifecycleStatus(order));
+ return summary.deposit>0&&summary.net>0&&(verifiedDeposit||legacyOpening||paidStatus);
 }
 function syncOrderPaid(order){const summary=paymentSummary(order);order.paid=Math.min(summary.adjustedTotal,summary.net);}
 function reconcileOpeningPaid(){
@@ -542,16 +554,18 @@ function getAlerts(){
 
 function orderActionButtons(o){
  const terminal=["已取消","No Show"].includes(lifecycleStatus(o));
- return `<button onclick="window.editOrder('${o.id}')">${uiIcon("edit")}編輯</button>${!terminal?`<button onclick="window.openCalendarAdjust('${o.id}')">${uiIcon("calendar")}調整日期／房間</button>`:""}${(LIFECYCLE_NEXT[lifecycleStatus(o)]||[]).length?`<button class="workflow-action" onclick="window.advanceLifecycle('${o.id}')">${uiIcon("arrow-right")}變更狀態</button>`:""}${WORKFLOW_NEXT[o.workflowStatus]?`<button class="workflow-action" onclick="window.advanceOrderWorkflow('${o.id}')">${uiIcon("arrow-right")}${esc(WORKFLOW_NEXT[o.workflowStatus])}</button>`:""}<button onclick="window.openPaymentForOrder('${o.id}')">${uiIcon("wallet")}收款</button><button class="official-line-button" onclick="window.copyLineMessage('${o.id}')">${uiIcon("message")}官方 LINE</button><button onclick="window.deleteOrder('${o.id}')">${uiIcon("trash")}刪除</button>`;
+ return `<button class="order-action-primary" onclick="window.editOrder('${o.id}')">${uiIcon("edit")}編輯</button>${!terminal?`<button class="order-action-primary" onclick="window.openCalendarAdjust('${o.id}')">${uiIcon("calendar")}調整日期／房間</button>`:""}${(LIFECYCLE_NEXT[lifecycleStatus(o)]||[]).length?`<button class="workflow-action order-action-secondary" onclick="window.advanceLifecycle('${o.id}')">${uiIcon("arrow-right")}變更狀態</button>`:""}${WORKFLOW_NEXT[o.workflowStatus]?`<button class="workflow-action order-action-primary" onclick="window.advanceOrderWorkflow('${o.id}')">${uiIcon("arrow-right")}${esc(WORKFLOW_NEXT[o.workflowStatus])}</button>`:""}<button class="order-action-primary" onclick="window.openPaymentForOrder('${o.id}')">${uiIcon("wallet")}收款</button><button class="official-line-button order-action-secondary" onclick="window.copyLineMessage('${o.id}')">${uiIcon("message")}官方 LINE</button><button class="order-action-danger" onclick="window.deleteOrder('${o.id}')">${uiIcon("trash")}刪除</button>`;
 }
 function renderOrderMobileCards(list){
  const box=$("#orderMobileList");if(!box)return;
- box.innerHTML=list.map(o=>{const p=paymentSummary(o);return `<article class="order-mobile-card"><div class="mobile-card-head"><div><strong>${esc(o.name)}</strong><span>${esc(o.id)}・${esc(o.phone)}</span></div><span class="badge ${lifecycleClass(lifecycleStatus(o))}">${esc(lifecycleStatus(o))}</span></div><dl><div><dt>住宿日期</dt><dd>${o.checkin}～${o.checkout}</dd></div><div><dt>方案</dt><dd>${esc(o.package)}</dd></div><div class="wide"><dt>房間</dt><dd>${orderRooms(o).map(roomName).map(esc).join("、")}</dd></div><div><dt>最新應收</dt><dd>${money(p.adjustedTotal)}</dd></div><div><dt>剩餘應收</dt><dd>${money(p.remaining)}</dd></div><div class="wide"><dt>服務</dt><dd>${serviceTags(o).map(esc).join("、")||"—"}</dd></div></dl><div class="mobile-card-actions">${orderActionButtons(o)}</div></article>`}).join("")||'<div class="empty">沒有符合條件的訂單。</div>';
+ const query=String($("#orderSearch")?.value||"").trim();
+ box.innerHTML=list.map(o=>{const p=paymentSummary(o);return `<details class="management-mobile-card order-mobile-card"${query&&list.length===1?" open":""}><summary class="management-mobile-summary"><span class="management-mobile-identity"><strong>${esc(o.name)}</strong><span>${esc(o.id)}・${esc(o.phone)}</span></span><span class="management-mobile-summary-meta"><span class="badge ${lifecycleClass(lifecycleStatus(o))}">${esc(lifecycleStatus(o))}</span><span class="management-expand-label">展開</span></span></summary><div class="management-mobile-body"><dl><div><dt>住宿日期</dt><dd>${o.checkin}～${o.checkout}</dd></div><div><dt>方案</dt><dd>${esc(o.package)}</dd></div><div class="wide"><dt>房間</dt><dd>${orderRooms(o).map(roomName).map(esc).join("、")}</dd></div><div><dt>最新應收</dt><dd>${money(p.adjustedTotal)}</dd></div><div><dt>剩餘應收</dt><dd>${money(p.remaining)}</dd></div><div class="wide"><dt>服務</dt><dd>${serviceTags(o).map(esc).join("、")||"—"}</dd></div></dl><div class="mobile-card-actions">${orderActionButtons(o)}</div></div></details>`}).join("")||'<div class="empty">沒有符合條件的訂單。</div>';
  applyStaticIcons(box);
 }
 function renderOrders(){
  const q=$("#orderSearch")?.value.trim().toLowerCase()||"", st=$("#statusFilter")?.value||"";
- const list=orders.filter(o=>(!st||lifecycleStatus(o)===st)&&(!q||[o.id,o.name,o.phone].join(" ").toLowerCase().includes(q))).sort((a,b)=>b.checkin.localeCompare(a.checkin));
+ const list=orders.filter(o=>(!st||lifecycleStatus(o)===st)&&(!q||[o.id,o.name,o.phone,o.package,o.checkin,o.checkout,...orderRooms(o).map(roomName)].join(" ").toLowerCase().includes(q))).sort((a,b)=>b.checkin.localeCompare(a.checkin));
+ const orderCount=$("#orderResultCount");if(orderCount)orderCount.textContent=`顯示 ${list.length}／${orders.length} 筆`;
  renderOrderMobileCards(list);
  $("#orderTableBody").innerHTML=list.map(o=>`<tr>
  <td><strong>${esc(o.id)}</strong>${o.isBackfill?`<span class="badge backfill" title="補登原因：${esc(o.backfillReason)}">補登</span>`:""}<span class="guest-detail">${esc(o.source)}</span>${o.isBackfill?`<span class="guest-detail backfill-meta">原因：${esc(o.backfillReason)}${o.backfillOperator?`・人員：${esc(o.backfillOperator)}`:""}${o.backfillTime?`・時間：${esc(new Date(o.backfillTime).toLocaleString("zh-TW",{hour12:false}))}`:""}</span>`:""}</td>
@@ -561,8 +575,7 @@ function renderOrders(){
  <td><div class="service-tags">${serviceTags(o).map(x=>`<span>${esc(x)}</span>`).join("")||"-"}</div></td>
  <td class="money-cell"><strong>${money(o.total)}</strong><span class="guest-detail">已收 ${money(o.paid)}・未收 ${money(Math.max(0,o.total-o.paid))}</span><div class="money-progress"><i style="width:${Math.min(100,o.total?o.paid/o.total*100:0)}%"></i></div></td>
  <td><span class="badge ${lifecycleClass(lifecycleStatus(o))}" title="${esc(lifecycleHistoryText(o))}">${esc(lifecycleStatus(o))}</span><span class="workflow-badge">${esc(o.workflowStatus)}</span>${(o.lifecycleHistory||[]).length?`<span class="guest-detail">歷程 ${(o.lifecycleHistory||[]).length} 筆</span>`:""}</td>
- <td><div class="table-actions">${orderActionButtons(o)}</div></td>
- </tr>`).join("")||'<tr><td colspan="8">沒有符合條件的訂單。</td></tr>';
+ </tr><tr class="order-action-row"><td colspan="7"><div class="order-action-row-inner"><span class="order-action-label">操作</span><div class="table-actions order-table-actions">${orderActionButtons(o)}</div></div></td></tr>`).join("")||'<tr><td colspan="7">沒有符合條件的訂單。</td></tr>';
  $("#paymentOrder").innerHTML=orders.filter(o=>!["已取消","No Show"].includes(lifecycleStatus(o))).map(o=>{const p=paymentSummary(o);return `<option value="${o.id}">${o.id}｜${esc(o.name)}｜剩餘 ${money(p.remaining)}</option>`}).join("");
  updatePaymentDialogSummary();
 }
@@ -1036,10 +1049,15 @@ $("#roomLockForm")?.addEventListener("submit",e=>{
  persist();$("#roomLockDialog").close();renderAll();toast(`房號鎖定已${action}`);
 });
 function renderCheckin(){
- const list=activeOrders().filter(o=>o.checkout>=todayISO).sort((a,b)=>a.checkin.localeCompare(b.checkin));
+ const q=String($("#checkinSearch")?.value||"").trim().toLocaleLowerCase("zh-TW");
+ const all=activeOrders().filter(o=>o.checkout>=todayISO).sort((a,b)=>a.checkin.localeCompare(b.checkin));
+ const list=q?all.filter(o=>[o.id,o.name,o.phone,o.package,o.checkin,o.checkout,...orderRooms(o).map(roomName)].join(" ").toLocaleLowerCase("zh-TW").includes(q)):all;
+ const count=$("#checkinResultCount");if(count)count.textContent=`顯示 ${list.length}／${all.length} 筆`;
  const items=["身分確認","訂金","尾款","入住須知","LINE","導航","WiFi","完成入住"];
- $("#checkinList").innerHTML=list.map(o=>`<article class="checkin-card"><div class="panel-head"><div><strong>${esc(o.name)}｜${o.checkin} 入住</strong><p class="section-note">${esc(o.package)}｜${o.count} 人｜${orderRooms(o).map(roomName).map(esc).join("、")}</p></div><button class="official-line-button" title="聯絡眉原六官方 LINE" onclick="window.copyLineMessage('${o.id}')">${uiIcon("message")}官方 LINE</button></div><div class="checklist">${items.map(x=>`<label class="check-item"><input type="checkbox" ${o.checklist?.[x]?"checked":""} onchange="window.toggleCheck('${o.id}','${x}',this.checked)"> ${x}</label>`).join("")}</div></article>`).join("")||'<div class="empty">目前沒有待入住訂單。</div>';
+ $("#checkinList").innerHTML=list.map(o=>`<details class="management-mobile-card checkin-card"${q&&list.length===1?" open":""}><summary class="management-mobile-summary"><span class="management-mobile-identity"><strong>${esc(o.name)}</strong><span>${esc(o.id)}・${esc(o.phone)}</span></span><span class="management-mobile-summary-meta"><span>${esc(o.checkin)} 入住</span><span class="management-expand-label">展開</span></span></summary><div class="management-mobile-body"><p class="section-note">${esc(o.package)}｜${o.count} 人｜${orderRooms(o).map(roomName).map(esc).join("、")}</p><div class="checklist">${items.map(x=>{const autoDeposit=x==="訂金"&&hasCompletedDeposit(o);const checked=autoDeposit||o.checklist?.[x];return `<label class="check-item${autoDeposit?" auto-checked":""}"${autoDeposit?' title="已依訂單訂金收款狀態自動完成"':''}><input type="checkbox" ${checked?"checked":""} ${autoDeposit?"disabled aria-label='訂金已自動核對'":""} onchange="window.toggleCheck('${o.id}','${x}',this.checked)"> ${x}${autoDeposit?'<small class="check-auto-label">自動</small>':''}</label>`}).join("")}</div><div class="mobile-card-actions checkin-card-actions"><button class="official-line-button" title="聯絡眉原六官方 LINE" onclick="window.copyLineMessage('${o.id}')">${uiIcon("message")}官方 LINE</button><button onclick="window.editOrder('${o.id}')">${uiIcon("edit")}編輯訂單</button></div></div></details>`).join("")||'<div class="empty">目前沒有符合條件的待入住訂單。</div>';
+ applyStaticIcons($("#checkinList"));
 }
+
 window.toggleCheck=(id,key,val)=>{const o=orders.find(x=>x.id===id);o.checklist=o.checklist||{};o.checklist[key]=val;if(key==="完成入住"&&val)o.status="已入住";persist();renderAll();};
 
 function paymentStatus(summary,total){
@@ -1061,11 +1079,21 @@ function paymentRecordCards(order){
  const summary=paymentSummary(order);const items=[];if(summary.opening>0)items.push(`<div class="payment-record-card"><span>訂單預收訂金</span><strong>${money(summary.opening)}</strong><small>訂單建立時帶入・已納入</small></div>`);
  summary.records.slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).forEach(p=>items.push(`<div class="payment-record-card"><span>${esc(p.date)}・${esc(p.type)}</span><strong class="${p.amount<0?'amount-negative':''}">${p.amount<0?'-':''}${money(Math.abs(p.amount))}</strong><small>${p.type==="加收費用"?`${esc(p.category||"其他")}｜${esc(p.description||"")}`:esc(p.method)}・${p.verified?"已核帳":"待核帳"}</small></div>`));return items.join("")||'<div class="empty">尚無收付款紀錄。</div>';
 }
-function renderPaymentMobileCards(){const box=$("#paymentMobileList");if(!box)return;box.innerHTML=orders.slice().sort((a,b)=>b.checkin.localeCompare(a.checkin)).map(o=>{const p=paymentSummary(o);return `<article class="payment-mobile-card"><div class="mobile-card-head"><div><strong>${esc(o.name)}</strong><span>${esc(o.id)}</span></div><span>${paymentStatus(p)}</span></div><div class="payment-mobile-summary"><div><span>原始訂單</span><strong>${money(o.total)}</strong></div><div><span>加收費用</span><strong>+${money(p.additionalCharges)}</strong></div><div><span>最新應收</span><strong>${money(p.adjustedTotal)}</strong></div><div><span>已收淨額</span><strong>${money(p.net)}</strong></div><div><span>已退款</span><strong>${money(p.refunds)}</strong></div><div><span>剩餘應收</span><strong>${money(p.remaining)}</strong></div></div><details><summary>查看帳務明細</summary><div class="payment-record-list">${paymentRecordCards(o)}</div></details><div class="mobile-card-actions"><button class="primary" onclick="window.openPaymentForOrder('${o.id}')">${uiIcon("wallet")}登記收款／退款</button></div></article>`}).join("")||'<div class="empty">尚無訂單。</div>';applyStaticIcons(box);}
+function renderPaymentMobileCards(list){
+ const box=$("#paymentMobileList");if(!box)return;
+ const query=String($("#paymentSearch")?.value||"").trim();
+ box.innerHTML=list.map(o=>{const p=paymentSummary(o);return `<details class="management-mobile-card payment-mobile-card"${query&&list.length===1?" open":""}><summary class="management-mobile-summary"><span class="management-mobile-identity"><strong>${esc(o.name)}</strong><span>${esc(o.id)}・${esc(o.phone)}</span></span><span class="management-mobile-summary-meta"><span>${paymentStatus(p,p.adjustedTotal)}</span><span class="management-expand-label">展開</span></span></summary><div class="management-mobile-body"><div class="payment-mobile-summary"><div><span>原始訂單</span><strong>${money(o.total)}</strong></div><div><span>加收費用</span><strong>+${money(p.additionalCharges)}</strong></div><div><span>最新應收</span><strong>${money(p.adjustedTotal)}</strong></div><div><span>已收淨額</span><strong>${money(p.net)}</strong></div><div><span>已退款</span><strong>${money(p.refunds)}</strong></div><div><span>剩餘應收</span><strong>${money(p.remaining)}</strong></div></div><details class="payment-record-details"><summary>查看帳務明細</summary><div class="payment-record-list">${paymentRecordCards(o)}</div></details><div class="mobile-card-actions"><button class="primary" onclick="window.openPaymentForOrder('${o.id}')">${uiIcon("wallet")}登記收款／退款</button></div></div></details>`}).join("")||'<div class="empty">沒有符合條件的收款資料。</div>';
+ applyStaticIcons(box);
+}
+
 window.openPaymentForOrder=id=>{navigate("payments");$("#paymentForm").reset();$("#paymentDate").value=todayISO;renderOrders();$("#paymentOrder").value=id;$("#paymentDescription").value="";updatePaymentDialogSummary();$("#paymentDialog").showModal();};
 function renderPayments(){
- renderPaymentMobileCards();
- const rows=orders.slice().sort((a,b)=>b.checkin.localeCompare(a.checkin)).map(o=>{
+ const q=String($("#paymentSearch")?.value||"").trim().toLocaleLowerCase("zh-TW");
+ const sorted=orders.slice().sort((a,b)=>b.checkin.localeCompare(a.checkin));
+ const list=q?sorted.filter(o=>{const p=paymentSummary(o);return [o.id,o.name,o.phone,o.checkin,o.checkout,paymentStatus(p,p.adjustedTotal).replace(/<[^>]+>/g,""),...orderRooms(o).map(roomName)].join(" ").toLocaleLowerCase("zh-TW").includes(q)}):sorted;
+ const count=$("#paymentResultCount");if(count)count.textContent=`顯示 ${list.length}／${orders.length} 筆`;
+ renderPaymentMobileCards(list);
+ const rows=list.map(o=>{
    const p=paymentSummary(o);
    return `<tr class="payment-order-row"><td>${esc(o.id)}</td><td>${esc(o.name)}</td><td>${money(o.total)}</td><td>${money(p.additionalCharges)}</td><td>${money(p.adjustedTotal)}</td><td>${money(p.deposit)}</td><td>${money(p.net)}</td><td>${money(p.refunds)}</td><td>${money(p.remaining)}</td><td>${paymentStatus(p)}</td><td><button type="button" class="compact-button" data-icon="file-text" onclick="window.togglePaymentDetail('${o.id}')">明細</button></td></tr><tr id="payment-detail-${o.id}" class="payment-detail-row hidden"><td colspan="11"><div class="payment-detail-wrap"><div class="payment-summary-inline"><span>原始訂單<strong>${money(o.total)}</strong></span><span>加收費用<strong>+${money(p.additionalCharges)}</strong></span><span>最新應收<strong>${money(p.adjustedTotal)}</strong></span><span>預收訂金<strong>${money(p.deposit)}</strong></span><span>已收淨額<strong>${money(p.net)}</strong></span><span>已退款<strong>${money(p.refunds)}</strong></span><span>剩餘應收<strong>${money(p.remaining)}</strong></span></div><div class="table-wrap"><table class="payment-detail-table"><thead><tr><th>日期</th><th>類型</th><th>方式／說明</th><th>金額</th><th>核帳</th></tr></thead><tbody>${paymentDetailRows(o)}</tbody></table></div></div></td></tr>`;
  }).join("");
@@ -1238,14 +1266,40 @@ function applyTemplateVariables(content,order=templatePreviewOrder()){
    return value===undefined||value===null||String(value).trim()===""?TEMPLATE_MISSING_VALUE:String(value);
  });
 }
+function preferredTemplateVariableGroup(){
+ const name=String(selectedTemplate||"");
+ if(name.includes("早餐"))return "早餐通知";
+ if(name.includes("叫車"))return "叫車通知";
+ return "旅客與訂單";
+}
+function insertTemplateVariable(btn){
+ const input=$("#templateContent"),token=`{{${btn.dataset.variable}}}`;
+ if(!input)return;
+ const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
+ input.setRangeText(token,start,end,"end");
+ input.focus();renderTemplatePreview();
+ btn.classList.remove("inserted");void btn.offsetWidth;btn.classList.add("inserted");
+ window.setTimeout(()=>btn.classList.remove("inserted"),650);
+}
 function renderTemplateVariablePanel(){
  const panel=$("#templateVariablePanel");if(!panel)return;
- panel.innerHTML=Object.entries(TEMPLATE_VARIABLE_GROUPS).map(([group,names])=>`<section><h4>${esc(group)}</h4><div class="template-variable-buttons">${names.map(name=>`<button type="button" class="template-variable-btn" data-variable="${esc(name)}">{{${esc(name)}}}</button>`).join("")}</div></section>`).join("");
- $$(".template-variable-btn").forEach(btn=>btn.onclick=()=>{
-   const input=$("#templateContent"),token=`{{${btn.dataset.variable}}}`,start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
-   input.setRangeText(token,start,end,"end");input.focus();renderTemplatePreview();
- });
+ const search=$("#templateVariableSearch");
+ const query=String(search?.value||"").trim().toLocaleLowerCase("zh-TW");
+ const preferred=preferredTemplateVariableGroup();
+ const common=TEMPLATE_COMMON_VARIABLES[preferred]||TEMPLATE_COMMON_VARIABLES["旅客與訂單"];
+ const matches=name=>!query||String(name).toLocaleLowerCase("zh-TW").includes(query);
+ const commonMatches=common.filter(matches);
+ const commonHtml=commonMatches.length?`<section class="template-common-variables"><div class="template-common-head"><strong>常用變數</strong><span>${commonMatches.length} 個</span></div><div class="template-variable-buttons">${commonMatches.map(name=>`<button type="button" class="template-variable-btn template-variable-common" data-variable="${esc(name)}">{{${esc(name)}}}</button>`).join("")}</div></section>`:"";
+ const groups=Object.entries(TEMPLATE_VARIABLE_GROUPS).map(([group,names])=>{
+   const filtered=names.filter(matches);if(!filtered.length)return "";
+   const open=query||group===preferred;
+   return `<details class="template-variable-group"${open?" open":""}><summary>${esc(group)}<span>${filtered.length} 個變數</span></summary><div class="template-variable-buttons">${filtered.map(name=>`<button type="button" class="template-variable-btn" data-variable="${esc(name)}">{{${esc(name)}}}</button>`).join("")}</div></details>`;
+ }).join("");
+ panel.innerHTML=(commonHtml+groups)||'<div class="template-variable-empty">找不到符合條件的變數。</div>';
+ $$(".template-variable-btn",panel).forEach(btn=>btn.onclick=()=>insertTemplateVariable(btn));
+ if(search&&!search.dataset.bound){search.dataset.bound="1";search.addEventListener("input",renderTemplateVariablePanel);}
 }
+
 function renderTemplateOrderOptions(){
  const select=$("#templateOrderSelect");if(!select)return;const current=select.value;
  const list=[...orders].sort((a,b)=>String(b.checkin).localeCompare(String(a.checkin)));
@@ -1262,6 +1316,7 @@ function selectTemplate(name){
  $("#templateTitle").textContent=name;
  $("#templateContent").value=templates[name];
  $$(".template-item").forEach(el=>el.classList.toggle("active",el.dataset.template===name));
+ renderTemplateVariablePanel();
  renderTemplatePreview();
 }
 function renderTemplates(){
@@ -1324,7 +1379,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A RC4 Hotfix 2",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
+ const data={version:"Enterprise V1.2 Build 2A RC4 Hotfix 7",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 async function importBackup(file){
@@ -1343,6 +1398,8 @@ function init(){
  $("#quickAddOrder").onclick=$("#addOrderBtn").onclick=()=>openOrder();
 $("#addRoomLockBtn")?.addEventListener("click",()=>openRoomLock());$("#packageType").onchange=handlePackageChange;
  $("#orderSearch").oninput=renderOrders;$("#statusFilter").onchange=renderOrders;
+ $("#checkinSearch")?.addEventListener("input",renderCheckin);$("#clearCheckinSearch")?.addEventListener("click",()=>{const x=$("#checkinSearch");if(x){x.value="";x.focus();}renderCheckin();});
+ $("#paymentSearch")?.addEventListener("input",renderPayments);$("#clearPaymentSearch")?.addEventListener("click",()=>{const x=$("#paymentSearch");if(x){x.value="";x.focus();}renderPayments();});
  $("#guestSearch")?.addEventListener("input",renderGuests);
  $("#clearGuestSearch")?.addEventListener("click",()=>{const input=$("#guestSearch");if(input){input.value="";input.focus();}renderGuests();});
  $("#addPaymentBtn").onclick=()=>{$("#paymentForm").reset();$("#paymentDate").value=todayISO;$("#paymentDescription").value="";renderOrders();updatePaymentDialogSummary();$("#paymentDialog").showModal();};
@@ -1353,6 +1410,10 @@ $("#addRoomLockBtn")?.addEventListener("click",()=>openRoomLock());$("#packageTy
  $("#deleteTemplateBtn").onclick=deleteCurrentTemplate;
  $("#templateContent")?.addEventListener("input",renderTemplatePreview);
  $("#templateOrderSelect")?.addEventListener("change",renderTemplatePreview);
+ const setTemplateTab=name=>{ $$("[data-template-tab]").forEach(btn=>{const active=btn.dataset.templateTab===name;btn.classList.toggle("active",active);btn.setAttribute("aria-selected",String(active));}); $$("[data-template-pane]").forEach(pane=>pane.classList.toggle("mobile-active",pane.dataset.templatePane===name)); };
+ $$("[data-template-tab]").forEach(btn=>btn.onclick=()=>setTemplateTab(btn.dataset.templateTab));
+ $$("[data-template-action]").forEach(btn=>btn.onclick=()=>{const action=btn.dataset.templateAction;if(action==="save")saveCurrentTemplate();if(action==="copy")$("#copyTemplateBtn").click();if(action==="delete")deleteCurrentTemplate();});
+ setTemplateTab("editor");
  $("#copyTemplateBtn").onclick=async()=>{const text=applyTemplateVariables($("#templateContent").value);try{await navigator.clipboard.writeText(text);toast("已複製套用後文字");}catch{prompt("請複製",text);}};
  $("#copyWifiBtn").onclick=async()=>{const t="眉原六民宿 Wi-Fi\nSSID：deco_be25_Guest\n密碼：liou6868";try{await navigator.clipboard.writeText(t);toast("Wi-Fi 資料已複製");}catch{prompt("請複製",t);}};
  $("#openSettingsBtn").onclick=()=>navigate("settings");

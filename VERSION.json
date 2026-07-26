@@ -1,12 +1,14 @@
 {
   "product": "Meiyuan6 Booking Admin Enterprise",
   "version": "1.2",
-  "build": "2A",
-  "release": "RC4 Hotfix 2",
-  "title": "Mobile UX & Smart Template",
-  "status": "RC4 Hotfix 2 QA",
+  "build": "Enterprise V1.2 Build 2A",
+  "release": "RC4 Hotfix 7",
+  "title": "Template Variable UX Optimization",
+  "status": "RC4 Hotfix 7 QA Candidate",
   "storageSchema": 12,
-  "date": "2026-07-26",
+  "date": "2026-07-27",
   "officialStable": false,
-  "locked": false
+  "locked": false,
+  "name": "陳光亮 Enterprise V1.2 Build 2A RC4 Hotfix 7 — Template Variable UX Optimization",
+  "updated": "2026-07-27"
 }

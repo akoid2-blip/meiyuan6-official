@@ -244,3 +244,79 @@ th,td{padding:9px 8px;line-height:1.35;vertical-align:middle}tbody tr{height:54p
 #orderForm fieldset.field-error{background:#fff3f1}
 .template-smart-toolbar{display:flex;gap:16px;align-items:end;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f8f6f1;margin-bottom:14px}.template-smart-toolbar label{min-width:min(100%,360px)}.template-smart-toolbar p{margin:0;color:var(--muted);font-size:13px}.template-smart-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:16px}.template-smart-grid h4,.template-preview-panel h4{margin:0 0 9px}.template-smart-grid textarea{width:100%;min-height:420px;resize:vertical}.template-variable-panel{display:grid;gap:13px;max-height:480px;overflow:auto;padding-right:4px}.template-variable-panel section{border:1px solid var(--line);border-radius:10px;padding:10px}.template-variable-panel section h4{font-size:13px;color:var(--muted)}.template-variable-buttons{display:flex;flex-wrap:wrap;gap:7px}.template-variable-btn{padding:6px 8px;min-height:32px;font-size:12px;background:#f0ede5}.template-preview-panel{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfaf7}.template-preview-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;min-height:150px;font-family:inherit;line-height:1.7}.template-smart-toolbar code{font-family:ui-monospace,monospace}
 @media(max-width:900px){.template-layout{grid-template-columns:1fr}.template-smart-toolbar{display:grid;align-items:stretch}.template-smart-toolbar label{min-width:0}.template-smart-grid{grid-template-columns:1fr}.template-smart-grid textarea{min-height:330px}.template-variable-panel{max-height:280px}.template-preview-panel pre{min-height:120px}#orderDialog .field-error{scroll-margin-top:90px}}
+
+
+/* Enterprise V1.2 Build 2A RC4 Hotfix 4 — Automatic Deposit Check-in Verification */
+.management-panel-head>div{min-width:0}.management-result-count{display:block;margin-top:4px;color:var(--muted);font-size:13px;font-weight:800}.management-search-bar{display:flex;gap:10px;align-items:center;margin:0 0 16px}.management-search-bar input{flex:1;min-width:0;min-height:44px}.management-search-bar button{min-height:44px;white-space:nowrap}.management-mobile-card>summary{list-style:none}.management-mobile-card>summary::-webkit-details-marker{display:none}.management-mobile-summary{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:72px;padding:14px 16px;cursor:pointer;touch-action:manipulation}.management-mobile-identity{min-width:0}.management-mobile-identity strong,.management-mobile-identity>span{display:block;overflow-wrap:anywhere}.management-mobile-identity strong{font-size:18px}.management-mobile-identity>span{color:var(--muted);margin-top:4px}.management-mobile-summary-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:0 0 auto;color:var(--muted);font-size:12px}.management-expand-label{font-weight:850;color:var(--brand)}.management-mobile-card[open]>.management-mobile-summary .management-expand-label{font-size:0}.management-mobile-card[open]>.management-mobile-summary .management-expand-label::after{content:"收合";font-size:12px}.management-mobile-body{border-top:1px solid var(--line);padding:14px 16px 16px}.management-mobile-card.order-mobile-card,.management-mobile-card.payment-mobile-card,.management-mobile-card.checkin-card{padding:0;overflow:hidden}.management-mobile-card.order-mobile-card dl{margin-top:0}.checkin-card-actions{margin-top:14px}.payment-record-details{border-top:1px solid var(--line);padding-top:12px}.payment-record-details>summary{font-weight:800;cursor:pointer}
+@media(max-width:650px){#orders>.panel,#checkin>.panel,#payments>.panel{display:flex;flex-direction:column;max-height:calc(100dvh - 118px);min-height:440px;overflow:hidden}.management-search-bar{flex:0 0 auto;width:100%}.order-mobile-list,#checkinList,.payment-mobile-list{display:block;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:1px 3px 18px 1px}.management-mobile-card{margin:0 0 12px}.management-panel-head{align-items:flex-start}.management-search-bar button{padding-inline:14px}}
+
+/* RC4 Hotfix 4 — automatic deposit verification */
+.check-item.auto-checked{background:var(--soft-green,#eef8f1);border-color:rgba(35,110,65,.24)}
+.check-item.auto-checked input{accent-color:#277548}
+.check-auto-label{margin-left:auto;padding:.12rem .4rem;border-radius:999px;background:rgba(39,117,72,.12);font-size:.72rem;font-weight:700;color:#277548}
+
+
+/* Enterprise V1.2 Build 2A RC4 Hotfix 5 — Order Action Layout Optimization */
+.order-desktop-table table{table-layout:auto}
+.order-desktop-table tbody tr:not(.order-action-row)>td{border-bottom:0;padding-bottom:8px;vertical-align:top}
+.order-action-row td{padding:0 10px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(247,245,239,.58),rgba(255,255,255,0))}
+.order-action-row-inner{display:flex;align-items:flex-start;gap:12px;padding:10px 0 0;border-top:1px dashed var(--line)}
+.order-action-label{flex:0 0 auto;padding-top:9px;color:var(--muted);font-size:12px;font-weight:850;letter-spacing:.08em}
+.order-table-actions{display:flex;flex:1;flex-wrap:wrap;gap:8px;min-width:0}
+.order-table-actions button{min-height:40px;white-space:normal}
+.order-action-danger{color:#a52828;background:#fff2f0;border-color:#f0cfca}
+.order-mobile-card .mobile-card-actions{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+.order-mobile-card .order-action-danger{grid-column:1/-1}
+@media(max-width:960px){.order-action-row-inner{display:block}.order-action-label{display:block;padding:0 0 8px}.order-table-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.order-table-actions button{width:100%}}
+@media(max-width:650px){.order-mobile-card .mobile-card-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.order-mobile-card .mobile-card-actions button{width:100%}.order-mobile-card .order-action-danger{grid-column:1/-1}}
+@media(max-width:420px){.order-mobile-card .mobile-card-actions{grid-template-columns:1fr}}
+
+
+/* Enterprise V1.2 Build 2A RC4 Hotfix 7 — Template Workspace Layout Optimization */
+.template-layout{grid-template-columns:minmax(300px,360px) minmax(0,1fr);align-items:start}
+.template-workspace{min-width:0}
+.template-workspace-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:14px}
+.template-workspace-title{min-width:0}.template-workspace-title h3{margin-bottom:4px}
+.template-workspace-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.template-order-bar{display:grid;grid-template-columns:minmax(280px,430px) minmax(0,1fr);align-items:end;gap:18px;padding:14px;border:1px solid var(--line);border-radius:13px;background:#f8f6f1;margin-bottom:16px}
+.template-order-bar label{margin:0}.template-order-bar p{margin:0;color:var(--muted);font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+.template-main-grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,1fr);gap:16px;align-items:stretch}
+.template-pane{min-width:0}.template-pane>h4,.template-section-head h4{margin:0 0 9px}
+.template-main-grid textarea{width:100%;height:520px;min-height:420px;resize:vertical;line-height:1.7}
+.template-preview-panel{margin:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7;overflow:hidden}
+.template-preview-panel pre{height:476px;min-height:0;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font-family:inherit;line-height:1.7;padding-right:4px}
+.template-variables-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.template-section-head{display:flex;justify-content:space-between;gap:12px}.template-section-head p{margin:-4px 0 10px;color:var(--muted);font-size:13px}
+.template-variable-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-height:none;overflow:visible;padding:0}
+.template-variable-group{border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden}
+.template-variable-group summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;cursor:pointer;font-weight:850;list-style:none}.template-variable-group summary::-webkit-details-marker{display:none}.template-variable-group summary::after{content:"＋";color:var(--brand);font-weight:900}.template-variable-group[open] summary::after{content:"−"}.template-variable-group summary span{margin-left:auto;color:var(--muted);font-size:11px;font-weight:700}
+.template-variable-group .template-variable-buttons{padding:0 12px 12px;border-top:1px solid var(--line);padding-top:10px}
+.template-variable-btn{white-space:normal;overflow-wrap:anywhere}
+.template-mobile-tabs,.template-mobile-actionbar{display:none}
+@media(max-width:1180px){.template-layout{grid-template-columns:minmax(270px,320px) minmax(0,1fr)}.template-main-grid{grid-template-columns:minmax(0,1.5fr) minmax(270px,1fr)}.template-variable-panel{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.template-layout{grid-template-columns:1fr}.template-main-grid{grid-template-columns:minmax(0,1.45fr) minmax(260px,1fr)}.template-order-bar{grid-template-columns:1fr}.template-variable-panel{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){
+ #templates{padding-bottom:86px}.template-workspace{padding:14px}.template-workspace-head{display:block}.template-workspace-actions{display:none}.template-order-bar{padding:12px;margin-bottom:12px}.template-order-bar p{font-size:12px}
+ .template-mobile-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;position:sticky;top:0;z-index:5;background:#fff;padding:4px 0 10px}.template-mobile-tabs button{min-height:44px;padding:8px 5px;font-size:13px}.template-mobile-tabs button.active{background:var(--brand);color:#fff}
+ .template-main-grid{display:block}.template-pane[data-template-pane]{display:none}.template-pane[data-template-pane].mobile-active{display:block}.template-variables-section{margin-top:0;padding-top:0;border-top:0}
+ .template-main-grid textarea{height:52dvh;min-height:360px;font-size:16px}.template-preview-panel{padding:12px}.template-preview-panel pre{height:52dvh;min-height:360px;font-size:15px}
+ .template-variable-panel{grid-template-columns:1fr;max-height:56dvh;overflow-y:auto;overscroll-behavior:contain;padding-right:2px}.template-section-head p{font-size:12px}
+ .template-mobile-actionbar{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background:rgba(255,255,255,.96);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(24,45,39,.1);backdrop-filter:blur(8px)}.template-mobile-actionbar button{min-height:48px}.template-mobile-actionbar .danger{width:52px;padding-inline:0;font-size:0}.template-mobile-actionbar .danger .ui-icon{font-size:16px;margin:0}
+}
+
+/* RC4 Hotfix 7 — Template Variable UX Optimization */
+.template-order-bar{grid-template-columns:minmax(280px,520px);margin-bottom:14px}
+.template-variables-section{margin:0 0 16px;padding:14px;border:1px solid var(--line);border-radius:13px;background:#fbfaf7}
+.template-section-head{align-items:end;margin-bottom:12px}
+.template-section-head p{margin:2px 0 0;line-height:1.55}.template-section-head code{font-family:ui-monospace,monospace}
+.template-variable-search-label{width:min(100%,320px);margin:0;font-size:12px;color:var(--muted)}
+.template-variable-search-label input{margin-top:5px;background:#fff}
+.template-variable-panel{grid-template-columns:repeat(3,minmax(0,1fr))}
+.template-common-variables{grid-column:1/-1;border:1px solid var(--line);border-radius:11px;padding:12px;background:#f1f6f3}
+.template-common-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:9px}.template-common-head span{font-size:12px;color:var(--muted)}
+.template-variable-common{background:#e2efe8}
+.template-variable-btn.inserted{animation:template-variable-inserted .65s ease}
+@keyframes template-variable-inserted{0%{transform:scale(1);box-shadow:none}35%{transform:scale(1.06);box-shadow:0 0 0 4px rgba(47,105,82,.16)}100%{transform:scale(1);box-shadow:none}}
+.template-variable-empty{grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
+@media(max-width:900px){.template-section-head{display:grid;align-items:stretch}.template-variable-search-label{width:100%}}
+@media(max-width:760px){.template-variables-section{margin:0;padding:0;border:0;background:transparent}.template-section-head{margin-bottom:10px}.template-variable-panel{grid-template-columns:1fr}.template-common-variables{grid-column:auto}}

@@ -1,4 +1,4 @@
-# 眉原六民宿訂房後台 — Enterprise V1.2 Build 2A RC4 Hotfix 2
+# Enterprise V1.2 Build 2A RC4 Hotfix 7 — Template Variable UX Optimization
 
 RC4 整合目前已完成的 Build 2A 功能，並將交付資料夾與 QA 文件名稱縮短，以避免 Windows 檔案總管解壓縮錯誤 `0x80010135：路徑太長`。
 
@@ -20,7 +20,7 @@ RC4 整合目前已完成的 Build 2A 功能，並將交付資料夾與 QA 文�
 
 ## 版本狀態
 
-- Release Candidate：RC4 Hotfix 2
+- Release Candidate：RC4 Hotfix 7
 - Schema：12
 - 非 Official Stable
 - 本版需完成實機 iPhone Safari、Android Chrome 與 iPad 驗收後，才可進入後續 Stable 評估。
@@ -40,4 +40,19 @@ RC4 整合目前已完成的 Build 2A 功能，並將交付資料夾與 QA 文�
 - 模板中心：可選訂單預覽、點擊插入變數、即時顯示套用結果。
 - 缺值規則：顯示「（尚未提供）」，不保留未替換的 `{{變數}}`。
 
-本版本仍為 RC4 Hotfix 2 QA，尚未宣告 Official Stable 或 LOCK。
+本版本仍為 RC4 Hotfix 7 QA，尚未宣告 Official Stable 或 LOCK。
+
+## RC4 Hotfix 7 — 入住管理訂金自動核對
+
+- 訂單已有有效訂金，且訂金已核帳、由舊版預收款帶入，或訂單狀態已完成「已付訂金／已付全額」時，入住管理的「訂金」核對項目自動勾選。
+- 自動勾選項目顯示「自動」標籤並鎖定，避免人工誤取消。
+- 完全退款、無實收訂金或未完成付款狀態，不會自動勾選。
+- Storage Schema 維持 12。
+
+
+## RC4 Hotfix 7 — 訂單操作區版面優化
+
+- 桌機版將操作按鈕由右側欄位移至每筆訂單資訊下方，避免操作欄壓縮日期、房間、金額與狀態。
+- 操作列支援自動換行，保留編輯、調整日期／房間、變更狀態、入住／退房、收款、官方 LINE 與刪除。
+- 手機版操作維持在單筆收合卡片展開內容底部，採兩欄排列，小螢幕自動切為單欄。
+- 刪除按鈕固定在最後並跨滿整列，以降低誤觸。

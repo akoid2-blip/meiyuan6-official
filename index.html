@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · RC4 Hotfix 2</p>
+    <p>Enterprise V1.2 · Build 2A · RC4 Hotfix 7</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -37,7 +37,7 @@
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · RC4 Hotfix 2</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · RC4 Hotfix 7</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -123,14 +123,14 @@
 
     <section id="orders" class="page">
       <section class="panel">
-        <div class="panel-head"><h3>訂單管理</h3><button id="addOrderBtn" class="primary" data-icon="plus">新增訂單</button></div>
-        <div class="filters">
-          <input id="orderSearch" placeholder="搜尋姓名、電話、訂單編號">
+        <div class="panel-head management-panel-head"><div><h3>訂單管理</h3><span id="orderResultCount" class="management-result-count" aria-live="polite"></span></div><button id="addOrderBtn" class="primary" data-icon="plus">新增訂單</button></div>
+        <div class="filters management-search-bar">
+          <input id="orderSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、房間或方案">
           <select id="statusFilter"><option value="">全部生命週期</option><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select>
         </div>
         <div id="orderMobileList" class="order-mobile-list"></div>
         <div class="table-wrap order-desktop-table"><table>
-          <thead><tr><th>訂單</th><th>旅客</th><th>住宿日期</th><th>方案／房間</th><th>服務</th><th>金額</th><th>狀態</th><th>操作</th></tr></thead>
+          <thead><tr><th>訂單</th><th>旅客</th><th>住宿日期</th><th>方案／房間</th><th>服務</th><th>金額</th><th>狀態</th></tr></thead>
           <tbody id="orderTableBody"></tbody>
         </table></div>
       </section>
@@ -138,17 +138,19 @@
 
     <section id="checkin" class="page">
       <section class="panel">
-        <div class="panel-head"><h3>入住管理</h3><button data-page-jump="templates" data-icon="file-text">提取入住須知</button></div>
+        <div class="panel-head management-panel-head"><div><h3>入住管理</h3><span id="checkinResultCount" class="management-result-count" aria-live="polite"></span></div><button data-page-jump="templates" data-icon="file-text">提取入住須知</button></div>
+        <div class="management-search-bar" role="search"><input id="checkinSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、房間或入住日期"><button id="clearCheckinSearch" type="button">清除</button></div>
         <div id="checkinList"></div>
       </section>
     </section>
 
     <section id="payments" class="page">
       <section class="panel">
-        <div class="panel-head"><h3>收款管理</h3><button id="addPaymentBtn" class="primary" data-icon="wallet">登記收款</button></div>
+        <div class="panel-head management-panel-head"><div><h3>收款管理</h3><span id="paymentResultCount" class="management-result-count" aria-live="polite"></span></div><button id="addPaymentBtn" class="primary" data-icon="wallet">登記收款</button></div>
+        <div class="management-search-bar" role="search"><input id="paymentSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、收款狀態或房間"><button id="clearPaymentSearch" type="button">清除</button></div>
         <div id="paymentMobileList" class="payment-mobile-list"></div>
         <div class="table-wrap payment-desktop-table"><table>
-          <thead><tr><th>訂單</th><th>旅客</th><th>原始訂單</th><th>加收費用</th><th>最新應收</th><th>預收訂金</th><th>已收淨額</th><th>已退款</th><th>剩餘應收</th><th>狀態</th><th>操作</th></tr></thead>
+          <thead><tr><th>訂單</th><th>旅客</th><th>原始訂單</th><th>加收費用</th><th>最新應收</th><th>預收訂金</th><th>已收淨額</th><th>已退款</th><th>剩餘應收</th><th>狀態</th></tr></thead>
           <tbody id="paymentTableBody"></tbody>
         </table></div>
       </section>
@@ -199,20 +201,31 @@
           <div class="panel-head"><h3>模板清單</h3><button id="addTemplateBtn" type="button" data-icon="plus">新增模板</button></div>
           <div id="templateList"></div>
         </section>
-        <section class="panel">
-          <div class="panel-head template-editor-actions">
-            <div><h3 id="templateTitle">入住須知</h3><p class="section-note">此區編輯模板內容；模板標題請在左側清單按「改標題」。</p></div>
-            <div><button id="saveTemplateBtn" type="button" data-icon="save">儲存模板</button><button id="copyTemplateBtn" type="button" data-icon="copy">複製文字</button><button id="deleteTemplateBtn" class="danger" type="button" data-icon="trash">刪除模板</button></div>
+        <section class="panel template-workspace">
+          <div class="template-workspace-head">
+            <div class="template-workspace-title"><h3 id="templateTitle">入住須知</h3><p class="section-note">模板標題請在左側清單按「改標題」。</p></div>
+            <div class="template-workspace-actions"><button id="saveTemplateBtn" type="button" data-icon="save">儲存模板</button><button id="copyTemplateBtn" type="button" data-icon="copy">複製文字</button><button id="deleteTemplateBtn" class="danger" type="button" data-icon="trash">刪除模板</button></div>
           </div>
-          <div class="template-smart-toolbar">
+          <div class="template-order-bar">
             <label>預覽套用訂單<select id="templateOrderSelect"></select></label>
-            <p>模板中的 <code>{{變數}}</code> 會由訂單、早餐或叫車資料自動替換；缺少資料顯示「（尚未提供）」。</p>
           </div>
-          <div class="template-smart-grid">
-            <div><h4>模板內容</h4><textarea id="templateContent" rows="24"></textarea></div>
-            <aside><h4>可用變數</h4><div id="templateVariablePanel" class="template-variable-panel"></div></aside>
+          <div class="template-mobile-tabs" role="tablist" aria-label="模板工作區">
+            <button type="button" class="active" data-template-tab="editor" role="tab" aria-selected="true">編輯模板</button>
+            <button type="button" data-template-tab="preview" role="tab" aria-selected="false">即時預覽</button>
+            <button type="button" data-template-tab="variables" role="tab" aria-selected="false">可用變數</button>
           </div>
-          <section class="template-preview-panel"><h4>實際套用預覽</h4><pre id="templatePreview"></pre></section>
+          <section class="template-pane template-variables-section" data-template-pane="variables">
+            <div class="template-section-head">
+              <div><h4>可用變數</h4><p>依分類展開，點擊變數即可插入游標位置。<br><code>{{變數}}</code> 在送出通知時會自動替換為實際資料；若資料不存在，系統顯示「（尚未提供）」。</p></div>
+              <label class="template-variable-search-label">搜尋變數<input id="templateVariableSearch" type="search" placeholder="例如：早餐日期、叫車時間" autocomplete="off"></label>
+            </div>
+            <div id="templateVariablePanel" class="template-variable-panel"></div>
+          </section>
+          <div class="template-main-grid">
+            <section class="template-pane active" data-template-pane="editor"><h4>模板內容</h4><textarea id="templateContent" rows="24"></textarea></section>
+            <section class="template-pane template-preview-panel" data-template-pane="preview"><h4>即時套用預覽</h4><pre id="templatePreview"></pre></section>
+          </div>
+          <div class="template-mobile-actionbar" aria-label="模板操作"><button type="button" data-template-action="save" data-icon="save">儲存</button><button type="button" data-template-action="copy" data-icon="copy">複製</button><button type="button" class="danger" data-template-action="delete" data-icon="trash">刪除</button></div>
         </section>
       </div>
     </section>
