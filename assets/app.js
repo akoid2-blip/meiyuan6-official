@@ -296,10 +296,7 @@ function normalizePayment(raw,index=0){
 }
 function paymentRecords(orderId){return payments.filter(p=>p.orderId===orderId);}
 function recordedPaymentNet(orderId){
- return paymentRecords(orderId).reduce((sum,p)=>{
-   if(p.type==="加收費用") return sum+(p.verified&&p.amount>0?p.amount:0);
-   return sum+p.amount;
- },0);
+ return paymentRecords(orderId).reduce((sum,p)=>p.type==="加收費用"?sum:sum+p.amount,0);
 }
 function paymentSummary(order){
  const records=paymentRecords(order.id);
@@ -315,7 +312,8 @@ function paymentSummary(order){
  const refunds=Math.abs(records.filter(p=>p.amount<0).reduce((s,p)=>s+p.amount,0));
  const depositRecords=receiptRecords.filter(p=>p.type==="訂金").reduce((s,p)=>s+p.amount,0);
  const adjustedTotal=Math.max(0,Number(order.total||0)+additionalCharges);
- const net=Math.max(0,opening+receipts+settledAdditionalCharges-refunds);
+ // 加收費用屬應收調整；核帳只代表已確認，不可再次計入已收淨額。
+ const net=Math.max(0,opening+receipts-refunds);
  const remaining=Math.max(0,adjustedTotal-net);
  const over=Math.max(0,net-adjustedTotal);
  return {opening,receipts,refunds,deposit:opening+depositRecords,additionalCharges,manualAdditionalCharges,serviceCharges,settledAdditionalCharges,adjustedTotal,net,remaining,over,records,chargeRecords,settledChargeRecords,receiptRecords};
@@ -325,7 +323,7 @@ function autoVerifySettledPayments(order){
  if(summary.remaining!==0||summary.over>0)return 0;
  let changed=0;
  summary.records.forEach(p=>{
-   if(!p.verified&&p.amount>0&&p.type!=="加收費用"){p.verified=true;changed+=1;}
+   if(!p.verified&&p.amount>0){p.verified=true;changed+=1;}
  });
  return changed;
 }
@@ -807,11 +805,11 @@ setupEnterpriseNumberInput("#guestCount",{fallback:1,min:1});
 });
 
 function syncLegacyServiceDates(){
- const checkin=$("#checkinDate")?.value,checkout=$("#checkoutDate")?.value;
+ const checkin=$("#checkinDate")?.value;
  if(checkin&&(!$("#breakfastDate").value||$("#breakfastDate").dataset.autoDate==="1")){$("#breakfastDate").value=addDays(checkin,1);$("#breakfastDate").dataset.autoDate="1";}
- if(checkout&&(!$("#taxiDate").value||$("#taxiDate").dataset.autoDate==="1")){ $("#taxiDate").value=checkout;$("#taxiDate").dataset.autoDate="1"; }
+ // 接送／叫車採 Lazy Create：未由使用者輸入叫車內容時，不自動帶入退房日或建立服務。
 }
-$("#checkinDate")?.addEventListener("change",syncLegacyServiceDates);$("#checkoutDate")?.addEventListener("change",syncLegacyServiceDates);
+$("#checkinDate")?.addEventListener("change",syncLegacyServiceDates);
 $("#breakfastDate")?.addEventListener("change",e=>e.target.dataset.autoDate="0");$("#taxiDate")?.addEventListener("change",e=>e.target.dataset.autoDate="0");
 $("#taxiType")?.addEventListener("change",e=>$("#taxiTypeOtherField")?.classList.toggle("hidden",e.target.value!=="其他"));
 
@@ -825,6 +823,8 @@ function readOrderForm(){
  breakfast:{date:$("#breakfastDate").value,shop:$("#breakfastShop").value.trim(),qty:+$("#breakfastQty").value,days:+$("#breakfastDays").value,fee:moneyNumber($("#breakfastFee").value),delivery:$("#breakfastDelivery").value,done:$("#breakfastDone").checked},
  taxi:{date:$("#taxiDate").value,time:$("#taxiTime").value,pickup:$("#taxiPickup").value.trim(),destination:$("#taxiDestination").value.trim(),guests:+$("#taxiGuests").value,type:($("#taxiType").value==="其他"?$("#taxiTypeOther").value.trim():$("#taxiType").value.trim()),fare:moneyNumber($("#taxiFare").value),done:$("#taxiDone").checked},
  earlyCheckin:$("#earlyCheckin").value,lateCheckout:$("#lateCheckout").value,luggageStorage:$("#luggageStorage").checked,services:orders.find(o=>o.id===$("#orderId").value)?.services||[],checklist:orders.find(o=>o.id===$("#orderId").value)?.checklist||{}};
+ const hasTaxiIntent=Boolean(o.taxi.time||o.taxi.pickup||o.taxi.destination||o.taxi.guests>0||o.taxi.type||o.taxi.fare>0||o.taxi.done);
+ if(!hasTaxiIntent)o.taxi={date:"",time:"",pickup:"",destination:"",guests:0,type:"",fare:0,done:false};
  syncServicesFromLegacyFields(o);
  return o;
 }
@@ -1330,7 +1330,8 @@ function syncServicesFromLegacyFields(order){
    }else order.services.push(incoming);
  };
  upsert("早餐代訂",{id:"legacy-breakfast",type:"早餐代訂",status:order.breakfast?.done?"已完成":"待安排",fee:Number(order.breakfast?.fee||0),paymentStatus:Number(order.breakfast?.fee||0)>0?"未收款":"免費",date:order.breakfast?.date,time:order.breakfast?.delivery,note:"",details:{shop:order.breakfast?.shop||"",qty:Number(order.breakfast?.qty||1),days:Number(order.breakfast?.days||1)}},Number(order.breakfast?.qty)>0);
- upsert("接送／叫車",{id:"legacy-taxi",type:"接送／叫車",status:order.taxi?.done?"已完成":"待安排",fee:Number(order.taxi?.fare||0),paymentStatus:Number(order.taxi?.fare||0)>0?"未收款":"免費",date:order.taxi?.date,time:order.taxi?.time,note:"",details:{direction:order.taxi?.date===order.checkin?"checkin":order.taxi?.date===order.checkout?"checkout":"custom",vehicleType:order.taxi?.type||"",guests:Number(order.taxi?.guests||1),pickup:order.taxi?.pickup||"",destination:order.taxi?.destination||""}},Boolean(order.taxi?.date));
+ const hasTaxiIntent=Boolean(order.taxi?.date&&(order.taxi?.time||order.taxi?.pickup||order.taxi?.destination||Number(order.taxi?.guests)>0||order.taxi?.type||Number(order.taxi?.fare)>0||order.taxi?.done));
+ upsert("接送／叫車",{id:"legacy-taxi",type:"接送／叫車",status:order.taxi?.done?"已完成":"待安排",fee:Number(order.taxi?.fare||0),paymentStatus:Number(order.taxi?.fare||0)>0?"未收款":"免費",date:order.taxi?.date,time:order.taxi?.time,note:"",details:{direction:order.taxi?.date===order.checkin?"checkin":order.taxi?.date===order.checkout?"checkout":"custom",vehicleType:order.taxi?.type||"",guests:Number(order.taxi?.guests||1),pickup:order.taxi?.pickup||"",destination:order.taxi?.destination||""}},hasTaxiIntent);
 }
 
 $("#serviceForm")?.addEventListener("submit",e=>{

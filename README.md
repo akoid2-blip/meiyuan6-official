@@ -1,3 +1,7 @@
+# Enterprise V1.2 Build 2A RC6 Release Guard Hotfix 3
+
+本版修正接送／叫車服務誤自動建立，以及尾款結清後加收費用仍顯示待核帳的帳務一致性問題。Storage Schema 維持 v12。
+
 # Meiyuan6 Booking Admin — Enterprise V1.2 Build 2A RC6 Release Candidate
 
 本封裝為 **RC6 Release Candidate**，以 `RC6 Data Integrity Hotfix 2` 為程式基準完成版本凍結與發布封裝。
