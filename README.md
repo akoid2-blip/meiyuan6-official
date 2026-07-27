@@ -58,3 +58,11 @@
 
 ## RC6 Release Guard Hotfix 4
 企業級稽核中心已支援依訂單群組、展開／收合、中文異動摘要與原始技術明細。Storage Schema 維持 v12。
+
+## RC6 Release Guard Hotfix 4B
+
+- 手機版 Audit Center 同時間只展開一個訂單群組。
+- 搜尋結果僅剩一個群組時才自動展開。
+- 舊版「修改資料／更新資料／內容已更新」摘要轉換為可讀中文。
+- 缺少 `orderId` 的舊訂單紀錄可透過 `targetId` 相容分組。
+- Storage Schema 維持 v12。

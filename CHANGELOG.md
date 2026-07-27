@@ -321,3 +321,12 @@
 - Audit Log 依訂單分組與縮排時間軸。
 - 新增中文異動摘要與技術明細。
 - Storage Schema 維持 v12。
+
+## RC6 Release Guard Hotfix 4B — 2026-07-28
+
+### Fixed
+- Mobile Audit Accordion 單一展開。
+- 搜尋多筆結果不再全部展開。
+- Legacy Audit Summary 相容轉換。
+- `targetId → orderId` 舊資料分組相容。
+- 手機稽核卡片換行、觸控區及無橫向溢位調整。

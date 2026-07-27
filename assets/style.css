@@ -528,3 +528,24 @@ th,td{padding:9px 8px;line-height:1.35;vertical-align:middle}tbody tr{height:54p
 /* RC6 Release Guard HF4 — Audit grouping and descriptive changes */
 .audit-group{border:1px solid var(--line,#ddd7cc);border-radius:14px;background:var(--surface,#fff);overflow:hidden}.audit-group>summary{display:grid;grid-template-columns:auto minmax(180px,1fr) auto auto;gap:12px;align-items:center;padding:15px 16px;cursor:pointer;list-style:none;background:var(--soft,#f7f5f0)}.audit-group>summary::-webkit-details-marker{display:none}.audit-group-chevron{font-size:24px;line-height:1;transition:transform .2s}.audit-group[open] .audit-group-chevron{transform:rotate(90deg)}.audit-group-count{color:var(--muted,#667085);font-size:13px}.audit-group>summary time{color:var(--muted,#667085);font-size:12px;white-space:nowrap}.audit-group-records{display:grid;gap:0;padding:4px 14px 12px}.audit-group-records .audit-record{border:0;border-radius:0;border-left:3px solid var(--line,#ddd7cc);padding-left:18px;margin-left:7px;position:relative}.audit-group-records .audit-record:before{content:"";position:absolute;left:-7px;top:22px;width:11px;height:11px;border-radius:50%;background:var(--surface,#fff);border:2px solid var(--primary,#285b49)}.audit-technical{grid-column:1/-1;margin-top:2px}.audit-technical summary{cursor:pointer;color:var(--muted,#667085);font-size:12px}.audit-technical pre{margin:8px 0 0;padding:10px;border-radius:8px;background:#f6f7f6;white-space:pre-wrap;word-break:break-word;font-size:11px;max-height:220px;overflow:auto}.audit-group-records .audit-record .audit-summary{white-space:normal}
 @media(max-width:700px){.audit-group>summary{grid-template-columns:auto 1fr auto}.audit-group>summary time{grid-column:2/-1}.audit-group-count{font-size:12px}.audit-group-records{padding-left:8px;padding-right:8px}}
+
+
+/* RC6 Release Guard Hotfix 4B — Mobile Audit Accordion & Legacy Summary Compatibility */
+@media(max-width:700px){
+ .audit-group{border-radius:12px}
+ .audit-group>summary{grid-template-columns:28px minmax(0,1fr);gap:7px 9px;padding:13px 12px;min-height:56px;touch-action:manipulation}
+ .audit-group>summary strong{min-width:0;overflow-wrap:anywhere;line-height:1.35}
+ .audit-group-count{grid-column:2;justify-self:start}
+ .audit-group>summary time{grid-column:2;justify-self:start;white-space:normal;line-height:1.35}
+ .audit-group-chevron{grid-row:1/4;align-self:center}
+ .audit-group-records{padding:2px 7px 10px}
+ .audit-group-records .audit-record{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin-left:5px;padding:12px 8px 12px 16px;min-width:0}
+ .audit-group-records .audit-record:before{top:17px}
+ .audit-record strong,.audit-record .audit-summary,.audit-record small,.audit-record time{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+ .audit-record .badge{align-self:flex-start}
+ .audit-record time{order:5}
+ .audit-technical{width:100%;min-width:0}
+ .audit-technical summary{min-height:44px;display:flex;align-items:center}
+ .audit-technical pre{max-width:100%;overflow:auto}
+ #exportAuditBtn,.audit-toolbar button{min-height:44px}
+}

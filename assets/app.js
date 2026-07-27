@@ -1676,7 +1676,29 @@ function auditTechnicalDetails(a){
 }
 function auditReadableSummary(a){
  const generated=auditSummary(a.action,a.before,a.after,a.module);
- return (!a.summary||a.summary==="新增資料"||a.summary==="刪除資料"||/^[a-zA-Z][\w]*：/.test(a.summary))?generated:a.summary;
+ const raw=String(a.summary||"").trim();
+ const generic=/^(新增資料|刪除資料|修改資料|更新資料|內容已更新)$/;
+ const technical=/^[a-zA-Z][\w]*\s*[：:]|^[a-zA-Z][\w]*\s*[:=].*(→|->)/;
+ if(!raw||generic.test(raw)||technical.test(raw)){
+   if(generic.test(raw)&&(!a.before&&!a.after)){
+     if(raw==="修改資料")return a.module==="訂單"?"更新訂單資料":"更新資料內容";
+     if(raw==="更新資料")return "更新資料內容";
+     if(raw==="內容已更新")return a.module==="訂單"?"更新訂單資訊":"內容已更新";
+   }
+   return generated;
+ }
+ return raw;
+}
+function auditResolvedOrderId(a){
+ const direct=String(a.orderId||a.after?.orderId||a.before?.orderId||"").trim();
+ if(direct)return direct;
+ const candidates=[a.targetId,a.after?.id,a.before?.id,a.after?.bookingId,a.before?.bookingId].map(v=>String(v||"").trim()).filter(Boolean);
+ if(a.module==="訂單"){
+   const matched=candidates.find(id=>orders.some(o=>String(o.id)===id));
+   if(matched)return matched;
+ }
+ const relation=candidates.find(id=>orders.some(o=>String(o.id)===id));
+ return relation||"";
 }
 function auditRecordHtml(a,compact=false){
  const when=new Date(a.time).toLocaleString("zh-TW",{hour12:false});
@@ -1684,33 +1706,38 @@ function auditRecordHtml(a,compact=false){
  const technical=auditTechnicalDetails(a);
  return `<article class="audit-record${compact?" compact":""}"><span class="badge ${a.module==="帳務"?"gold":a.module==="房務"?"green":"gray"}">${esc(a.module)}</span><strong>${esc(a.action)}｜${esc(target)}</strong><span class="audit-summary">${esc(auditReadableSummary(a))}</span><small>${esc(a.operator||"系統")}</small><time>${esc(when)}</time>${compact?"":`<details class="audit-technical"><summary>查看技術明細</summary><pre>${esc(technical)}</pre></details>`}</article>`;
 }
-function auditGroupKey(a){return a.orderId?`order:${a.orderId}`:`other:${a.module}:${a.targetId||a.id}`;}
+function auditGroupKey(a){const orderId=auditResolvedOrderId(a);return orderId?`order:${orderId}`:`other:${a.module}:${a.targetId||a.id}`;}
 function auditGroupTitle(group){
- const first=group.records[0],orderId=first.orderId||"非訂單紀錄";
- const order=orders.find(o=>String(o.id)===String(first.orderId));
+ const first=group.records[0],resolvedOrderId=auditResolvedOrderId(first),orderId=resolvedOrderId||"非訂單紀錄";
+ const order=orders.find(o=>String(o.id)===String(resolvedOrderId));
  const guest=order?.name||first.guest||"";
  return `${orderId}${guest?`｜${guest}`:""}`;
 }
 function auditGroupHtml(group,open=false){
  const latest=group.records[0],when=new Date(latest.time).toLocaleString("zh-TW",{hour12:false});
- return `<details class="audit-group" ${open?"open":""}><summary><span class="audit-group-chevron">›</span><strong>${esc(auditGroupTitle(group))}</strong><span class="audit-group-count">共 ${group.records.length} 筆異動</span><time>${esc(when)}</time></summary><div class="audit-group-records">${group.records.map(a=>auditRecordHtml(a)).join("")}</div></details>`;
+ return `<details class="audit-group" data-detail-key="audit-${esc(group.key)}" ${open?"open":""}><summary><span class="audit-group-chevron">›</span><strong>${esc(auditGroupTitle(group))}</strong><span class="audit-group-count">共 ${group.records.length} 筆異動</span><time>${esc(when)}</time></summary><div class="audit-group-records">${group.records.map(a=>auditRecordHtml(a)).join("")}</div></details>`;
 }
 let auditVisibleLimit=20;
 function setAuditQuickFilter(mode){const module=$("#auditModuleFilter"),from=$("#auditDateFrom"),to=$("#auditDateTo");if(module)module.value=mode==="finance"?"帳務":mode==="housekeeping"?"房務":"";if(from)from.value=mode==="all"?"":todayISO;if(to)to.value=mode==="all"?"":todayISO;auditVisibleLimit=20;renderAudit();}
 function renderAudit(){
  const list=[...auditLogs].reverse(),q=String($("#auditSearch")?.value||"").trim().toLowerCase(),module=$("#auditModuleFilter")?.value||"",from=$("#auditDateFrom")?.value||"",to=$("#auditDateTo")?.value||"";
- const filtered=list.filter(a=>(!module||a.module===module)&&(!from||String(a.time).slice(0,10)>=from)&&(!to||String(a.time).slice(0,10)<=to)&&(!q||[a.module,a.action,a.targetId,a.orderId,a.room,a.guest,a.operator,a.summary,auditReadableSummary(a)].join(" ").toLowerCase().includes(q)));
+ const filtered=list.filter(a=>(!module||a.module===module)&&(!from||String(a.time).slice(0,10)>=from)&&(!to||String(a.time).slice(0,10)<=to)&&(!q||[a.module,a.action,a.targetId,a.orderId,auditResolvedOrderId(a),a.room,a.guest,a.operator,a.summary,auditReadableSummary(a)].join(" ").toLowerCase().includes(q)));
  const groupMap=new Map();filtered.forEach(a=>{const key=auditGroupKey(a);if(!groupMap.has(key))groupMap.set(key,{key,records:[]});groupMap.get(key).records.push(a);});
  const groups=[...groupMap.values()].sort((a,b)=>String(b.records[0]?.time||"").localeCompare(String(a.records[0]?.time||"")));
  const shown=groups.slice(0,auditVisibleLimit),today=auditLogs.filter(x=>String(x.time).slice(0,10)===todayISO);
  if($("#auditTodayCount"))$("#auditTodayCount").textContent=today.length;if($("#auditFinanceCount"))$("#auditFinanceCount").textContent=today.filter(x=>x.module==="帳務").length;if($("#auditHousekeepingCount"))$("#auditHousekeepingCount").textContent=today.filter(x=>x.module==="房務").length;if($("#auditTotalCount"))$("#auditTotalCount").textContent=auditLogs.length;
  if($("#auditResultCount"))$("#auditResultCount").textContent=`已載入 ${shown.length}／共 ${groups.length} 個群組（${filtered.length} 筆）`;
- const autoOpen=groups.length===1||Boolean(q);
+ const autoOpen=groups.length===1;
  if($("#auditList"))$("#auditList").innerHTML=(shown.map(g=>auditGroupHtml(g,autoOpen)).join("")||'<div class="empty">沒有符合條件的稽核紀錄。</div>')+(shown.length<groups.length?`<button id="loadMoreAudit" class="load-more-audit">載入更多（尚有 ${groups.length-shown.length} 個群組）</button>`:"");
  $("#loadMoreAudit")?.addEventListener("click",()=>{auditVisibleLimit+=20;renderAudit();});
 }
+document.addEventListener("toggle",e=>{
+ const el=e.target;
+ if(!(el instanceof HTMLDetailsElement)||!el.classList.contains("audit-group")||!el.open||!window.matchMedia("(max-width: 700px)").matches)return;
+ document.querySelectorAll("#auditList details.audit-group[open]").forEach(other=>{if(other!==el)other.open=false;});
+},true);
 window.openOrderTimeline=id=>{navigate("audit");const q=$("#auditSearch");if(q)q.value=id;renderAudit();toast(`已顯示 ${id} 的完整時間軸`);};
-function exportAuditLog(){const data={version:"Enterprise V1.2 Build 2A RC6 — Release Guard Hotfix 4",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),auditLogs};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_Audit_Log_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);}
+function exportAuditLog(){const data={version:"Enterprise V1.2 Build 2A RC6 — Release Guard Hotfix 4B",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),auditLogs};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_Audit_Log_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);}
 
 function renderReports(){
  const month=todayISO.slice(0,7),list=activeOrders().filter(o=>o.checkin.startsWith(month));$("#reportOrders").textContent=list.length;$("#reportNights").textContent=list.reduce((s,o)=>s+daysBetween(o.checkin,o.checkout),0);$("#reportAvg").textContent=money(list.length?list.reduce((s,o)=>s+o.total,0)/list.length:0);
@@ -1732,7 +1759,7 @@ window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
 
 function exportBackup(){
- const data={version:"Enterprise V1.2 Build 2A RC6 — Release Guard Hotfix 4",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates,auditLogs,notificationState};
+ const data={version:"Enterprise V1.2 Build 2A RC6 — Release Guard Hotfix 4B",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates,auditLogs,notificationState};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 const BACKUP_REQUIRED_FIELDS=["schema","orders","payments","tasks","roomLocks","guestProfiles","settings","shortcuts","templates","auditLogs","notificationState"];

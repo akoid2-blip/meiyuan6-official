@@ -2,10 +2,10 @@
   "product": "Meiyuan6 Booking Admin",
   "version": "Enterprise V1.2",
   "build": "Build 2A",
-  "release": "RC6 Release Guard Hotfix 4",
+  "release": "RC6 Release Guard Hotfix 4B",
   "storageSchema": 12,
-  "status": "Phase 6 Pre-Release / Audit Log Grouping & Descriptive Changes",
-  "date": "2026-07-27",
+  "status": "Phase 6 Pre-Release / Mobile Audit Accordion & Legacy Summary Compatibility",
+  "date": "2026-07-28",
   "officialStable": false,
-  "buildDate": "2026-07-27"
+  "buildDate": "2026-07-28"
 }
