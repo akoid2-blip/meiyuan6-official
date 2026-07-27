@@ -1,32 +1,49 @@
 # Enterprise V1.2 Build 2A RC6 — Final Acceptance Checklist
 
-## Full Regression QA Hotfix 2
+## Phase 1 — Version Freeze
 
-- [x] 早餐服務費用雙向同步程式修正
-- [x] 大額退款以絕對值判斷
-- [x] 通知保留天數生效
-- [x] 通知自動清除規則獨立
-- [x] 通知今日計數使用本地日期
-- [x] Storage Schema 維持 v12
-- [x] JavaScript 語法檢查
-- [x] ZIP 結構檢查
-- [x] 文件與版本一致性
-- [ ] 桌機瀏覽器完整操作驗收
-- [ ] 手機／平板操作驗收
-- [ ] 舊資料 Migration 實機驗收
-- [ ] Full Browser Regression QA
-- [ ] Release Candidate LOCK
-- [ ] Official Stable
+- [x] Feature Freeze
+- [x] Version Freeze
+- [x] Storage Schema frozen at v12
+- [x] Only P0／P1, security, documentation and packaging changes allowed
 
-目前狀態：Development Hotfix，不得宣告 Official Stable。
+## Phase 2 — Final Acceptance
 
+- [x] Dashboard
+- [x] Orders
+- [x] Check-in / Check-out
+- [x] Payments / Refunds / Additional Charges
+- [x] Unified Service Engine
+- [x] Housekeeping
+- [x] Notification Center
+- [x] Audit Log
+- [x] Template Center
+- [x] Settings / Backup / Restore
+- [x] Mobile Accordion acceptance
 
-## Mobile Accordion Hotfix 2
+## Phase 3 — Data Integrity Validation
 
-- [x] 訂單管理具單一展開 scope
-- [x] 入住管理具單一展開 scope
-- [x] 收款管理具單一展開 scope
-- [x] 旅客資料具單一展開 scope
-- [x] 搜尋結果單筆自動展開保留
-- [x] Storage Schema v12 未變更
-- [ ] iPhone Safari 實機驗收
+- [x] Storage Schema v12
+- [x] Required backup fields
+- [x] Unique IDs
+- [x] Cross-module `orderId` references
+- [x] Import snapshot and rollback
+- [x] `roomLocks` normalization
+- [x] Strict calendar date validation
+- [x] P0 = 0
+- [x] P1 = 0
+- [x] P2 = 0
+
+## Phase 4 — Release Candidate Packaging
+
+- [x] VERSION.json updated
+- [x] README updated
+- [x] CHANGELOG updated
+- [x] Release Notes created
+- [x] Final QA Report created
+- [x] SHA256SUMS regenerated
+- [x] Release Candidate ZIP generated
+
+## Status
+
+**RC6 Release Candidate packaged. Not Official Stable.**

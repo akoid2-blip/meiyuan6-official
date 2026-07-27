@@ -1,3 +1,34 @@
+# RC6 Release Candidate — 2026-07-27
+
+## Packaging
+
+- Promoted RC6 Data Integrity Hotfix 2 to Release Candidate packaging baseline.
+- Updated VERSION.json, README, Final Acceptance Checklist and release documentation.
+- Added RC6 Release Notes and Final QA Report.
+- Regenerated SHA256 manifest.
+- Storage Schema remains v12.
+- No application feature or data-schema change in this packaging phase.
+
+# RC6 Data Integrity Hotfix 2 — 2026-07-27
+
+## Fixed
+
+- Replaced permissive JavaScript date parsing with strict calendar-date validation.
+- Rejects impossible dates such as `2026-02-29`, `2026-02-31`, `2026-04-31`, and month/day zero.
+- Correctly accepts leap-day dates only in leap years, including century rules.
+- Applied without changing Storage Schema v12.
+
+# RC6 Data Integrity Hotfix 1 — 2026-07-27
+
+- 修正備份匯入可接受空物件並清空有效資料的 P1 風險。
+- 匯入前強制驗證 Storage Schema v12 與必要頂層欄位。
+- 驗證訂單、收付款、房務任務、服務與房間鎖定 ID 唯一性。
+- 驗證收付款／房務任務的 `orderId` 必須指向有效訂單。
+- 房間鎖定匯入套用與啟動時相同的正規化流程，並驗證房號、類型與日期。
+- 匯入前自動建立 LocalStorage 快照，匯入失敗時回復執行期及儲存狀態。
+- 採用先驗證、暫存、再一次套用的安全匯入流程。
+- Storage Schema 維持 v12。
+
 # RC6 Full Regression QA Hotfix 2 — 2026-07-27
 
 - Mobile single-open Accordion applied to Orders, Check-in, Payments, and Guest Profiles.
@@ -269,3 +300,9 @@
 - 住宿服務卡片採單一展開 Accordion。
 - 訂單寄放行李、提前入住、延後退房自動補建為統一住宿服務紀錄。
 - Storage Schema 維持 v12。
+
+
+## RC6 Release Guard Hotfix 2
+- Integrated Enterprise Runtime Integrity Engine.
+- Added System Health dashboard, P0/P1/P2 classification, Release Ready gate and Recovery Snapshot.
+- Storage Schema remains v12.

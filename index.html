@@ -320,6 +320,7 @@
         <button data-settings-tab="shortcuts">快捷中心</button>
         <button data-settings-tab="integrations">外部整合</button>
         <button data-settings-tab="notifications">通知設定</button>
+        <button data-settings-tab="health">系統健康</button>
         <button data-settings-tab="data">資料管理</button>
       </div>
 
@@ -385,6 +386,13 @@
           <label>自動清除天數<input id="settingNotificationAutoClearDays" type="number" min="1"></label>
         </div>
         <div class="settings-actions"><button id="resetNotificationSettings">恢復通知預設</button><button class="primary" id="saveNotificationSettings">儲存通知設定</button></div>
+      </section>
+
+
+      <section class="panel settings-pane" data-pane="health">
+        <div class="panel-head"><div><h3>Enterprise Runtime Integrity</h3><p class="section-note">自動檢查 Storage Schema、資料結構、重複 ID、跨模組關聯、日期與金額合法性。</p></div><span class="badge green">Release Guard HF2</span></div>
+        <div id="releaseGuardPanel"><div class="empty">健康檢查準備中。</div></div>
+        <div class="settings-actions"><button id="createHealthSnapshot">建立 Recovery Snapshot</button><button id="runReleaseGuard" class="primary">立即執行健康檢查</button></div>
       </section>
 
       <section class="panel settings-pane" data-pane="data">

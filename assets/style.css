@@ -520,3 +520,7 @@ th,td{padding:9px 8px;line-height:1.35;vertical-align:middle}tbody tr{height:54p
   .notification-card>summary{padding:.58rem .68rem;}
   .notification-card h4{font-size:.96rem;}
 }
+
+
+/* RC6 Release Guard Hotfix 2 */
+.health-summary{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:16px;border:1px solid var(--line,#d9ddd8);border-radius:14px;margin-bottom:14px}.health-summary>div:first-child{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.health-summary small{display:block;width:100%;opacity:.7}.health-counts{display:flex;gap:8px;flex-wrap:wrap}.health-counts span,.health-grid>div{padding:10px 12px;border-radius:10px;background:var(--soft,#f4f6f3)}.health-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}.health-grid small,.health-grid strong{display:block}.health-issues{display:grid;gap:8px}.health-issues article{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line,#d9ddd8);border-radius:12px}.health-issues article small{display:block;margin-top:3px;opacity:.7}.badge.danger{background:#fbe8e8;color:#9d2020}@media(max-width:720px){.health-summary{align-items:flex-start;flex-direction:column}.health-grid{grid-template-columns:1fr}.health-counts{width:100%}}

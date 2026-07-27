@@ -374,13 +374,16 @@ let shortcuts=Array.isArray(safeJSON("my6_shortcuts",null)) ? safeJSON("my6_shor
 const storedTemplates=safeJSON("my6_templates",null);
 let templates=(storedTemplates && typeof storedTemplates==="object" && Object.keys(storedTemplates).length) ? storedTemplates : {...defaultTemplates};
 let selectedTemplate=Object.keys(templates)[0] || "";
-let roomLocks=(Array.isArray(safeJSON("my6_room_locks",[])) ? safeJSON("my6_room_locks",[]) : []).map((x,i)=>({
- id:String(x?.id||`L${i}`),room:normalizeRoomIds(x?.room||x?.roomId)[0]||roomMaster[0].id,
- type:LOCK_TYPES[x?.type]?x.type:"maintenance",start:validISO(x?.start,todayISO),end:validISO(x?.end,todayISO),
- reason:String(x?.reason||""),operator:String(x?.operator||x?.lockOperator||""),
- createdAt:String(x?.createdAt||x?.lockTime||new Date().toISOString()),updatedAt:String(x?.updatedAt||""),
- history:Array.isArray(x?.history)?x.history:[]
-}));
+function normalizeRoomLock(x,index=0){
+ return {
+  id:String(x?.id||`L${index}`),room:normalizeRoomIds(x?.room||x?.roomId)[0]||roomMaster[0].id,
+  type:LOCK_TYPES[x?.type]?x.type:"maintenance",start:validISO(x?.start,todayISO),end:validISO(x?.end,todayISO),
+  reason:String(x?.reason||""),operator:String(x?.operator||x?.lockOperator||""),
+  createdAt:String(x?.createdAt||x?.lockTime||new Date().toISOString()),updatedAt:String(x?.updatedAt||""),
+  history:Array.isArray(x?.history)?x.history:[]
+ };
+}
+let roomLocks=(Array.isArray(safeJSON("my6_room_locks",[])) ? safeJSON("my6_room_locks",[]) : []).map(normalizeRoomLock);
 let auditLogs=Array.isArray(safeJSON("my6_audit_logs",[]))?safeJSON("my6_audit_logs",[]):[];
 let notificationState=(safeJSON("my6_notification_state",{})&&typeof safeJSON("my6_notification_state",{})==="object")?safeJSON("my6_notification_state",{}):{};
 let notifications=[];
@@ -1695,9 +1698,150 @@ function exportBackup(){
  const data={version:"Enterprise V1.2 Build 2A RC6 — Full Regression QA Hotfix 2",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates,auditLogs,notificationState};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`Meiyuan6_PMS_Backup_${todayISO}.json`;a.click();URL.revokeObjectURL(a.href);
 }
-async function importBackup(file){
- try{const data=JSON.parse(await file.text());orders=(Array.isArray(data.orders)?data.orders:[]).map(normalizeOrder);payments=(Array.isArray(data.payments)?data.payments:[]).map(normalizePayment);tasks=(Array.isArray(data.tasks)?data.tasks:[]).map(normalizeTask).filter(t=>t.orderId);guestProfiles=data.guestProfiles||{};settings={...defaultSettings,...(data.settings||{})};shortcuts=data.shortcuts||defaultShortcuts;templates=(data.templates && typeof data.templates==="object" && Object.keys(data.templates).length) ? data.templates : {...defaultTemplates};roomLocks=Array.isArray(data.roomLocks)?data.roomLocks:[];auditLogs=Array.isArray(data.auditLogs)?data.auditLogs:[];notificationState=(data.notificationState&&typeof data.notificationState==="object")?data.notificationState:{};selectedTemplate=Object.keys(templates)[0]||"";persist();renderAll();toast("備份已匯入");}catch{toast("備份檔格式錯誤");}
+const BACKUP_REQUIRED_FIELDS=["schema","orders","payments","tasks","roomLocks","guestProfiles","settings","shortcuts","templates","auditLogs","notificationState"];
+const STORAGE_KEYS=["my6_schema_version","my6_orders","my6_payments","my6_tasks","my6_guest_profiles","my6_settings","my6_templates","my6_shortcuts","my6_room_locks","my6_audit_logs","my6_notification_state"];
+function isPlainObject(value){return !!value&&typeof value==="object"&&!Array.isArray(value);}
+function isStrictISODate(value){const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||""));if(!match)return false;const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);if(year<1||month<1||month>12||day<1)return false;const leap=year%4===0&&(year%100!==0||year%400===0);const days=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31];return day<=days[month-1];}
+function assertUniqueIds(list,label){
+ const seen=new Set();
+ list.forEach((item,index)=>{const id=String(item?.id||"").trim();if(!id)throw new Error(`${label}第 ${index+1} 筆缺少 id`);if(seen.has(id))throw new Error(`${label}存在重複 id：${id}`);seen.add(id);});
 }
+function validateBackupData(data){
+ if(!isPlainObject(data))throw new Error("備份根節點必須是物件");
+ const missing=BACKUP_REQUIRED_FIELDS.filter(key=>!Object.prototype.hasOwnProperty.call(data,key));
+ if(missing.length)throw new Error(`備份缺少必要欄位：${missing.join("、")}`);
+ if(Number(data.schema)!==STORAGE_SCHEMA_VERSION)throw new Error(`Schema 不相容：需要 v${STORAGE_SCHEMA_VERSION}，檔案為 v${data.schema??"未知"}`);
+ for(const key of ["orders","payments","tasks","roomLocks","shortcuts","auditLogs"]){if(!Array.isArray(data[key]))throw new Error(`${key} 必須是陣列`);}
+ for(const key of ["guestProfiles","settings","templates","notificationState"]){if(!isPlainObject(data[key]))throw new Error(`${key} 必須是物件`);}
+ if(!Object.keys(data.templates).length||Object.values(data.templates).some(value=>typeof value!=="string"))throw new Error("templates 必須包含至少一個文字模板");
+ assertUniqueIds(data.orders,"訂單");assertUniqueIds(data.payments,"收付款");assertUniqueIds(data.tasks,"房務任務");assertUniqueIds(data.roomLocks,"房間鎖定");
+ const orderIds=new Set(data.orders.map(item=>String(item.id)));
+ data.payments.forEach((item,index)=>{const orderId=String(item?.orderId||"").trim();if(!orderIds.has(orderId))throw new Error(`收付款第 ${index+1} 筆指向不存在的訂單：${orderId||"空白"}`);});
+ data.tasks.forEach((item,index)=>{const orderId=String(item?.orderId||"").trim();if(!orderIds.has(orderId))throw new Error(`房務任務第 ${index+1} 筆指向不存在的訂單：${orderId||"空白"}`);});
+ data.orders.forEach((item,index)=>{if(Array.isArray(item?.services)){assertUniqueIds(item.services,`訂單 ${item.id} 的服務`);}});
+ const roomIds=new Set(roomMaster.map(room=>room.id));
+ data.roomLocks.forEach((item,index)=>{
+  const room=String(item?.room||item?.roomId||"");
+  if(!roomIds.has(room))throw new Error(`房間鎖定第 ${index+1} 筆包含未知房號：${room||"空白"}`);
+  if(!LOCK_TYPES[item?.type])throw new Error(`房間鎖定第 ${index+1} 筆類型無效`);
+  if(!isStrictISODate(item?.start)||!isStrictISODate(item?.end))throw new Error(`房間鎖定第 ${index+1} 筆日期格式無效`);
+  if(String(item.start)>String(item.end))throw new Error(`房間鎖定第 ${index+1} 筆結束日期早於開始日期`);
+ });
+ return true;
+}
+function captureRuntimeState(){return {orders:structuredClone(orders),payments:structuredClone(payments),tasks:structuredClone(tasks),roomLocks:structuredClone(roomLocks),guestProfiles:structuredClone(guestProfiles),settings:structuredClone(settings),shortcuts:structuredClone(shortcuts),templates:structuredClone(templates),auditLogs:structuredClone(auditLogs),notificationState:structuredClone(notificationState),selectedTemplate,auditRecordingReady};}
+function restoreRuntimeState(state){orders=state.orders;payments=state.payments;tasks=state.tasks;roomLocks=state.roomLocks;guestProfiles=state.guestProfiles;settings=state.settings;shortcuts=state.shortcuts;templates=state.templates;auditLogs=state.auditLogs;notificationState=state.notificationState;selectedTemplate=state.selectedTemplate;auditRecordingReady=state.auditRecordingReady;}
+function captureStorageState(){return Object.fromEntries(STORAGE_KEYS.map(key=>[key,localStorage.getItem(key)]));}
+function restoreStorageState(state){Object.entries(state).forEach(([key,value])=>value===null?localStorage.removeItem(key):localStorage.setItem(key,value));}
+function createPreImportBackup(){
+ const snapshot={version:"Enterprise V1.2 Build 2A RC6 — Data Integrity Hotfix 2",schema:STORAGE_SCHEMA_VERSION,createdAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates,auditLogs,notificationState};
+ const key=`my6_pre_import_backup_${Date.now()}`;
+ localStorage.setItem(key,JSON.stringify(snapshot));
+ localStorage.setItem("my6_pre_import_backup_latest",key);
+ return key;
+}
+async function importBackup(file){
+ let runtimeBefore=null,storageBefore=null,preImportKey="";
+ try{
+  const data=JSON.parse(await file.text());
+  validateBackupData(data);
+  const staged={
+   orders:data.orders.map(normalizeOrder),payments:data.payments.map(normalizePayment),tasks:data.tasks.map(normalizeTask),
+   roomLocks:data.roomLocks.map(normalizeRoomLock),guestProfiles:structuredClone(data.guestProfiles),settings:{...defaultSettings,...data.settings},
+   shortcuts:structuredClone(data.shortcuts),templates:structuredClone(data.templates),auditLogs:structuredClone(data.auditLogs),notificationState:structuredClone(data.notificationState)
+  };
+  const stagedOrderIds=new Set(staged.orders.map(item=>item.id));
+  if(staged.payments.some(item=>!stagedOrderIds.has(item.orderId))||staged.tasks.some(item=>!stagedOrderIds.has(item.orderId)))throw new Error("正規化後跨模組訂單關聯失效");
+  runtimeBefore=captureRuntimeState();storageBefore=captureStorageState();preImportKey=createPreImportBackup();
+  orders=staged.orders;payments=staged.payments;tasks=staged.tasks;roomLocks=staged.roomLocks;guestProfiles=staged.guestProfiles;settings=staged.settings;shortcuts=staged.shortcuts;templates=staged.templates;auditLogs=staged.auditLogs;notificationState=staged.notificationState;selectedTemplate=Object.keys(templates)[0]||"";
+  auditRecordingReady=false;persist();auditRecordingReady=true;
+  appendAuditRecord("系統設定","建立","backup-import",null,{operator:"系統／目前使用者",note:`匯入 Schema v${STORAGE_SCHEMA_VERSION} 備份；匯入前快照 ${preImportKey}`});
+  localStorage.setItem("my6_audit_logs",JSON.stringify(auditLogs));
+  renderAll();toast("備份已安全匯入");
+ }catch(error){
+  console.error("Backup import failed",error);
+  if(runtimeBefore)restoreRuntimeState(runtimeBefore);
+  if(storageBefore){try{restoreStorageState(storageBefore);}catch(rollbackError){console.error("Backup rollback failed",rollbackError);}}
+  auditRecordingReady=true;
+  toast(`備份匯入失敗：${error?.message||"格式錯誤"}`);
+ }finally{
+  const input=$("#importData");if(input)input.value="";
+ }
+}
+
+
+// RC6 Release Guard Hotfix 2 — Enterprise Runtime Integrity Engine
+const RELEASE_GUARD_VERSION="RC6 Release Guard Hotfix 2";
+const RELEASE_GUARD_SNAPSHOT_PREFIX="my6_release_guard_snapshot_";
+let releaseGuardLastResult=null;
+function releaseGuardIssue(severity,code,message,detail=""){
+ return {severity,code,message,detail:String(detail||"")};
+}
+function releaseGuardValidDate(value){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||"")))return false;
+ const [y,m,d]=String(value).split("-").map(Number),dt=new Date(Date.UTC(y,m-1,d));
+ return dt.getUTCFullYear()===y&&dt.getUTCMonth()===m-1&&dt.getUTCDate()===d;
+}
+function releaseGuardDuplicateIds(list,label,issues){
+ const seen=new Set();
+ (Array.isArray(list)?list:[]).forEach((item,index)=>{
+  const id=String(item?.id||"").trim();
+  if(!id)issues.push(releaseGuardIssue("P1",`${label.toUpperCase()}_ID_MISSING`,`${label}缺少 ID`,`index=${index}`));
+  else if(seen.has(id))issues.push(releaseGuardIssue("P1",`${label.toUpperCase()}_ID_DUPLICATE`,`${label} ID 重複`,id));
+  else seen.add(id);
+ });
+}
+function releaseGuardStorageScan(issues){
+ const expected={my6_orders:"array",my6_payments:"array",my6_tasks:"array",my6_room_locks:"array",my6_guest_profiles:"object",my6_settings:"object",my6_templates:"object",my6_shortcuts:"array",my6_audit_logs:"array",my6_notification_state:"object"};
+ Object.entries(expected).forEach(([key,type])=>{
+  const raw=localStorage.getItem(key);if(raw===null)return;
+  try{const value=JSON.parse(raw);const valid=type==="array"?Array.isArray(value):(value&&typeof value==="object"&&!Array.isArray(value));if(!valid)issues.push(releaseGuardIssue("P0","STORAGE_TYPE_INVALID",`${key} 資料型別錯誤`,type));}
+  catch(error){issues.push(releaseGuardIssue("P0","STORAGE_JSON_CORRUPT",`${key} JSON 已損壞`,error.message));}
+ });
+ const schemaRaw=localStorage.getItem("my6_schema_version");
+ if(Number(schemaRaw)!==STORAGE_SCHEMA_VERSION)issues.push(releaseGuardIssue("P0","SCHEMA_MISMATCH",`Storage Schema 必須為 v${STORAGE_SCHEMA_VERSION}`,`目前=${schemaRaw??"未設定"}`));
+}
+function releaseGuardCrossValidate(issues){
+ const orderIds=new Set(orders.map(o=>String(o.id)));
+ releaseGuardDuplicateIds(orders,"order",issues);releaseGuardDuplicateIds(payments,"payment",issues);releaseGuardDuplicateIds(tasks,"task",issues);releaseGuardDuplicateIds(roomLocks,"roomLock",issues);releaseGuardDuplicateIds(auditLogs,"audit",issues);
+ orders.forEach(o=>{
+  if(!releaseGuardValidDate(o.checkin)||!releaseGuardValidDate(o.checkout)||o.checkout<=o.checkin)issues.push(releaseGuardIssue("P1","ORDER_DATE_INVALID",`訂單 ${o.id} 入退房日期錯誤`,`${o.checkin} → ${o.checkout}`));
+  if(!Array.isArray(o.rooms)||!o.rooms.length)issues.push(releaseGuardIssue("P1","ORDER_ROOM_EMPTY",`訂單 ${o.id} 未指定房間`));
+  if(!Number.isFinite(Number(o.total))||Number(o.total)<0||!Number.isFinite(Number(o.paid))||Number(o.paid)<0)issues.push(releaseGuardIssue("P1","ORDER_AMOUNT_INVALID",`訂單 ${o.id} 金額不合法`));
+  if(Number(o.paid)>Number(o.total)&&Number(o.total)>0)issues.push(releaseGuardIssue("P2","ORDER_OVERPAID",`訂單 ${o.id} 已收金額高於訂單金額`,`${o.paid}/${o.total}`));
+  (Array.isArray(o.services)?o.services:[]).forEach((v,i)=>{if(!Number.isFinite(Number(v.fee))||Number(v.fee)<0)issues.push(releaseGuardIssue("P1","SERVICE_FEE_INVALID",`訂單 ${o.id} 服務費用不合法`,`service=${v.id||i}`));if(v.date&&!releaseGuardValidDate(v.date))issues.push(releaseGuardIssue("P2","SERVICE_DATE_INVALID",`訂單 ${o.id} 服務日期錯誤`,v.date));});
+ });
+ payments.forEach(p=>{if(!orderIds.has(String(p.orderId||"")))issues.push(releaseGuardIssue("P1","PAYMENT_ORPHAN",`收付款 ${p.id} 找不到關聯訂單`,p.orderId));if(!Number.isFinite(Number(p.amount))||Number(p.amount)<0)issues.push(releaseGuardIssue("P1","PAYMENT_AMOUNT_INVALID",`收付款 ${p.id} 金額不合法`,p.amount));if(p.date&&!releaseGuardValidDate(p.date))issues.push(releaseGuardIssue("P2","PAYMENT_DATE_INVALID",`收付款 ${p.id} 日期錯誤`,p.date));});
+ tasks.forEach(t=>{if(t.orderId&&!orderIds.has(String(t.orderId)))issues.push(releaseGuardIssue("P1","TASK_ORPHAN",`房務任務 ${t.id} 找不到關聯訂單`,t.orderId));if(t.date&&!releaseGuardValidDate(t.date))issues.push(releaseGuardIssue("P2","TASK_DATE_INVALID",`房務任務 ${t.id} 日期錯誤`,t.date));});
+ roomLocks.forEach(l=>{if(!releaseGuardValidDate(l.start)||!releaseGuardValidDate(l.end)||l.end<l.start)issues.push(releaseGuardIssue("P1","ROOM_LOCK_DATE_INVALID",`房間鎖定 ${l.id} 日期錯誤`,`${l.start} → ${l.end}`));if(!roomMaster.some(r=>r.id===l.room))issues.push(releaseGuardIssue("P1","ROOM_LOCK_ROOM_INVALID",`房間鎖定 ${l.id} 房號不存在`,l.room));});
+}
+function createReleaseGuardSnapshot(reason="manual"){
+ const key=RELEASE_GUARD_SNAPSHOT_PREFIX+Date.now();
+ const snapshot={version:RELEASE_GUARD_VERSION,schema:STORAGE_SCHEMA_VERSION,reason,createdAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates,auditLogs,notificationState};
+ localStorage.setItem(key,JSON.stringify(snapshot));localStorage.setItem("my6_release_guard_snapshot_latest",key);return key;
+}
+function runReleaseGuard(options={}){
+ const issues=[];let snapshotKey="";
+ try{releaseGuardStorageScan(issues);releaseGuardCrossValidate(issues);}catch(error){issues.push(releaseGuardIssue("P0","ENGINE_EXCEPTION","健康檢查引擎執行失敗",error.message));}
+ const counts={P0:issues.filter(x=>x.severity==="P0").length,P1:issues.filter(x=>x.severity==="P1").length,P2:issues.filter(x=>x.severity==="P2").length};
+ const blocker=counts.P0>0||counts.P1>0,status=counts.P0?"FAIL":counts.P1?"BLOCKED":counts.P2?"WARNING":"PASS";
+ if(blocker&&options.snapshot!==false){try{snapshotKey=createReleaseGuardSnapshot("automatic-blocker");}catch(error){issues.push(releaseGuardIssue("P0","SNAPSHOT_FAILED","Recovery Snapshot 建立失敗",error.message));counts.P0++;}}
+ const score=Math.max(0,100-counts.P0*40-counts.P1*20-counts.P2*5);
+ releaseGuardLastResult={engine:RELEASE_GUARD_VERSION,checkedAt:new Date().toISOString(),schema:STORAGE_SCHEMA_VERSION,status,score,releaseReady:!blocker,blocker,counts,issues,snapshotKey};
+ window.RELEASE_GUARD_STATUS=releaseGuardLastResult;renderReleaseGuard(releaseGuardLastResult);
+ console.info("[Enterprise Release Guard]",releaseGuardLastResult);
+ return releaseGuardLastResult;
+}
+function renderReleaseGuard(result=releaseGuardLastResult){
+ const root=$("#releaseGuardPanel");if(!root||!result)return;
+ const badgeClass=result.status==="PASS"?"green":result.status==="WARNING"?"gold":"danger";
+ root.innerHTML=`<div class="health-summary"><div><span class="badge ${badgeClass}">${esc(result.status)}</span><strong>健康分數 ${result.score}/100</strong><small>${esc(new Date(result.checkedAt).toLocaleString("zh-TW"))}</small></div><div class="health-counts"><span>P0：${result.counts.P0}</span><span>P1：${result.counts.P1}</span><span>P2：${result.counts.P2}</span></div></div><div class="health-grid"><div><small>Storage Schema</small><strong>v${result.schema}</strong></div><div><small>Release Ready</small><strong>${result.releaseReady?"PASS":"BLOCKED"}</strong></div><div><small>Recovery Snapshot</small><strong>${result.snapshotKey?"已建立":"無需建立"}</strong></div></div><div class="health-issues">${result.issues.length?result.issues.map(x=>`<article><span class="badge ${x.severity==="P2"?"gold":"danger"}">${x.severity}</span><div><strong>${esc(x.message)}</strong><small>${esc(x.code)}${x.detail?`｜${esc(x.detail)}`:""}</small></div></article>`).join(""):'<div class="empty">未發現 Runtime Integrity 問題。</div>'}</div>`;
+}
+function releaseGuardPreflight(action="write"){
+ const result=runReleaseGuard({snapshot:true});
+ if(result.blocker){toast(`Release Guard 已阻擋 ${action}：P0 ${result.counts.P0}／P1 ${result.counts.P1}`);return false;}return true;
+}
+window.ReleaseGuard={run:runReleaseGuard,health:runReleaseGuard,preflight:releaseGuardPreflight,createSnapshot:createReleaseGuardSnapshot,getLastResult:()=>releaseGuardLastResult};
 
 function init(){
  applyStaticIcons();
@@ -1736,6 +1880,8 @@ $("#addRoomLockBtn")?.addEventListener("click",()=>openRoomLock());$("#packageTy
  $("#addShortcut").onclick=()=>{shortcuts.push({icon:"🔗",name:"新快捷",url:"https://"});renderSettings();};$("#saveShortcuts").onclick=collectShortcuts;
  $("#openOfficialLine").onclick=openOfficialLine;
  $("#exportData").onclick=exportBackup;$("#importData").onchange=e=>e.target.files[0]&&importBackup(e.target.files[0]);
+ $("#runReleaseGuard")?.addEventListener("click",()=>{const r=runReleaseGuard({snapshot:true});appendAuditRecord("系統設定","檢查","release-guard",null,{operator:"系統／目前使用者",note:`${r.status}；P0 ${r.counts.P0}／P1 ${r.counts.P1}／P2 ${r.counts.P2}`});persist();toast(r.releaseReady?"系統健康檢查通過":"發現 Release Blocker，已建立 Recovery Snapshot");});
+ $("#createHealthSnapshot")?.addEventListener("click",()=>{const key=createReleaseGuardSnapshot("manual");toast(`Recovery Snapshot 已建立：${key}`);runReleaseGuard({snapshot:false});});
 
  ["notificationSearch"].forEach(id=>$("#"+id)?.addEventListener("input",renderNotifications));["notificationStatusFilter","notificationTypeFilter","notificationPriorityFilter"].forEach(id=>$("#"+id)?.addEventListener("change",renderNotifications));
  $("#clearNotificationFilter")?.addEventListener("click",()=>{["notificationSearch"].forEach(id=>$("#"+id).value="");["notificationStatusFilter","notificationTypeFilter","notificationPriorityFilter"].forEach(id=>$("#"+id).value="");renderNotifications();});
@@ -1746,6 +1892,8 @@ $("#addRoomLockBtn")?.addEventListener("click",()=>openRoomLock());$("#packageTy
 
  $("#resetDemoData").onclick=()=>{if(confirm("確定重設全部資料？")){orders=structuredClone(seedOrders).map(normalizeOrder);payments=[];tasks=structuredClone(seedTasks).map(normalizeTask);guestProfiles={};settings={...defaultSettings};shortcuts=structuredClone(defaultShortcuts);templates={...defaultTemplates};roomLocks=[];auditLogs=[];notificationState={};selectedTemplate=Object.keys(templates)[0];auditRecordingReady=false;persist();auditRecordingReady=true;renderAll();toast("已重設為示範資料");}};
  renderAll();
+ setTimeout(()=>runReleaseGuard({snapshot:true}),150);
 }
 document.addEventListener("DOMContentLoaded",init);
 })();
+
