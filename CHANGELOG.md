@@ -1,3 +1,14 @@
+# RC6 Full Regression QA Hotfix 1 — 2026-07-27
+
+- 修正早餐服務費用未同步回訂單 `breakfast.fee` 的問題。
+- 修正負數退款無法觸發大額退款通知的問題。
+- 啟用已完成／已忽略通知保留天數設定。
+- 通知自動清除與顯示保留改為兩套獨立規則。
+- 通知中心今日數量改採本地日期，避免 UTC 跨日誤差。
+- README、VERSION、登入頁、側欄與匯出版本標示同步更新。
+- 歷史 QA 文件集中移至 `docs/qa/archive/`。
+- Storage Schema 維持 v12。
+
 # RC6 Service Management Refactor M4 Hotfix 4 — 2026-07-27
 
 - 縮小桌機側欄品牌、選單、版本資訊與登出按鈕間距。
