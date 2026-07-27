@@ -1,6 +1,6 @@
 # Enterprise V1.2 Build 2A RC6 — Final Acceptance Checklist
 
-## Full Regression QA Hotfix 1
+## Full Regression QA Hotfix 2
 
 - [x] 早餐服務費用雙向同步程式修正
 - [x] 大額退款以絕對值判斷
@@ -19,3 +19,14 @@
 - [ ] Official Stable
 
 目前狀態：Development Hotfix，不得宣告 Official Stable。
+
+
+## Mobile Accordion Hotfix 2
+
+- [x] 訂單管理具單一展開 scope
+- [x] 入住管理具單一展開 scope
+- [x] 收款管理具單一展開 scope
+- [x] 旅客資料具單一展開 scope
+- [x] 搜尋結果單筆自動展開保留
+- [x] Storage Schema v12 未變更
+- [ ] iPhone Safari 實機驗收

@@ -1,6 +1,15 @@
-# Enterprise V1.2 Build 2A RC6 — Full Regression QA Hotfix 1
+# Enterprise V1.2 Build 2A RC6 — Full Regression QA Hotfix 2
 
 本版以 RC6 Service Management Refactor M4 Hotfix 4 為基準，僅修正 Enterprise Full Regression QA 發現的資料同步、通知判斷與文件一致性問題。
+
+## Hotfix 2 修正摘要
+
+- 手機版訂單管理、入住管理、收款管理、旅客資料統一接入單一展開 Accordion。
+- 展開下一張卡片時，自動收合上一張卡片。
+- 再次點擊已展開卡片時可收合，允許全部收合。
+- 卡片內的核取方塊、按鈕、輸入與明細操作不會觸發外層卡片收合。
+- 搜尋結果只有一筆時維持自動展開。
+- 重新渲染後，每個頁面最多恢復一張已展開卡片。
 
 ## 本次修正
 

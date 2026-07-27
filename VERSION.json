@@ -2,8 +2,8 @@
   "product": "Meiyuan6 Booking Admin",
   "version": "Enterprise V1.2",
   "build": "Build 2A",
-  "release": "RC6 Full Regression QA Hotfix 1",
+  "release": "RC6 Full Regression QA Hotfix 2",
   "storageSchema": 12,
-  "status": "Development Hotfix",
+  "status": "Development Hotfix / Mobile Browser Acceptance Pending",
   "date": "2026-07-27"
 }

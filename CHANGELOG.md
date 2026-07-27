@@ -1,3 +1,11 @@
+# RC6 Full Regression QA Hotfix 2 — 2026-07-27
+
+- Mobile single-open Accordion applied to Orders, Check-in, Payments, and Guest Profiles.
+- Opening a new card automatically closes the previously expanded card in the same page.
+- Restored accordion state is constrained to one card per scope after re-render.
+- Existing Services and Notification Center behavior retained.
+- Storage Schema remains v12.
+
 # RC6 Full Regression QA Hotfix 1 — 2026-07-27
 
 - 修正早餐服務費用未同步回訂單 `breakfast.fee` 的問題。
