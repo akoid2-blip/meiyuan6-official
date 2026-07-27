@@ -316,3 +316,8 @@
 - Integrated Enterprise Runtime Integrity Engine.
 - Added System Health dashboard, P0/P1/P2 classification, Release Ready gate and Recovery Snapshot.
 - Storage Schema remains v12.
+
+## RC6 Release Guard Hotfix 4
+- Audit Log 依訂單分組與縮排時間軸。
+- 新增中文異動摘要與技術明細。
+- Storage Schema 維持 v12。

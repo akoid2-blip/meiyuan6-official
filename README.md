@@ -55,3 +55,6 @@
 
 ## RC6 Release Guard Hotfix 2
 系統設定新增「系統健康」，可執行 Runtime Integrity 檢查並查看 P0／P1／P2、健康分數與 Release Ready 狀態。Storage Schema 維持 v12。
+
+## RC6 Release Guard Hotfix 4
+企業級稽核中心已支援依訂單群組、展開／收合、中文異動摘要與原始技術明細。Storage Schema 維持 v12。
