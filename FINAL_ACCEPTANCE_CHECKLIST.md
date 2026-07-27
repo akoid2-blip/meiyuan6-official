@@ -1,29 +1,35 @@
-# Enterprise V1.2 Build 2A RC6 — Final Acceptance Checklist
+# Final Acceptance Checklist — RC6 Development Build / Audit Log M3
 
-## Service Management Milestone 1
-- [x] 早餐代訂整合
-- [x] 接送／叫車整合
-- [x] 提前入住
-- [x] 延後退房
-- [x] 加床
-- [x] 寵物住宿
-- [x] 特殊需求
-- [x] 待安排／已完成
-- [x] 費用
-- [x] 收款狀態
-- [x] 備註
-- [x] Storage Schema v12
-- [x] 舊資料相容
-- [x] VERSION / CHANGELOG / README / QA Report 更新
+## Milestone 3
+- [x] 全域稽核資料層
+- [x] 訂單建立／修改／刪除追蹤
+- [x] 收款／退款／加收費用追蹤
+- [x] 住宿服務異動追蹤
+- [x] 房務流程異動追蹤
+- [x] 系統設定異動追蹤
+- [x] 訂單時間軸
+- [x] 搜尋、模組與日期篩選
+- [x] Dashboard 稽核摘要
+- [x] Audit Log JSON 匯出
+- [x] 完整備份納入 Audit Log
+- [x] Storage Schema v12 保持
+- [x] JavaScript 靜態語法檢查
+- [ ] 桌機瀏覽器完整操作驗收
+- [ ] 手機瀏覽器完整操作驗收
+- [ ] Milestone 3 Regression QA
+- [ ] RC6 Official Stable
 
-## RC6 全案驗收
-- [ ] Phase 1 訂單生命週期完整驗收
-- [ ] Phase 2 Dashboard 自動待辦完整驗收
-- [ ] Phase 3 房務管理完整驗收
-- [ ] Phase 4 Audit Log 完整驗收
-- [ ] Phase 5 通知中心完整驗收
-- [ ] 桌機瀏覽器完整 QA
-- [ ] 手機瀏覽器完整 QA
-- [ ] RC6 Final Acceptance
+**狀態：Development Build／尚未 LOCK。**
 
-> 目前不得宣告 Official Stable。
+
+## Hotfix 2 browser acceptance
+- [ ] Existing repeated Special Request cards are removed after first load.
+- [ ] One baggage-storage service remains for an order with luggage storage enabled.
+- [ ] Completed housekeeping records use the compact list.
+- [ ] Audit records are displayed in one compact desktop row.
+
+## Hotfix 3
+- [x] 送餐金額欄位與資料正規化
+- [x] 早餐服務費用同步
+- [x] 最新應收整合
+- [ ] 瀏覽器實際操作驗收

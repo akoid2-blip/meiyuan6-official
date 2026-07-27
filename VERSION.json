@@ -1,14 +1,9 @@
 {
-  "product": "Meiyuan6 Booking Admin Enterprise",
-  "version": "1.2",
-  "build": "Enterprise V1.2 Build 2A",
-  "release": "RC6-Service-M1",
-  "title": "Operation Workflow & Automation — Service Management Milestone 1",
-  "status": "RC6 Development Milestone Candidate",
+  "product": "Meiyuan6 Booking Admin",
+  "version": "Enterprise V1.2",
+  "build": "Build 2A",
+  "release": "RC6 Service Management Refactor M4 Hotfix 4",
   "storageSchema": 12,
-  "date": "2026-07-27",
-  "officialStable": false,
-  "locked": false,
-  "name": "Enterprise V1.2 Build 2A RC6 — Service Management Milestone 1",
-  "updated": "2026-07-27"
+  "status": "Development Build",
+  "date": "2026-07-27"
 }

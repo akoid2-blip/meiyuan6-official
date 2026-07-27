@@ -1,63 +1,45 @@
-# Enterprise V1.2 Build 2A RC5.1 — Payment Record Description & Flexible Charge Method
-## Unified Management UI
+# Enterprise V1.2 Build 2A RC6 — Development Build
 
-本版以 RC4 Hotfix 9 為基準，將訂單、入住、收款與旅客管理統一為同一套響應式收合卡片介面。
+## Milestone 3：Audit Log
 
-## RC5 核心變更
+本版延續 Dashboard Automation M1 與 Housekeeping Workflow M2，新增企業級全域稽核中心，作為 RC6 主線第三個里程碑。
 
-- 訂單管理、入住管理、收款管理與旅客管理共用 Management Card 視覺與互動規則。
-- 桌機不再以長表格作為主要操作介面，改用可展開／收合卡片。
-- 所有管理卡片預設收合，只顯示主要識別資訊與狀態。
-- 有輸入搜尋條件且結果只有一筆時，對應卡片自動展開。
-- 操作按鈕集中在展開內容底部，降低畫面高度與誤觸。
-- 桌機、平板與手機使用同一套卡片結構，只透過響應式版面調整欄數。
-- 共用展開提示、狀態 Badge、空資料訊息與搜尋結果筆數。
-- 收款明細保留第二層展開，避免主卡片過長。
+### 本次完成
+- 訂單、帳務、住宿服務、房務及系統設定異動自動寫入稽核紀錄。
+- 每筆紀錄包含時間、操作人、模組、動作、訂單／房號／旅客與差異摘要。
+- 訂單操作列新增「時間軸」，可直接查看該訂單完整歷程。
+- 稽核中心支援關鍵字、模組與日期區間篩選。
+- Dashboard 顯示今日操作、帳務異動、房務異動與最近紀錄。
+- 支援匯出獨立 Audit Log JSON。
+- 系統備份納入 auditLogs，匯入時可恢復。
+- 稽核紀錄上限 3,000 筆，避免瀏覽器儲存無限制增長。
+- Storage Schema 維持 v12，未進行破壞性升級。
 
-## 模組行為
-
-### 訂單管理
-預設顯示旅客、訂單編號、電話與生命週期狀態；展開後顯示日期、房間、服務、金額與完整操作列。
-
-### 入住管理
-預設顯示旅客、訂單與入住日期；展開後顯示入住核對清單及聯絡、編輯操作。
-
-### 收款管理
-預設顯示旅客、訂單與收款狀態；展開後顯示完整帳務摘要、帳務明細及登記收退款操作。
-
-### 旅客管理
-預設顯示姓名、電話與最近入住；展開後顯示聯絡資料、消費、車牌、寵物與備註。
-
-## 使用方式
-
-解壓縮後直接開啟 `index.html` 測試。部署時，上傳 `Meiyuan6_Admin_RC5_1` 資料夾內全部內容，並保持 `assets` 相對路徑不變。
-
-## 版本狀態
-
-- Release Candidate：RC5.1
-- Storage Schema：12
-- QA Candidate
-- 尚未 LOCK
+### 版本狀態
+- RC6 Development Build
+- Service Management Refactor M4 Hotfix 4
+- Static QA Pass / Browser Acceptance Pending
 - 非 Official Stable
+- 尚未 LOCK
 
-進入 RC5.1 LOCK 前，仍需完成桌機 Chrome／Edge、iPhone Safari、Android Chrome 與 iPad Safari 實機操作驗收。
+### 部署
+解壓縮後開啟 `index.html`。部署時請上傳資料夾全部內容並保留 `assets` 相對路徑。
 
 
-## RC5.1 收付款紀錄強化
-- 登記收款新增「收款說明（備註）」欄位。
-- 登記退款新增必填「退款原因」與「退款說明」。
-- 加收費用的收款方式解除鎖定，可選擇現金、轉帳、信用卡、LINE Pay 或其他。
-- 帳務明細與手機卡片同步顯示收款方式、原因及說明。
-- Storage Schema 維持 12，既有資料可直接沿用。
+## RC6 Milestone 4
+已新增 Enterprise Notification Center；目前為 Development Build，需完成瀏覽器驗收與 Full Regression QA 後才能進入 Release Candidate。
 
-## RC6 住宿服務管理（Service Management）
 
-本里程碑將既有早餐與叫車功能整合為統一服務模組，並新增提前入住、延後退房、加床、寵物住宿與特殊需求。每筆服務可設定「待安排／已完成」、費用、收款狀態、服務日期時間與備註。
+## RC6 M4 Hotfix 3
+- 修正寄放行李被誤判為特殊需求並重複產生。
+- 住宿服務卡片改為緊湊版。
+- 房務已完成紀錄改用獨立清單，避免第四欄向下過長。
+- 稽核中心桌機版改成單列緊湊資訊。
 
-### 資料相容性
-- Storage Schema：v12（未變更）
-- 舊版早餐、叫車、提前入住與延後退房欄位完整保留。
-- 系統載入舊訂單時會建立相容的服務顯示資料。
-- 服務費用屬營運追蹤欄位，不會直接寫入帳務；需要增加應收時，請在「收款管理」登記加收費用。
 
-本版本為 RC6 開發里程碑，不是 Official Stable。
+## RC6 M4 Hotfix 3
+- 訂單加值服務新增「送餐金額」。
+- 送餐金額同步至早餐住宿服務的費用與收款狀態。
+- 有效住宿服務費用納入最新應收與剩餘應收。
+- 修正訂單表單儲存前未執行住宿服務同步的流程問題。
+- Storage Schema 維持 v12。

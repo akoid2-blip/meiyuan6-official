@@ -14,7 +14,7 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · RC6 Service M1</p>
+    <p>Enterprise V1.2 · Build 2A · RC6 Development Build · Service Management Refactor M4 Hotfix 4</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
@@ -35,10 +35,12 @@
       <button data-icon="sparkles" data-page="housekeeping">房務管理</button>
       <button data-icon="users" data-page="guests">旅客資料</button>
       <button data-icon="file-text" data-page="templates">模板中心</button>
+      <button data-icon="file-text" data-page="audit">稽核中心</button>
+      <button data-icon="bell" data-page="notifications">通知中心 <span id="navNotificationBadge" class="nav-notification-badge hidden">0</span></button>
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · RC6 Service M1</div>
+    <div class="version">Enterprise V1.2<br>Build 2A · RC6 Development Build · Service Management Refactor M4 Hotfix 4</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
@@ -85,10 +87,16 @@
           <div id="alertList"></div>
         </section>
         <section class="panel">
-          <div class="panel-head"><h3>服務待辦</h3><button data-page-jump="orders" data-icon="clipboard">訂單服務</button></div>
+          <div class="panel-head"><h3>服務待辦</h3><button data-page-jump="services" data-icon="clipboard">住宿服務</button></div>
           <div id="serviceTodoList"></div>
         </section>
       </div>
+
+      <section class="panel notification-dashboard-panel">
+        <div class="panel-head"><div><h3>通知摘要</h3><p class="section-note">依訂單、帳務、住宿服務與房務狀態自動產生。</p></div><button data-page-jump="notifications" data-icon="bell">查看通知中心</button></div>
+        <div id="dashboardNotificationSummary" class="notification-summary-grid"></div>
+        <div id="dashboardRecentNotifications" class="notification-list compact"></div>
+      </section>
 
       <section class="panel">
         <div class="panel-head"><h3>常用快捷中心</h3><button data-page-jump="settings" data-icon="settings">管理快捷</button></div>
@@ -98,6 +106,11 @@
       <section class="panel">
         <div class="panel-head"><h3>近期入住</h3><button data-page-jump="orders" data-icon="arrow-right">查看全部</button></div>
         <div id="upcomingList" class="upcoming-grid"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h3>最近操作紀錄</h3><p class="section-note">訂單、帳務、住宿服務與房務異動自動留存。</p></div><button data-page-jump="audit" data-icon="file-text">查看稽核中心</button></div>
+        <div id="dashboardAuditSummary" class="audit-dashboard-summary"></div>
+        <div id="dashboardRecentAudit" class="audit-recent-list"></div>
       </section>
     </section>
 
@@ -178,10 +191,11 @@
         <article><span>入住中</span><strong id="hkOccupied">0</strong></article>
         <article><span>待清掃</span><strong id="hkPending">0</strong></article>
         <article><span>清掃中</span><strong id="hkCleaning">0</strong></article>
+        <article><span>待檢查</span><strong id="hkInspect">0</strong></article>
         <article><span>可入住</span><strong id="hkReady">0</strong></article>
       </div>
       <section class="panel">
-        <div class="panel-head"><div><h3>房務管理</h3><p class="section-note">房務工作由訂單退房自動建立；房務人員只需開始清掃、填寫紀錄並完成清掃。</p></div></div>
+        <div class="panel-head"><div><h3>房務管理</h3><p class="section-note">房務工作由退房自動建立，依序完成待清掃、清掃中、待檢查與可入住；支援指派、暫停、優先等級及下次入住提醒。</p></div></div>
         <div id="roomStatusGrid" class="room-status-grid"></div>
         <div id="taskBoard" class="task-board"></div>
       </section>
@@ -247,6 +261,48 @@
       </div>
     </section>
 
+    <section id="notifications" class="page">
+      <div class="stats notification-stats">
+        <article><span>未讀</span><strong id="notificationUnreadCount">0</strong></article>
+        <article><span>緊急</span><strong id="notificationCriticalCount">0</strong></article>
+        <article><span>今日</span><strong id="notificationTodayCount">0</strong></article>
+        <article><span>全部</span><strong id="notificationTotalCount">0</strong></article>
+      </div>
+      <section class="panel">
+        <div class="panel-head"><div><h3>Enterprise Notification Center</h3><p class="section-note">集中處理訂單、帳務、住宿服務與房務通知。</p></div><div class="notification-head-actions"><button id="markAllNotificationsRead">全部已讀</button><button id="refreshNotifications" data-icon="refresh">重新整理</button></div></div>
+        <div class="notification-toolbar">
+          <input id="notificationSearch" type="search" placeholder="搜尋旅客、訂單、房號或通知內容">
+          <select id="notificationStatusFilter"><option value="">全部狀態</option><option value="unread">未讀</option><option value="read">已讀</option><option value="completed">已完成</option><option value="ignored">已忽略</option></select>
+          <select id="notificationTypeFilter"><option value="">全部類型</option><option>訂單</option><option>帳務</option><option>住宿服務</option><option>房務</option><option>系統</option></select>
+          <select id="notificationPriorityFilter"><option value="">全部優先等級</option><option value="critical">Critical</option><option value="high">High</option><option value="normal">Normal</option><option value="low">Low</option></select>
+          <button id="clearNotificationFilter">清除篩選</button>
+        </div>
+        <div id="notificationResultCount" class="management-result-count"></div>
+        <div id="notificationList" class="notification-list"></div>
+      </section>
+    </section>
+
+    <section id="audit" class="page">
+      <div class="stats audit-stats">
+        <button type="button" class="audit-kpi" onclick="setAuditQuickFilter('today')"><span>今日操作</span><strong id="auditTodayCount">0</strong></button>
+        <button type="button" class="audit-kpi" onclick="setAuditQuickFilter('finance')"><span>今日帳務異動</span><strong id="auditFinanceCount">0</strong></button>
+        <button type="button" class="audit-kpi" onclick="setAuditQuickFilter('housekeeping')"><span>今日房務異動</span><strong id="auditHousekeepingCount">0</strong></button>
+        <button type="button" class="audit-kpi" onclick="setAuditQuickFilter('all')"><span>全部紀錄</span><strong id="auditTotalCount">0</strong></button>
+      </div>
+      <section class="panel">
+        <div class="panel-head"><div><h3>企業級稽核中心</h3><p class="section-note">自動記錄建立、修改、刪除與流程變更；Storage Schema 維持 v12。</p></div><button id="exportAuditBtn" data-icon="save">匯出稽核紀錄</button></div>
+        <div class="audit-toolbar">
+          <input id="auditSearch" type="search" placeholder="搜尋訂單編號、旅客、房號、動作或摘要">
+          <select id="auditModuleFilter"><option value="">全部模組</option><option>訂單</option><option>帳務</option><option>住宿服務</option><option>房務</option><option>系統設定</option></select>
+          <input id="auditDateFrom" type="date" aria-label="開始日期">
+          <input id="auditDateTo" type="date" aria-label="結束日期">
+          <button id="clearAuditFilter">清除篩選</button>
+        </div>
+        <div id="auditResultCount" class="management-result-count"></div>
+        <div id="auditList" class="audit-list"></div>
+      </section>
+    </section>
+
     <section id="reports" class="page">
       <div class="stats">
         <article><span>本月訂單數</span><strong id="reportOrders">0</strong></article>
@@ -263,6 +319,7 @@
         <button data-settings-tab="registration">登記與保險</button>
         <button data-settings-tab="shortcuts">快捷中心</button>
         <button data-settings-tab="integrations">外部整合</button>
+        <button data-settings-tab="notifications">通知設定</button>
         <button data-settings-tab="data">資料管理</button>
       </div>
 
@@ -317,6 +374,19 @@
         </div>
       </section>
 
+      <section class="panel settings-pane" data-pane="notifications">
+        <div class="panel-head"><div><h3>通知設定</h3><p class="section-note">調整提醒門檻；設定儲存在目前瀏覽器。</p></div><span class="badge green">Notification Engine</span></div>
+        <div class="form-grid">
+          <label>大額退款門檻（NT$）<input id="settingLargeRefundThreshold" type="number" min="0" step="500"></label>
+          <label>房務逾時分鐘<input id="settingHousekeepingOverdueMinutes" type="number" min="0" step="15"></label>
+          <label>早餐提前提醒分鐘<input id="settingBreakfastReminderMinutes" type="number" min="0" step="15"></label>
+          <label>接送提前提醒分鐘<input id="settingTaxiReminderMinutes" type="number" min="0" step="15"></label>
+          <label>已完成通知保留天數<input id="settingNotificationRetentionDays" type="number" min="1"></label>
+          <label>自動清除天數<input id="settingNotificationAutoClearDays" type="number" min="1"></label>
+        </div>
+        <div class="settings-actions"><button id="resetNotificationSettings">恢復通知預設</button><button class="primary" id="saveNotificationSettings">儲存通知設定</button></div>
+      </section>
+
       <section class="panel settings-pane" data-pane="data">
         <div class="panel-head"><div><h3>資料管理</h3><p class="section-note">匯出 JSON 可作為本機備份；匯入會覆蓋目前資料。</p></div></div>
         <div class="data-actions">
@@ -346,7 +416,7 @@
     <label>住宿方案<select id="packageType"><option>一般訂房</option><option>小包棟（8～15人）</option><option>全館包棟（16～27人）</option></select></label>
     <label>入住人數<input id="guestCount" type="number" min="1" value="2"></label>
     <fieldset id="roomSelectionFieldset" class="wide"><legend>住宿單位（可複選）</legend><div id="roomCheckboxes" class="checkbox-grid"></div></fieldset>
-    <label>訂單來源<select id="orderSource"><option>官方 LINE</option><option>電話</option><option>Facebook</option><option>Google 商家</option><option>官網詢問</option><option>回訪旅客</option></select></label>
+    <label>訂單來源<select id="orderSource"><option>官方 LINE</option><option>電話</option><option>Facebook</option><option>Google 商家</option><option>官網詢問</option><option>回訪旅客</option><option>親朋好友</option></select></label>
     <label>訂單狀態<select id="orderStatus"><option>詢問中</option><option>暫時保留</option><option>已確認</option><option>已付訂金</option><option>已付全額</option><option>已入住</option><option>已退房</option><option>已取消</option></select></label>
     <label>訂單總額<input id="orderTotal" type="text" inputmode="numeric" min="0" value="0"></label>
     <label>已收金額<input id="orderPaid" type="text" inputmode="numeric" min="0" value="0"></label>
@@ -357,6 +427,7 @@
         <label>早餐店<input id="breakfastShop" placeholder="例如：在地早餐店"></label>
         <label>早餐份數<input id="breakfastQty" type="number" min="0" value="0"></label>
         <label>預訂送餐天數<input id="breakfastDays" type="number" min="0" value="0" placeholder="例如：2"></label>
+        <label>送餐金額<input id="breakfastFee" type="text" inputmode="numeric" min="0" value="0" placeholder="NT$0"></label>
         <label>每日送達時間<input id="breakfastDelivery" type="time"></label>
         <label class="inline-check"><input id="breakfastDone" type="checkbox"> 已完成早餐代訂</label>
       </div>
@@ -367,7 +438,8 @@
         <label>上車地點<input id="taxiPickup"></label>
         <label>目的地<input id="taxiDestination"></label>
         <label>人數<input id="taxiGuests" type="number" min="0" value="0"></label>
-        <label>車型<input id="taxiType" placeholder="一般／多元／九人座"></label>
+        <label>車型<select id="taxiType"><option value="">請選擇車型</option><option>一般轎車（4 人）</option><option>五人座 SUV</option><option>七人座</option><option>九人座</option><option>無障礙車</option><option>其他</option></select></label>
+        <label id="taxiTypeOtherField" class="hidden">其他車型<input id="taxiTypeOther" placeholder="請輸入車型"></label>
         <label>車資<input id="taxiFare" type="text" inputmode="numeric" min="0" value="0"></label>
         <label class="inline-check"><input id="taxiDone" type="checkbox"> 已完成叫車預約</label>
       </div>
@@ -451,20 +523,37 @@
   <input id="serviceId" type="hidden">
   <div class="form-grid">
     <label class="wide">訂單<select id="serviceOrderId" required></select></label>
-    <label>服務項目<select id="serviceType" required><option>早餐代訂</option><option>接送／叫車</option><option>提前入住</option><option>延後退房</option><option>加床</option><option>寵物住宿</option><option>特殊需求</option></select></label>
+    <label>服務項目<select id="serviceType" required><option>早餐代訂</option><option>接送／叫車</option><option>提前入住</option><option>延後退房</option><option>加床</option><option>寵物住宿</option><option>寄放行李</option><option>特殊需求</option></select></label>
     <label>處理狀態<select id="serviceStatus"><option>待安排</option><option>已完成</option></select></label>
     <label>費用<input id="serviceFee" type="text" inputmode="numeric" value="0"></label>
     <label>收款狀態<select id="servicePaymentStatus"><option>未收款</option><option>部分收款</option><option>已收款</option><option>免費</option></select></label>
     <label>服務日期<input id="serviceDate" type="date"></label>
     <label>服務時間<input id="serviceTime" type="time"></label>
-    <label class="wide">備註<textarea id="serviceNote" rows="4" maxlength="300" placeholder="例如：早餐 10 份、08:00 送達；需要嬰兒床一張"></textarea></label>
+    <fieldset id="serviceBreakfastFields" class="wide service-specific-fields hidden"><legend>早餐資料</legend><div class="service-grid">
+      <label>早餐店<input id="serviceBreakfastShop" placeholder="例如：在地早餐店"></label>
+      <label>早餐份數<input id="serviceBreakfastQty" type="number" min="1" step="1" value="1"></label>
+      <label>預訂送餐天數<input id="serviceBreakfastDays" type="number" min="1" step="1" value="1"></label>
+    </div></fieldset>
+    <fieldset id="serviceTaxiFields" class="wide service-specific-fields hidden"><legend>接送／叫車資料</legend><div class="service-grid">
+      <label>接送類型<select id="serviceTaxiDirection"><option value="checkout">退房送站</option><option value="checkin">入住接送</option><option value="custom">自訂日期</option></select></label>
+      <label>車型<select id="serviceTaxiType"><option value="">請選擇車型</option><option>一般轎車（4 人）</option><option>五人座 SUV</option><option>七人座</option><option>九人座</option><option>無障礙車</option><option>其他</option></select></label>
+      <label id="serviceTaxiTypeOtherField" class="hidden">其他車型<input id="serviceTaxiTypeOther" placeholder="請輸入車型"></label>
+      <label>乘車人數<input id="serviceTaxiGuests" type="number" min="1" step="1" value="1"></label>
+      <label>上車地點<input id="serviceTaxiPickup"></label>
+      <label>下車地點<input id="serviceTaxiDestination"></label>
+    </div></fieldset>
+    <fieldset id="serviceQuantityFields" class="wide service-specific-fields hidden"><legend>服務數量</legend><div class="service-grid">
+      <label>數量<input id="serviceQuantity" type="number" min="1" step="1" value="1"></label>
+      <label>單位／說明<input id="serviceUnit" placeholder="例如：張、隻、份"></label>
+    </div></fieldset>
+    <label class="wide">備註<textarea id="serviceNote" rows="4" maxlength="300" placeholder="僅填寫其他補充事項"></textarea></label>
   </div>
   <p class="section-note">服務費用僅作服務追蹤，不會自動改變訂單應收；需要入帳時請至收款管理登記加收費用。</p>
   <div class="dialog-actions"><button type="button" data-close="serviceDialog">取消</button><button class="primary" type="submit">儲存服務</button></div>
 </form>
 </dialog>
 
-<dialog id="taskDialog">
+<dialog id="taskDialog" class="task-dialog-compact">
 <form id="taskForm">
   <div class="dialog-head"><h3>編輯房務紀錄</h3><button type="button" class="icon-only" data-icon="x" data-close="taskDialog" aria-label="關閉"></button></div>
   <div class="form-grid">
@@ -472,8 +561,8 @@
     <label>住宿單位<input id="taskRoomLabel" readonly></label>
     <label>房客<input id="taskGuest" readonly></label>
     <label>預定退房時間<input id="taskCheckout" readonly></label>
-    <label>房務狀態<select id="taskStatus"><option>待清掃</option><option>清掃中</option><option>已完成</option></select></label>
-    <label>房務人員<input id="taskAssignee" placeholder="輸入房務人員姓名"></label>
+    <label>房務狀態<select id="taskStatus"><option>待清掃</option><option>清掃中</option><option>已暫停</option><option>待檢查</option><option>已完成</option></select></label>
+    <label>房務人員<input id="taskAssignee" placeholder="輸入房務人員姓名"></label><label>優先等級<select id="taskPriority"><option>高</option><option selected>一般</option><option>低</option></select></label>
     <label>開始時間<input id="taskStarted" readonly></label>
     <label>完成時間<input id="taskCompleted" readonly></label>
     <label class="wide">房務備註<textarea id="taskNote" rows="4" placeholder="補充備品、設備異常、清潔狀況等"></textarea></label>

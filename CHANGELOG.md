@@ -1,3 +1,69 @@
+# RC6 Service Management Refactor M4 Hotfix 4 — 2026-07-27
+
+- 縮小桌機側欄品牌、選單、版本資訊與登出按鈕間距。
+- 一般桌機高度下側欄改為整頁顯示，避免不必要的內部捲動。
+- 較矮視窗仍保留安全捲動，避免選單被裁切。
+- 通知中心收合卡片進一步縮小標題、狀態、時間與內容留白。
+- 更新登入頁、側欄、備份及稽核匯出版本標示為 Hotfix 4。
+- Storage Schema 維持 v12。
+
+# RC6 Service Management Refactor M4 Hotfix 3 — 2026-07-27
+
+- 早餐加值服務新增送餐金額欄位。
+- 送餐金額同步建立／更新「早餐代訂」住宿服務 fee。
+- 金額大於 0 時，住宿服務收款狀態預設為未收款；金額為 0 時為免費。
+- 住宿服務費用納入帳務最新應收與剩餘應收。
+- 修正 readOrderForm 提前 return，導致訂單服務欄位未同步的問題。
+- Storage Schema 維持 v12。
+
+## Enterprise V1.2 Build 2A RC6 — Service Management Refactor M4 Hotfix 2 (2026-07-27)
+
+### Fixed
+- 修正「寄放行李」未列入住宿服務型別，遭誤轉成「特殊需求」並於每次渲染重複建立的問題。
+- 啟動時自動辨識並清理相同住宿服務重複紀錄，保留單一有效資料。
+- 住宿服務卡片縮為緊湊摘要，展開後才顯示操作。
+- 房務管理前三個進行中流程維持操作卡片；已完成改為獨立緊湊清單。
+- 稽核中心桌機版改為單列資訊：模組、動作、摘要、操作人與時間。
+
+### Compatibility
+- Storage Schema 維持 v12。
+- Development Hotfix，尚未宣告 Official Stable。
+
+# Enterprise V1.2 Build 2A RC6 — Service Management Refactor M4 Hotfix 1
+
+- 新增統一 Notification Engine 與通知中心。
+- 自動產生訂單、帳務、住宿服務、房務及大額退款通知。
+- 支援未讀、已讀、已完成、已忽略與優先等級篩選。
+- Dashboard 新增通知摘要與近期通知。
+- 通知狀態異動寫入 Audit Log。
+- 新增通知門檻與保留設定。
+- 完整備份加入 notificationState；Storage Schema 維持 v12。
+
+# CHANGELOG
+
+## Enterprise V1.2 Build 2A RC6 — Development Build / Audit Log M3 (2026-07-27)
+
+### Added
+- 全域 Audit Log 資料層與自動差異偵測。
+- 稽核中心、搜尋、模組篩選、日期篩選與 JSON 匯出。
+- 訂單完整時間軸入口。
+- Dashboard 最近操作與今日稽核摘要。
+- 備份／還原納入稽核紀錄。
+
+### Compatibility
+- Storage Schema 維持 v12。
+- 本版仍為 Development Build，未宣告 Official Stable。
+
+## Enterprise V1.2 Build 2A RC6 — Development Build / Dashboard Automation M1 (2026-07-27)
+
+- 將 RC6 Service Management M2 QA Hotfix 1 整合回 RC6 主線。
+- Dashboard 服務待辦依日期與時間排序，增加逾期提示與直接處理入口。
+- 待收款提醒改用 Payment Summary，包含加收費用、退款與淨收款。
+- 修正早餐／叫車同步只尋找 legacy ID 而造成重複服務的問題。
+- 同類核心服務建立主要紀錄與去重規則。
+- 修正備份匯出版本資訊。
+- Storage Schema 維持 v12；非 Official Stable。
+
 # Enterprise V1.2 Build 2A RC5.1 — Payment Record Description & Flexible Charge Method
 
 - 登記收款新增選填收款說明（備註）。
@@ -126,3 +192,61 @@
 
 ### Status
 - RC6 開發里程碑，尚未宣告 Official Stable。
+
+## Enterprise V1.2 Build 2A RC6 — Service Management Milestone 2 (2026-07-27)
+
+### Added
+- 訂單來源新增「親朋好友」。
+- 住宿服務依早餐、接送／叫車、加床、寵物住宿與特殊需求顯示專屬欄位。
+- 住宿服務卡片新增來源訂單快速入口；入住管理新增住宿服務按鈕。
+- 車型改為下拉選項：一般轎車、五人座 SUV、七人座、九人座、無障礙車與其他。
+
+### Changed
+- 早餐服務日期預設為入住日後一天。
+- 退房送站預設退房日；入住接送預設入住日；仍可選自訂日期。
+- 數字欄位保留上下箭頭，聚焦時自動選取原數值，並停用聚焦時的滑鼠滾輪誤改。
+- 入住核對項目改為局部更新，不再觸發整張卡片收合。
+- 所有主要收合卡片在重新渲染後恢復原展開狀態。
+
+### Compatibility
+- Storage Schema 維持 v12。
+- 既有 services 資料若沒有 details 欄位，會以空物件向下相容。
+- 舊版 breakfast、taxi、earlyCheckin 與 lateCheckout 欄位繼續保留。
+
+### Status
+- RC6 開發里程碑，尚未宣告 Official Stable。
+
+## Enterprise V1.2 Build 2A RC6 — Service Management M2 QA Hotfix 1 (2026-07-27)
+
+### Fixed
+- Dashboard service reminders now read the unified `services` module instead of legacy breakfast/taxi fields.
+- Desktop order action rows preserve their expanded state after re-rendering.
+- Desktop payment detail rows preserve their expanded state after re-rendering.
+- Legacy breakfast and taxi migration now stores structured service details.
+- Order breakfast/taxi fields and unified services now synchronize in both directions.
+- Login and sidebar version labels updated to RC6 Service M2 QA Hotfix 1.
+
+### Compatibility
+- Storage Schema remains v12.
+- Existing order, payment and service records remain backward compatible.
+- Development hotfix only; not Official Stable.
+
+
+## RC6 Development Build — Housekeeping Workflow M2
+- 退房自動建立房務工作，Storage Schema 維持 v12。
+- 房務流程擴充為待清掃、清掃中、已暫停、待檢查、已完成。
+- 新增房務指派、優先等級、暫停／繼續、主管確認。
+- 顯示下次入住旅客與急件提醒。
+- 房務完成後同步訂單 Workflow 為可入住。
+- 房務管理與 Dashboard 待辦數量同步。
+
+
+## RC6 Service Management Refactor M4 Hotfix 1
+- 模板中心變數分類預設收合，採單一展開 Accordion。
+- 通知中心卡片改為單一展開 Accordion。
+- 稽核中心改為每批 20 筆載入，顯示已載入／總筆數。
+- 稽核 KPI 可點擊快速套用今日、帳務、房務或全部篩選。
+- 房務編輯視窗縮至 80vh 並壓縮欄位間距。
+- 住宿服務卡片採單一展開 Accordion。
+- 訂單寄放行李、提前入住、延後退房自動補建為統一住宿服務紀錄。
+- Storage Schema 維持 v12。

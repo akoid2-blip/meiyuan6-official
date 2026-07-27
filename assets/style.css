@@ -411,3 +411,112 @@ th,td{padding:9px 8px;line-height:1.35;vertical-align:middle}tbody tr{height:54p
 
 /* Enterprise V1.2 Build 2A RC6 — Service Management Milestone 1 */
 .service-management-head{align-items:flex-start}.service-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 180px 180px auto;gap:10px;align-items:center;margin:16px 0}.service-management-list{display:grid;gap:12px}.service-management-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px 18px;box-shadow:0 4px 16px rgba(35,49,41,.045)}.service-card-main{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start}.service-order-id{font-size:12px;color:var(--muted);font-weight:800}.service-management-card h4{margin:4px 0 5px;font-size:17px}.service-management-card p{margin:0;color:var(--muted);overflow-wrap:anywhere}.service-card-badges{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.service-card-footer{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}.service-card-footer>strong{font-size:17px}.service-card-footer .table-actions{display:flex;gap:8px}.badge.red{background:#fdeaea;color:#a33}.badge.gray{background:#eef0ef;color:#68716c}@media(max-width:820px){.service-toolbar{grid-template-columns:1fr 1fr}.service-toolbar input{grid-column:1/-1}.service-card-main{grid-template-columns:1fr}.service-card-badges{justify-content:flex-start}}@media(max-width:520px){.service-toolbar{grid-template-columns:1fr}.service-toolbar input{grid-column:auto}.service-card-footer{align-items:flex-start;flex-direction:column}.service-card-footer .table-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}.service-card-footer button{width:100%}}
+
+/* RC6 Service Management Hotfix 1 */
+.service-specific-fields{border:1px solid var(--line,#ded8cc);border-radius:14px;padding:14px 16px;margin:0}.service-specific-fields legend{font-weight:700;padding:0 6px}.service-order-link{border:0;background:transparent;padding:0;color:#58706a;font-weight:800;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.service-order-link:hover{color:#244f40}.check-item input[type="checkbox"]{flex:0 0 auto}.management-mobile-card[open] .management-expand-label::before,.guest-mobile-card[open] .guest-expand-label::before{content:"收合"}.management-mobile-card[open] .management-expand-label,.guest-mobile-card[open] .guest-expand-label{font-size:0}.management-mobile-card[open] .management-expand-label::before,.guest-mobile-card[open] .guest-expand-label::before{font-size:14px}
+
+.dashboard-list-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.dashboard-list-actions button{white-space:nowrap}
+
+/* RC6 Housekeeping Workflow M2 */
+.housekeeping-stats{grid-template-columns:repeat(5,minmax(0,1fr))}.task-board{grid-template-columns:repeat(4,minmax(230px,1fr));align-items:start}.task-column>h4{display:flex;justify-content:space-between}.task-column>h4 span{font-size:12px;background:#eee8dc;border-radius:999px;padding:2px 7px}.status-待檢查 span{background:#eee7fb;color:#6546a0}.housekeeping-priority{margin-top:8px}.task-actions{flex-wrap:wrap}.task-actions button{flex:1 1 120px}@media(max-width:1100px){.task-board{grid-template-columns:repeat(2,minmax(0,1fr))}.housekeeping-stats{grid-template-columns:repeat(3,1fr)}}@media(max-width:650px){.task-board,.housekeeping-stats{grid-template-columns:1fr}}
+
+/* RC6 Milestone 3 — Enterprise Audit Log */
+.audit-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 180px 150px 150px auto;gap:10px;margin:14px 0;align-items:center}.audit-list,.audit-recent-list{display:grid;gap:10px}.audit-record{border:1px solid var(--line,#d9ddd8);border-radius:12px;padding:13px;background:var(--surface,#fff)}.audit-record.compact{padding:10px}.audit-record-head{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.audit-record-head time{margin-left:auto;color:var(--muted,#667085);font-size:.82rem}.audit-record p{margin:8px 0 5px;line-height:1.55;word-break:break-word}.audit-record small{color:var(--muted,#667085)}.audit-dashboard-summary{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}.audit-dashboard-summary span{padding:8px 12px;border-radius:999px;background:var(--soft,#f4f6f4)}.audit-dashboard-summary strong{font-size:1.05rem}.audit-stats article strong{font-variant-numeric:tabular-nums}@media(max-width:860px){.audit-toolbar{grid-template-columns:1fr 1fr}.audit-toolbar input[type=search]{grid-column:1/-1}.audit-record-head time{width:100%;margin-left:0}.audit-dashboard-summary{display:grid;grid-template-columns:1fr 1fr}.audit-record{padding:12px}}@media(max-width:520px){.audit-toolbar{grid-template-columns:1fr}.audit-toolbar input[type=search]{grid-column:auto}.audit-dashboard-summary{grid-template-columns:1fr}}
+
+
+/* RC6 M4 Notification Center */
+.nav-notification-badge{margin-left:auto;min-width:1.45rem;height:1.45rem;padding:0 .35rem;border-radius:999px;background:#b42318;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700}.notification-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) repeat(3,minmax(130px,auto)) auto;gap:.75rem;margin:1rem 0}.notification-list{display:grid;gap:.85rem}.notification-list.compact{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.notification-card{border:1px solid var(--border,#d9ddd8);border-left:5px solid #7b8b82;border-radius:14px;padding:1rem;background:#fff}.notification-card.priority-critical{border-left-color:#b42318}.notification-card.priority-high{border-left-color:#b7791f}.notification-card.priority-normal{border-left-color:#2f6b4f}.notification-card.status-completed,.notification-card.status-ignored{opacity:.68}.notification-card-head,.notification-meta,.notification-actions{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}.notification-card-head{justify-content:space-between}.notification-card h4{margin:.65rem 0 .3rem}.notification-card p{margin:0 0 .55rem}.notification-meta{font-size:.82rem;color:#66736b}.notification-actions{margin-top:.8rem}.notification-card.compact .notification-actions{display:none}.notification-card.compact{padding:.8rem}.notification-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;margin-bottom:1rem}.notification-summary-grid button{display:flex;justify-content:space-between;align-items:center;padding:1rem;border:1px solid var(--border,#d9ddd8);border-radius:12px;background:#fff}.notification-summary-grid strong{font-size:1.35rem}.notification-head-actions{display:flex;gap:.5rem}.notification-stats{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:800px){.notification-toolbar{grid-template-columns:1fr}.notification-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.notification-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* RC6 M4 Hotfix 1 UX */
+.template-common-variables{grid-column:1/-1;padding:0;background:#f1f6f3}.template-common-variables>summary{padding:12px}.template-common-variables[open]>.template-variable-buttons{padding:0 12px 12px}
+.notification-card{padding:0;overflow:hidden}.notification-card>summary{list-style:none;padding:1rem;cursor:pointer}.notification-card>summary::-webkit-details-marker{display:none}.notification-card-body{padding:0 1rem 1rem;border-top:1px solid var(--line)}.notification-card-body p{margin:.8rem 0}.notification-card[open] .management-expand-label{font-size:0}.notification-card[open] .management-expand-label::after{content:"收合";font-size:.82rem}
+.audit-stats .audit-kpi{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:#fff;border:0;border-radius:16px;padding:20px;box-shadow:var(--shadow);cursor:pointer}.audit-stats .audit-kpi:hover{transform:translateY(-1px)}.audit-stats .audit-kpi span{color:var(--muted)}.audit-stats .audit-kpi strong{font-size:28px;margin-top:12px}.load-more-audit{width:100%;margin-top:12px;padding:12px}
+.task-dialog-compact{width:min(860px,calc(100% - 24px));max-height:80vh}.task-dialog-compact form{padding:18px}.task-dialog-compact .form-grid{gap:12px}.task-dialog-compact textarea{min-height:72px}
+.service-management-card>summary{list-style:none;cursor:pointer}.service-management-card>summary::-webkit-details-marker{display:none}.service-management-card .service-card-footer{padding-top:12px}
+@media(max-width:760px){.task-dialog-compact{max-height:88dvh}.audit-stats .audit-kpi{padding:14px}}
+
+
+/* RC6 M4 Hotfix 2 — compact service, housekeeping and audit UX */
+.service-management-list{gap:8px}
+.service-management-card.compact-service-card{padding:0;border-radius:12px;box-shadow:none}
+.compact-service-card .service-card-main{padding:10px 12px;align-items:center;grid-template-columns:minmax(0,1fr) auto}
+.service-card-copy{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;align-items:center;min-width:0}
+.service-card-copy .service-order-link{padding:0;background:transparent;text-decoration:underline;font-weight:800;justify-self:start}
+.service-card-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.service-card-copy span{grid-column:1/-1;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.compact-service-card .service-card-footer{margin:0;padding:8px 12px;border-top:1px solid var(--line)}
+
+.task-board{display:block}
+.housekeeping-active-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.compact-housekeeping-card{padding:10px;margin-bottom:8px}
+.compact-housekeeping-card .housekeeping-meta.compact{grid-template-columns:1fr;gap:3px;margin-top:8px}
+.housekeeping-inline-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.housekeeping-inline-footer .task-actions{margin:0;flex-wrap:wrap;justify-content:flex-end}
+.housekeeping-completed{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+.housekeeping-completed-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+.housekeeping-completed-head h4{margin:0}.housekeeping-completed-head h4 span{display:inline-flex;min-width:26px;height:26px;align-items:center;justify-content:center;border-radius:999px;background:#eee9df;font-size:12px}
+.housekeeping-completed-head small{color:var(--muted)}
+.housekeeping-completed-list{display:grid;gap:6px}
+.housekeeping-completed-list article{display:grid;grid-template-columns:minmax(150px,1.4fr) minmax(120px,1fr) 105px minmax(110px,1fr) 125px auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:12px}
+.housekeeping-completed-list article span{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.housekeeping-completed-list article button{min-height:28px;padding:4px 8px;font-size:12px}
+
+.audit-list{gap:6px}
+.audit-record{display:grid;grid-template-columns:auto minmax(220px,1.25fr) minmax(240px,1.5fr) minmax(110px,.7fr) auto;gap:10px;align-items:center;padding:9px 11px;border-radius:9px}
+.audit-record strong,.audit-record .audit-summary{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.audit-record .audit-summary{color:var(--muted);font-size:12px}
+.audit-record small{color:var(--muted);white-space:nowrap}
+.audit-record time{color:var(--muted);font-size:12px;white-space:nowrap}
+
+@media(max-width:1000px){
+ .housekeeping-active-board{grid-template-columns:1fr 1fr}
+ .housekeeping-completed-list article{grid-template-columns:1.2fr 1fr 100px 1fr auto}
+ .housekeeping-completed-list article span:nth-of-type(4){display:none}
+ .audit-record{grid-template-columns:auto minmax(180px,1fr) minmax(180px,1fr) auto}
+ .audit-record small{display:none}
+}
+@media(max-width:700px){
+ .service-card-copy{grid-template-columns:1fr}.service-card-copy span{grid-column:auto}.service-card-badges{justify-content:flex-start}
+ .housekeeping-active-board{grid-template-columns:1fr}
+ .housekeeping-completed-head{align-items:flex-start;flex-direction:column}
+ .housekeeping-completed-list article{grid-template-columns:1fr auto;gap:4px 8px}
+ .housekeeping-completed-list article span{grid-column:1/-1}.housekeeping-completed-list article button{grid-column:2;grid-row:1}
+ .audit-record{grid-template-columns:auto minmax(0,1fr) auto;gap:6px 8px}
+ .audit-record .audit-summary{grid-column:1/-1;white-space:normal}.audit-record time{grid-column:1/-1}.audit-record small{display:block;grid-column:1/-1}
+}
+
+
+/* RC6 M4 Hotfix 4 — Compact full-height desktop navigation and notifications */
+@media (min-width:901px){
+  .sidebar{padding:12px 10px 10px;}
+  .sidebar-brand{padding:4px 10px 10px;}
+  .sidebar-brand strong{font-size:20px;line-height:1.2;}
+  .sidebar-brand span{font-size:11px;}
+  .sidebar nav{gap:1px;margin-top:7px;overflow-y:auto;scrollbar-width:thin;}
+  .sidebar nav button{padding:7px 10px;min-height:36px;line-height:1.2;border-radius:10px;}
+  .sidebar nav button[data-icon]{gap:9px;}
+  .sidebar nav .ui-icon{width:17px;height:17px;}
+  .version{font-size:10px;line-height:1.35;padding:7px 10px 6px;}
+  .logout{padding:8px 10px;min-height:38px;}
+}
+@media (min-width:901px) and (min-height:780px){
+  .sidebar nav{overflow-y:hidden;}
+}
+.notification-list{gap:.55rem;}
+.notification-card{border-radius:11px;}
+.notification-card>summary{padding:.62rem .8rem;}
+.notification-card-head{gap:.38rem;}
+.notification-card h4{margin:.32rem 0 .16rem;font-size:1rem;line-height:1.25;}
+.notification-meta{font-size:.76rem;line-height:1.2;gap:.38rem;}
+.notification-card-body{padding:0 .8rem .7rem;}
+.notification-card-body p{margin:.58rem 0;font-size:.9rem;line-height:1.35;}
+.notification-actions{margin-top:.55rem;gap:.38rem;}
+.notification-actions button{padding:.45rem .65rem;}
+.notification-card .badge{padding:.26rem .5rem;font-size:.7rem;}
+.notification-card time{font-size:.78rem;}
+.notification-stats article{padding:14px 18px;}
+.notification-stats strong{font-size:1.55rem;}
+@media(max-width:650px){
+  .notification-card>summary{padding:.58rem .68rem;}
+  .notification-card h4{font-size:.96rem;}
+}
