@@ -651,6 +651,14 @@ html:not([data-auth-role="owner"]):not([data-auth-role="manager"]) [data-bulk-ro
  .housekeeping-accordion[open] .housekeeping-meta.compact{grid-template-columns:1fr 1fr}.housekeeping-timeline-compact{flex-wrap:wrap}.housekeeping-timeline-compact small{width:100%;margin-left:14px}.housekeeping-accordion[open] .task-actions button{min-height:40px}
 }
 @media(max-width:430px){.cloud-status-trigger span:nth-child(3){display:none}.cloud-status-trigger{max-width:112px}.housekeeping-accordion[open] .housekeeping-meta.compact{grid-template-columns:1fr}.housekeeping-accordion[open] .housekeeping-meta.compact span:last-child{grid-column:auto}}
+@media(max-width:650px){
+ .order-mobile-card .workflow-action{grid-column:1/-1;min-height:48px;font-weight:850}
+ .checkin-card .checklist .check-item:last-child{grid-column:1/-1;min-height:50px;align-items:center;background:#edf6f0;border-color:#b9d9c5;font-weight:850}
+ .checkin-card .checklist .check-item:last-child input{width:20px;height:20px;margin-top:0;accent-color:#277548}
+ .checkin-card-actions button{min-height:48px}
+ .order-auto-state{padding:11px 12px;gap:6px}
+ .order-auto-state>span{display:flex;justify-content:space-between;gap:10px}
+}
 .dashboard-overdue-receivable{
   border:2px solid #c7352f;
   border-radius:14px;

@@ -59,6 +59,7 @@ const realtimeSource = fs.readFileSync(path.resolve(__dirname, "../../assets/rea
 const migrationSource = fs.readFileSync(path.resolve(__dirname, "../../assets/schema-v12-cloud-migration.js"), "utf8");
 const repositorySource = fs.readFileSync(path.resolve(__dirname, "../../assets/data-repository.js"), "utf8");
 const indexSource = fs.readFileSync(path.resolve(__dirname, "../../index.html"), "utf8");
+const styleSource = fs.readFileSync(path.resolve(__dirname, "../../assets/style.css"), "utf8");
 if (!realtimeSource.includes('if(e.code==="REVISION_CONFLICT"&&navigator.onLine)')) {
   throw new Error("realtime revision conflict recovery is missing");
 }
@@ -248,6 +249,12 @@ if (!appSource.includes('transitionLifecycle(o,"已入住","入住管理")')) {
 }
 if (!appSource.includes('o.checklist["完成入住"]=true')) {
   throw new Error("successful check-in does not automatically complete the checklist");
+}
+if (!styleSource.includes(".order-mobile-card .workflow-action{grid-column:1/-1")) {
+  throw new Error("mobile lifecycle action is not presented as a primary full-width action");
+}
+if (!styleSource.includes(".checkin-card .checklist .check-item:last-child{grid-column:1/-1")) {
+  throw new Error("mobile check-in completion control is not emphasized");
 }
 
 console.log("DATA_CONSISTENCY_TESTS=PASS");
