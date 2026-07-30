@@ -99,6 +99,33 @@
 - 手機入住管理將「完成入住」獨立整列並加大觸控區，勾選後連動訂單生命週期。
 - 手機編輯訂單的系統自動狀態摘要改為單欄排列，提升窄螢幕可讀性。
 
+## HF23
+
+- 修正住宿服務儲存後短暫顯示、隨後被舊雲端快照取消的問題。
+- 住宿服務儲存後立即嘗試完成 Realtime push，並在同步確認前持續保留 pending service。
+- 雲端暫時缺少對應訂單時不再丟棄 pending service，避免下一次 hydration 覆蓋本機新服務。
+- 系統設定新增 pending write 保護，舊版 property settings 不得覆蓋剛儲存的新設定。
+- 基本設定、登記與保險、通知設定改為直接提交 Settings Cloud Repository，失敗時保留本機內容等待重試。
+
+## HF24
+
+- 修正設定 HTTPS 網址後，官方 LINE 按鈕仍透過 `line://` 啟動 LINE App 的問題。
+- 移除桌機優先啟動 LINE 應用程式及硬編碼 LINE Manager fallback。
+- 手機與桌機所有官方 LINE 按鈕統一直接開啟「官方 LINE 網頁網址」設定值。
+- 若瀏覽器阻擋新分頁，顯示明確提示，不再靜默改開其他網址。
+
+## HF25
+
+- Android 手機的官方 LINE 按鈕改為優先開啟 LINE Official Account App；未安裝時導向官方 Google Play 頁面。
+- iPhone 改為開啟 LINE Official Account Manager 管理網頁，避免進入一般 LINE 加好友頁面。
+- 桌機維持開啟系統設定的官方 LINE 管理網址。
+
+## HF26
+
+- 官方 LINE 管理網址預設改為眉原六民宿的 `chat.line.biz` 聊天管理清單。
+- iPhone 與桌機可直接開啟聊天清單；未登入時由 LINE Business 顯示登入驗證。
+- Android 維持優先開啟 LINE Official Account App，不導向一般 LINE 加好友頁面。
+
 ## QA
 
 - 所有 JavaScript 檔案執行語法檢查。

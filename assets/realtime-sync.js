@@ -26,7 +26,8 @@
     if(!Array.isArray(pending)||!pending.length)return local;
     const orders=new Map((local.orders||[]).map(order=>[String(order.id),order])),remaining=[];
     pending.filter(item=>Date.now()-new Date(item.savedAt||0).getTime()<86400000).forEach(item=>{
-      const order=orders.get(String(item.orderId)),saved=item.service;if(!order||!saved?.id)return;
+      const order=orders.get(String(item.orderId)),saved=item.service;if(!saved?.id)return;
+      if(!order){remaining.push(item);return;}
       order.services=Array.isArray(order.services)?order.services:[];
       const index=order.services.findIndex(service=>String(service.id)===String(saved.id)),cloud=index>=0?order.services[index]:null;
       const confirmed=cloud&&Number(cloud.revision||1)>=Number(saved.revision||1)&&JSON.stringify({...cloud,createdAt:"",updatedAt:""})===JSON.stringify({...saved,createdAt:"",updatedAt:""});
@@ -37,7 +38,13 @@
     localStorage.setItem("my6_pending_service_writes",JSON.stringify(remaining));
     return local;
   }
-  async function pull(){if(!enabled()||state.applyingRemote||state.pushing)return;state.applyingRemote=true;try{const local=preservePendingServices(toLocal(await fetchAll()));const fingerprint=JSON.stringify(local);if(fingerprint===state.lastPullFingerprint){state.lastSyncAt=state.lastSyncAt||new Date().toISOString();setStatus("connected");return {skipped:true};}setStatus("syncing");state.lastPullFingerprint=fingerprint;const keys={orders:"my6_orders",payments:"my6_payments",tasks:"my6_tasks",roomLocks:"my6_room_locks",guestProfiles:"my6_guest_profiles",templates:"my6_templates",settings:"my6_settings",auditLogs:"my6_audit_logs"};Object.entries(keys).forEach(([n,k])=>localStorage.setItem(k,JSON.stringify(local[n])));state.lastSyncAt=new Date().toISOString();setStatus("connected");emit("meiyuan6:cloud-data-applied",{at:state.lastSyncAt,source:"realtime"})}catch(e){setStatus(navigator.onLine?"error":"offline",e.message)}finally{state.applyingRemote=false}}
+  function preservePendingSettings(local){
+    let pending=null;try{pending=JSON.parse(localStorage.getItem("my6_pending_settings_write")||"null")}catch{}
+    if(!pending?.settings||Date.now()-new Date(pending.savedAt||0).getTime()>=86400000){localStorage.removeItem("my6_pending_settings_write");return local;}
+    if(JSON.stringify(local.settings||{})===JSON.stringify(pending.settings)){localStorage.removeItem("my6_pending_settings_write");return local;}
+    local.settings=pending.settings;return local;
+  }
+  async function pull(){if(!enabled()||state.applyingRemote||state.pushing)return;state.applyingRemote=true;try{const local=preservePendingSettings(preservePendingServices(toLocal(await fetchAll())));const fingerprint=JSON.stringify(local);if(fingerprint===state.lastPullFingerprint){state.lastSyncAt=state.lastSyncAt||new Date().toISOString();setStatus("connected");return {skipped:true};}setStatus("syncing");state.lastPullFingerprint=fingerprint;const keys={orders:"my6_orders",payments:"my6_payments",tasks:"my6_tasks",roomLocks:"my6_room_locks",guestProfiles:"my6_guest_profiles",templates:"my6_templates",settings:"my6_settings",auditLogs:"my6_audit_logs"};Object.entries(keys).forEach(([n,k])=>localStorage.setItem(k,JSON.stringify(local[n])));state.lastSyncAt=new Date().toISOString();setStatus("connected");emit("meiyuan6:cloud-data-applied",{at:state.lastSyncAt,source:"realtime"})}catch(e){setStatus(navigator.onLine?"error":"offline",e.message)}finally{state.applyingRemote=false}}
   function schedulePull(){if(Date.now()<state.ignoreRemoteUntil||state.pushing||state.applyingRemote)return;clearTimeout(state.pullTimer);state.pending=1;state.pullTimer=setTimeout(()=>{state.pending=0;pull()},Math.max(1800,Number(C.realtimeDebounceMs||800)));}
   const BUSINESS_FIELDS={
     orders:["guest_name","phone","checkin_date","checkout_date","guest_count","package_type","order_type","status","total_amount","opening_paid","source","note","backfill_reason"],

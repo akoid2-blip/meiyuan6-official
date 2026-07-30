@@ -256,5 +256,32 @@ if (!styleSource.includes(".order-mobile-card .workflow-action{grid-column:1/-1"
 if (!styleSource.includes(".checkin-card .checklist .check-item:last-child{grid-column:1/-1")) {
   throw new Error("mobile check-in completion control is not emphasized");
 }
+if (!appSource.includes("function trackPendingSettingsWrite()")) {
+  throw new Error("settings changes are not protected before background sync");
+}
+if (!realtimeSource.includes("function preservePendingSettings(local)")) {
+  throw new Error("cloud hydration can overwrite pending settings changes");
+}
+if (!realtimeSource.includes("if(!order){remaining.push(item);return;}")) {
+  throw new Error("pending service changes are discarded when a cloud order is temporarily absent");
+}
+if (!appSource.includes("if(navigator.onLine&&window.Meiyuan6Realtime?.push)await window.Meiyuan6Realtime.push()")) {
+  throw new Error("service saves do not wait for an immediate cloud confirmation attempt");
+}
+if (!appSource.includes('await cloudRepository.write("settings",settings)')) {
+  throw new Error("settings saves do not commit directly to the cloud repository");
+}
+if (!appSource.includes('window.open(customerLineUrl,"_blank","noopener,noreferrer")')) {
+  throw new Error("official LINE actions do not open the configured web URL");
+}
+if (!appSource.includes("package=com.linecorp.lineoa") || !appSource.includes("chat\\.line\\.biz")) {
+  throw new Error("mobile official LINE actions do not target the Official Account management app or website");
+}
+if (!appSource.includes('OFFICIAL_LINE_CHAT_URL="https://chat.line.biz/Ue28fc4caf7d40782abdf10059e3dabc0"')) {
+  throw new Error("desktop and iPhone official LINE actions do not target the configured chat manager");
+}
+if (appSource.includes('protocolFrame.src="line://"') || appSource.includes('LINE_MANAGER_LOGIN_URL') || appSource.includes("https://line.me/R/ti/p/")) {
+  throw new Error("official LINE actions can still launch the LINE app or ignore the configured URL");
+}
 
 console.log("DATA_CONSISTENCY_TESTS=PASS");

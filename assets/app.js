@@ -147,8 +147,9 @@ const TEMPLATE_COMMON_VARIABLES={
 };
 const TEMPLATE_MISSING_VALUE="（尚未提供）";
 
+const OFFICIAL_LINE_CHAT_URL="https://chat.line.biz/Ue28fc4caf7d40782abdf10059e3dabc0";
 const defaultSettings={
- propertyName:"眉原六民宿", lineUrl:"https://lin.ee/933tuhU", fullCapacity:"16～27 人", smallCapacity:"8～15 人",
+ propertyName:"眉原六民宿", lineUrl:OFFICIAL_LINE_CHAT_URL, fullCapacity:"16～27 人", smallCapacity:"8～15 人",
  checkinTime:"15:00", checkoutTime:"11:00", hourlyFee:1500, petFee:500,
  registrationDate:"中華民國115年3月25日", registrationDocNo:"府官產自第1150061145號",
  registrationLicense:"南投縣民宿1311", insuranceCompany:"新光產物保險", insurancePolicy:"131915AHP0000257",
@@ -453,6 +454,11 @@ function trackPendingServiceWrites(){
  }));
  localStorage.setItem("my6_pending_service_writes",JSON.stringify([...byKey.values()].filter(item=>Date.now()-new Date(item.savedAt||0).getTime()<86400000)));
 }
+function trackPendingSettingsWrite(){
+ const previous=safeJSON("my6_settings",{});
+ if(JSON.stringify(previous)===JSON.stringify(settings))return;
+ localStorage.setItem("my6_pending_settings_write",JSON.stringify({settings:structuredClone(settings),savedAt:new Date().toISOString()}));
+}
 let calDate=new Date();
 reconcileOpeningPaid();
 const autoVerifiedPaymentsOnLoad=autoVerifyAllSettledPayments();
@@ -490,6 +496,7 @@ function persist(options={}){
  tasks=dedupeHousekeepingTasks(tasks.map(normalizeTask));
  recordAuditChanges();
  trackPendingServiceWrites();
+ trackPendingSettingsWrite();
  syncGuestProfilesFromOrders();
  localStorage.setItem("my6_schema_version",String(STORAGE_SCHEMA_VERSION));
  localStorage.setItem("my6_orders",JSON.stringify(orders));
@@ -1191,48 +1198,27 @@ window.checkoutOrder=id=>{
  if(!result.ok)return toast(result.message);
  persist();renderAll();navigate("housekeeping");toast("退房完成，房務任務已建立");
 };
-const LINE_MANAGER_LOGIN_URL="https://tw.linebiz.com/login/";
 function openOfficialLine(){
- const customerLineUrl=(settings.lineUrl||"https://lin.ee/933tuhU").trim();
+ const customerLineUrl=(settings.lineUrl||OFFICIAL_LINE_CHAT_URL).trim();
  if(!/^https?:\/\//i.test(customerLineUrl)){toast("LINE 網址設定不正確");return;}
- const ua=navigator.userAgent||"";
- const isPhoneOrTablet=/Android|iPhone|iPad|iPod/i.test(ua);
- // iPadOS 13+ may identify Safari as Macintosh when "Request Desktop Website" is enabled.
- const isIPadOS=/Macintosh/i.test(ua) && navigator.maxTouchPoints>1;
- if(isPhoneOrTablet || isIPadOS){
-   // Phone/iPad: always use the homestay customer LINE link, never the LINE OA manager site.
-   window.location.assign(customerLineUrl);
-   return;
+ const userAgent=navigator.userAgent||"";
+ const isAndroid=/Android/i.test(userAgent);
+ const isIOS=/iPhone|iPad|iPod/i.test(userAgent);
+ if(isAndroid){
+  const playStoreUrl="https://play.google.com/store/apps/details?id=com.linecorp.lineoa";
+  window.location.href=`intent:#Intent;package=com.linecorp.lineoa;S.browser_fallback_url=${encodeURIComponent(playStoreUrl)};end`;
+ return;
  }
-
- // Desktop: try the installed LINE client first. If the browser does not
- // hand off to the app, open LINE Official Account Manager's stable login page.
- const fallbackWindow=window.open("about:blank","_blank");
- if(fallbackWindow){
-   try{fallbackWindow.opener=null;fallbackWindow.document.title="正在開啟 LINE 官方帳號管理後台…";}catch(_error){}
+ if(isIOS){
+  const managerUrl=/^(https?:\/\/)(tw\.linebiz\.com|manager\.line\.biz|chat\.line\.biz)(\/|$)/i.test(customerLineUrl)
+   ?customerLineUrl
+   :OFFICIAL_LINE_CHAT_URL;
+  const opened=window.open(managerUrl,"_blank","noopener,noreferrer");
+  if(!opened)toast("瀏覽器已阻擋新分頁，請允許彈出視窗");
+  return;
  }
- let appOpened=false;
- const markAppOpened=()=>{if(document.hidden)appOpened=true;};
- document.addEventListener("visibilitychange",markAppOpened,{once:true});
- const protocolFrame=document.createElement("iframe");
- protocolFrame.hidden=true;
- protocolFrame.setAttribute("aria-hidden","true");
- protocolFrame.src="line://";
- document.body.appendChild(protocolFrame);
-
- window.setTimeout(()=>{
-   protocolFrame.remove();
-   document.removeEventListener("visibilitychange",markAppOpened);
-   if(appOpened){
-     if(fallbackWindow&&!fallbackWindow.closed)fallbackWindow.close();
-     return;
-   }
-   if(fallbackWindow&&!fallbackWindow.closed){
-     fallbackWindow.location.replace(LINE_MANAGER_LOGIN_URL);
-   }else{
-     window.open(LINE_MANAGER_LOGIN_URL,"_blank","noopener,noreferrer");
-   }
- },1200);
+ const opened=window.open(customerLineUrl,"_blank","noopener,noreferrer");
+ if(!opened)toast("瀏覽器已阻擋新分頁，請允許彈出視窗");
 }
 window.copyLineMessage=async id=>{
  const o=orders.find(x=>x.id===id); const msg=`眉原六民宿訂房確認\n旅客：${o.name}\n入住：${o.checkin}\n退房：${o.checkout}\n方案：${o.package}\n房間：${orderRooms(o).map(roomName).join("、")}\n人數：${o.count}\nWi-Fi：deco_be25_Guest／liou6868\n${o.note?"備註："+o.note:""}`;
@@ -1607,14 +1593,23 @@ function syncServicesFromLegacyFields(order){
  upsert("接送／叫車",{id:"legacy-taxi",type:"接送／叫車",status:order.taxi?.done?"已完成":"待安排",fee:Number(order.taxi?.fare||0),paymentStatus:Number(order.taxi?.fare||0)>0?"未收款":"免費",date:order.taxi?.date,time:order.taxi?.time,note:"",details:{direction:order.taxi?.date===order.checkin?"checkin":order.taxi?.date===order.checkout?"checkout":"custom",vehicleType:order.taxi?.type||"",guests:Number(order.taxi?.guests||1),pickup:order.taxi?.pickup||"",destination:order.taxi?.destination||""}},hasTaxiIntent);
 }
 
-$("#serviceForm")?.addEventListener("submit",e=>{
+$("#serviceForm")?.addEventListener("submit",async e=>{
  e.preventDefault();const order=selectedServiceOrder();if(!order)return toast("請選擇訂單");const id=$("#serviceId").value||uid("S"),existing=(order.services||[]).find(s=>s.id===id),type=$("#serviceType").value;
  const details={};
  if(type==="早餐代訂")Object.assign(details,{shop:$("#serviceBreakfastShop").value.trim(),qty:+$("#serviceBreakfastQty").value||1,days:+$("#serviceBreakfastDays").value||1});
  if(type==="接送／叫車")Object.assign(details,{direction:$("#serviceTaxiDirection").value,vehicleType:$("#serviceTaxiType").value==="其他"?$("#serviceTaxiTypeOther").value.trim():$("#serviceTaxiType").value,guests:+$("#serviceTaxiGuests").value||1,pickup:$("#serviceTaxiPickup").value.trim(),destination:$("#serviceTaxiDestination").value.trim()});
  if(["加床","寵物住宿","特殊需求"].includes(type))Object.assign(details,{quantity:+$("#serviceQuantity").value||1,unit:$("#serviceUnit").value.trim()});
  const service=normalizeService({id,type,status:$("#serviceStatus").value,fee:moneyNumber($("#serviceFee").value),paymentStatus:$("#servicePaymentStatus").value,date:$("#serviceDate").value,time:$("#serviceTime").value,note:$("#serviceNote").value.trim(),details,revision:existing?Math.max(1,Number(existing.revision||1))+1:1,createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()});
- order.services=order.services||[];const i=order.services.findIndex(s=>s.id===id);if(i>=0)order.services[i]=service;else order.services.push(service);syncLegacyFieldsFromServices(order);persist();$("#serviceDialog").close();renderAll();toast("住宿服務已儲存");
+ order.services=order.services||[];const i=order.services.findIndex(s=>s.id===id);if(i>=0)order.services[i]=service;else order.services.push(service);syncLegacyFieldsFromServices(order);persist();$("#serviceDialog").close();renderAll();
+ try{
+   if(navigator.onLine&&window.Meiyuan6Realtime?.push)await window.Meiyuan6Realtime.push();
+   const currentOrder=orders.find(item=>item.id===order.id);
+   if(!currentOrder?.services?.some(item=>item.id===service.id)){
+     if(currentOrder){currentOrder.services=currentOrder.services||[];currentOrder.services.push(service);syncLegacyFieldsFromServices(currentOrder);persist();}
+     throw new Error("背景同步尚未確認，已保留本機變更並等待重試");
+   }
+   toast(navigator.onLine?"住宿服務已儲存並同步":"住宿服務已儲存，連線後自動同步");
+ }catch(error){console.warn("[Service Save]",error);toast("住宿服務已保留，等待雲端同步確認");}
 });
 
 function paymentStatus(summary,total){
@@ -2055,7 +2050,19 @@ function renderNotifications(){notifications=buildNotifications();const q=String
 function renderNotificationDashboard(){notifications=buildNotifications();const active=notifications.filter(n=>!['completed','ignored'].includes(n.status));const groups=[['critical','緊急'],['high','重要'],['normal','一般'],['unread','未讀']];if($('#dashboardNotificationSummary'))$('#dashboardNotificationSummary').innerHTML=groups.map(([k,label])=>`<button data-notification-filter="${k}"><span>${label}</span><strong>${k==='unread'?active.filter(n=>n.status==='unread').length:active.filter(n=>n.priority===k).length}</strong></button>`).join('');if($('#dashboardRecentNotifications'))$('#dashboardRecentNotifications').innerHTML=active.slice(0,5).map(n=>notificationCardHtml(n,true)).join('')||'<div class="empty">目前沒有待處理通知。</div>';$$('[data-notification-filter]').forEach(b=>b.onclick=()=>{navigate('notifications');const v=b.dataset.notificationFilter;if(v==='unread')$('#notificationStatusFilter').value='unread';else $('#notificationPriorityFilter').value=v;renderNotifications();});}
 window.setNotificationStatus=(key,status)=>{const now=new Date().toISOString();notificationState[key]={...(notificationState[key]||{}),status,[status==='read'?'readAt':status==='completed'?'completedAt':status==='ignored'?'ignoredAt':'updatedAt']:now};auditLogs.push({id:uid('A'),time:now,operator:'系統／目前使用者',module:'通知',action:`通知${notificationLabel(status)}`,targetId:key,orderId:notifications.find(n=>n.key===key)?.orderId||'',room:notifications.find(n=>n.key===key)?.room||'',guest:'',summary:`通知狀態變更為${notificationLabel(status)}`,before:null,after:{status}});persist();renderAll();};
 window.openNotificationTarget=key=>{const n=notifications.find(x=>x.key===key);if(!n)return;window.setNotificationStatus(key,'read');navigate(n.targetPage||'notifications');if(n.targetPage==='payments'&&n.orderId){const q=$('#paymentSearch');if(q)q.value=n.orderId;renderPayments();}if(n.targetPage==='services'&&n.orderId){const q=$('#serviceSearch');if(q)q.value=n.orderId;renderServices();}};
-function saveNotificationSettings(){settings.notificationLargeRefundThreshold=Math.max(0,Number($('#settingLargeRefundThreshold').value)||0);settings.notificationHousekeepingOverdueMinutes=Math.max(0,Number($('#settingHousekeepingOverdueMinutes').value)||0);settings.notificationBreakfastReminderMinutes=Math.max(0,Number($('#settingBreakfastReminderMinutes').value)||0);settings.notificationTaxiReminderMinutes=Math.max(0,Number($('#settingTaxiReminderMinutes').value)||0);settings.notificationRetentionDays=Math.max(1,Number($('#settingNotificationRetentionDays').value)||60);settings.notificationAutoClearDays=Math.max(1,Number($('#settingNotificationAutoClearDays').value)||90);persist();renderAll();toast('通知設定已儲存');}
+async function commitSettings(message){
+ persist();renderAll();
+ try{
+   if(navigator.onLine&&orderCloudEnabled()){
+     const cloudRepository=window.Meiyuan6Repositories?.repositoryFactory?.get("cloud");
+     if(!cloudRepository)throw new Error("Settings Cloud Repository 尚未載入");
+     await cloudRepository.write("settings",settings);
+     localStorage.removeItem("my6_pending_settings_write");
+     toast(`${message}並同步`);
+   }else toast(`${message}，連線後自動同步`);
+ }catch(error){console.warn("[Settings Save]",error);toast(`${message}，等待雲端同步確認`);}
+}
+function saveNotificationSettings(){settings.notificationLargeRefundThreshold=Math.max(0,Number($('#settingLargeRefundThreshold').value)||0);settings.notificationHousekeepingOverdueMinutes=Math.max(0,Number($('#settingHousekeepingOverdueMinutes').value)||0);settings.notificationBreakfastReminderMinutes=Math.max(0,Number($('#settingBreakfastReminderMinutes').value)||0);settings.notificationTaxiReminderMinutes=Math.max(0,Number($('#settingTaxiReminderMinutes').value)||0);settings.notificationRetentionDays=Math.max(1,Number($('#settingNotificationRetentionDays').value)||60);settings.notificationAutoClearDays=Math.max(1,Number($('#settingNotificationAutoClearDays').value)||90);commitSettings('通知設定已儲存');}
 
 function auditTechnicalDetails(a){
  const action=normalizeAuditAction(a.action);
@@ -2141,10 +2148,10 @@ function renderSettings(){
  $("#shortcutEditor").innerHTML=shortcuts.map((s,i)=>`<div class="shortcut-edit-row" data-index="${i}"><label>圖示<input class="icon-input" value="${esc(s.icon)}"></label><label>名稱<input class="name-input" value="${esc(s.name)}"></label><label class="url">網址<input class="url-input" value="${esc(s.url)}"></label><button class="danger" type="button" onclick="window.removeShortcut(${i})">${uiIcon("trash")}刪除</button></div>`).join("");
 }
 function saveSettingsFields(){
- Object.assign(settings,{propertyName:$("#settingPropertyName").value.trim(),lineUrl:$("#settingLineUrl").value.trim(),fullCapacity:$("#settingFullCapacity").value.trim(),smallCapacity:$("#settingSmallCapacity").value.trim(),checkinTime:$("#settingCheckinTime").value,checkoutTime:$("#settingCheckoutTime").value,hourlyFee:+$("#settingHourlyFee").value,petFee:+$("#settingPetFee").value});persist();renderAll();toast("基本設定已儲存");
+ Object.assign(settings,{propertyName:$("#settingPropertyName").value.trim(),lineUrl:$("#settingLineUrl").value.trim(),fullCapacity:$("#settingFullCapacity").value.trim(),smallCapacity:$("#settingSmallCapacity").value.trim(),checkinTime:$("#settingCheckinTime").value,checkoutTime:$("#settingCheckoutTime").value,hourlyFee:+$("#settingHourlyFee").value,petFee:+$("#settingPetFee").value});commitSettings("基本設定已儲存");
 }
 function saveRegistration(){
- Object.assign(settings,{registrationDate:$("#registrationDate").value.trim(),registrationDocNo:$("#registrationDocNo").value.trim(),registrationLicense:$("#registrationLicense").value.trim(),insuranceCompany:$("#insuranceCompany").value.trim(),insurancePolicy:$("#insurancePolicy").value.trim(),insuranceStart:$("#insuranceStart").value,insuranceEnd:$("#insuranceEnd").value});persist();renderAll();toast("登記與保險資料已儲存");
+ Object.assign(settings,{registrationDate:$("#registrationDate").value.trim(),registrationDocNo:$("#registrationDocNo").value.trim(),registrationLicense:$("#registrationLicense").value.trim(),insuranceCompany:$("#insuranceCompany").value.trim(),insurancePolicy:$("#insurancePolicy").value.trim(),insuranceStart:$("#insuranceStart").value,insuranceEnd:$("#insuranceEnd").value});commitSettings("登記與保險資料已儲存");
 }
 window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
 function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}

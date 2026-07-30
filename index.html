@@ -342,7 +342,7 @@
         <div class="panel-head"><div><h3>基本設定</h3><p class="section-note">設定會儲存在目前瀏覽器。</p></div><span class="badge green">可操作</span></div>
         <div class="form-grid">
           <label>民宿名稱<input id="settingPropertyName"></label>
-          <label>手機官方 LINE 網址<input id="settingLineUrl"></label>
+          <label>官方 LINE 聊天管理網址<input id="settingLineUrl"><small class="field-hint">桌機與 iPhone 直接開啟聊天管理清單；Android 手機優先開啟 LINE Official Account App。</small></label>
           <label>全館包棟人數<input id="settingFullCapacity"></label>
           <label>小包棟人數<input id="settingSmallCapacity"></label>
           <label>入住時間<input id="settingCheckinTime" type="time"></label>
@@ -376,8 +376,8 @@
       <section class="panel settings-pane" data-pane="integrations">
         <div class="panel-head"><div><h3>外部整合</h3><p class="section-note">V1.1 先完成架構與人工快捷；API 自動化留待 V1.2。</p></div><span class="badge gray">擴充預留</span></div>
         <div class="integration-card">
-          <div><strong>眉原六官方 LINE</strong><p>手機開啟眉原六官方 LINE；桌機優先嘗試 LINE 應用程式，未成功則進入 LINE 官方帳號管理後台。</p></div>
-          <div class="integration-actions"><button id="openOfficialLine" class="official-line-button" title="聯絡眉原六官方 LINE">🟢 官方 LINE</button><span class="badge green">人工快捷已啟用</span></div>
+          <div><strong>眉原六官方 LINE</strong><p>Android 開啟 LINE Official Account App；iPhone 與桌機直接開啟眉原六民宿聊天管理清單，不會進入一般 LINE 加好友頁面。</p></div>
+          <div class="integration-actions"><button id="openOfficialLine" class="official-line-button" title="開啟官方 LINE 管理工具">🟢 官方 LINE 管理</button><span class="badge green">管理快捷已啟用</span></div>
         </div>
         <div class="integration-card disabled">
           <div><strong>LINE Messaging API</strong><p>入住前自動通知、Webhook、旅客身分綁定與訊息紀錄。</p></div>
