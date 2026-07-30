@@ -1,0 +1,29 @@
+{
+  "phase": "Enterprise V1.3 Phase 10 RC2-D",
+  "results": [
+    {
+      "name": "CloudStatus getStatus",
+      "status": "PASS"
+    },
+    {
+      "name": "Realtime getStatus",
+      "status": "PASS"
+    },
+    {
+      "name": "Auth ready event",
+      "status": "PASS"
+    },
+    {
+      "name": "Realtime auth retry",
+      "status": "PASS"
+    },
+    {
+      "name": "Cloud badge centralized",
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "pass": 5,
+    "fail": 0
+  }
+}

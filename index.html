@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#27463a">
-  <title>眉原六民宿｜Booking Admin Enterprise V1.2</title>
+  <title>眉原六民宿｜Booking Admin Enterprise V1.3 Phase 9 Cloud Data Layer</title>
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -14,11 +14,11 @@
   <form id="loginForm" class="login-card">
     <div class="brand-mark">眉原六</div>
     <h1>訂房後台管理系統</h1>
-    <p>Enterprise V1.2 · Build 2A · RC6 · Full Regression QA Hotfix 2</p>
+    <p>Enterprise V1.3 · Phase 7 · Cloud RC1 Integration</p>
     <label>管理帳號<input id="loginUser" autocomplete="username" value="admin"></label>
     <label>密碼<input id="loginPass" type="password" autocomplete="current-password" value="123456"></label>
     <button class="primary full" type="submit">登入系統</button>
-    <small>本機正式營運版｜測試帳號：admin／123456</small>
+    <small>Cloud RC1｜未設定 Supabase 時使用 Local Safe Mode</small>
   </form>
 </section>
 
@@ -40,14 +40,15 @@
       <button data-icon="chart" data-page="reports">營運報表</button>
       <button data-icon="settings" data-page="settings">系統設定</button>
     </nav>
-    <div class="version">Enterprise V1.2<br>Build 2A · RC6 · Full Regression QA Hotfix 2</div>
+    <div class="version">Enterprise V1.3<br>Phase 7 · Cloud RC1 Integration</div>
     <button id="logoutBtn" class="logout" data-icon="logout">登出</button>
   </aside>
 
   <main class="main">
     <header class="topbar">
       <div><h2 id="pageTitle">首頁總覽</h2><p id="todayText"></p></div>
-      <div class="topbar-actions">
+      <div class="topbar-actions"><span id="authUserBadge" class="auth-user-badge" hidden></span>
+        <button id="cloudStatusTrigger" class="cloud-status-trigger" type="button" aria-expanded="false" aria-controls="cloudStatusPopover"><span class="cloud-status-dot" aria-hidden="true"></span><span id="cloudStatusTriggerLabel">雲端狀態</span><span aria-hidden="true">⌄</span></button>
         <button id="openSettingsBtn" data-icon="settings">系統設定</button>
         <button id="quickAddOrder" class="primary" data-icon="plus">新增訂單</button>
       </div>
@@ -109,6 +110,7 @@
       </section>
       <section class="panel">
         <div class="panel-head"><div><h3>最近操作紀錄</h3><p class="section-note">訂單、帳務、住宿服務與房務異動自動留存。</p></div><button data-page-jump="audit" data-icon="file-text">查看稽核中心</button></div>
+        <div id="dashboardHousekeepingKpi" class="audit-dashboard-summary housekeeping-dashboard-kpi"></div>
         <div id="dashboardAuditSummary" class="audit-dashboard-summary"></div>
         <div id="dashboardRecentAudit" class="audit-recent-list"></div>
       </section>
@@ -195,7 +197,19 @@
         <article><span>可入住</span><strong id="hkReady">0</strong></article>
       </div>
       <section class="panel">
-        <div class="panel-head"><div><h3>房務管理</h3><p class="section-note">房務工作由退房自動建立，依序完成待清掃、清掃中、待檢查與可入住；支援指派、暫停、優先等級及下次入住提醒。</p></div></div>
+        <div class="panel-head housekeeping-panel-head"><div><h3>房務管理</h3><p class="section-note">房務工作由退房自動建立，依序完成待清掃、清掃中、待檢查與可入住；支援批次開始、批次完成、指派、暫停、優先等級及下次入住提醒。</p></div></div>
+        <div id="housekeepingBulkToolbar" class="housekeeping-bulk-toolbar" aria-label="房務批次操作">
+          <div class="housekeeping-bulk-summary"><strong>批次房務</strong><span id="housekeepingBulkCount">0 筆可處理</span></div>
+          <div class="housekeeping-bulk-actions">
+            <button id="bulkStartHousekeeping" type="button" data-bulk-role="admin" data-icon="play">全部開始清掃</button>
+            <button id="bulkCompleteHousekeeping" type="button" class="primary" data-bulk-role="admin" data-icon="check">一鍵完成全部清潔</button>
+            <button id="bulkAssignHousekeeping" type="button" data-bulk-role="admin" data-icon="users">批次指派</button>
+            <button id="toggleAllHousekeepingCards" type="button">全部展開</button>
+            <button id="refreshHousekeeping" type="button" data-icon="refresh">重新整理</button>
+          </div>
+          <p id="housekeepingBulkHint" class="housekeeping-bulk-hint">批次完成會略過已暫停、維修／異常及已完成的房務工作。</p>
+        </div>
+        <div id="housekeepingAssignment" class="housekeeping-assignment"></div>
         <div id="roomStatusGrid" class="room-status-grid"></div>
         <div id="taskBoard" class="task-board"></div>
       </section>
@@ -397,6 +411,11 @@
 
       <section class="panel settings-pane" data-pane="data">
         <div class="panel-head"><div><h3>資料管理</h3><p class="section-note">匯出 JSON 可作為本機備份；匯入會覆蓋目前資料。</p></div></div>
+        <div class="panel-head"><div><h3>Schema v12 雲端遷移中心</h3><p class="section-note">先備份、驗證與預覽；未啟用 migrationEnabled 前，正式匯入會被安全阻擋。</p></div></div>
+        <div class="data-actions">
+          <button id="migrationBackup">建立遷移前備份</button><button id="migrationValidate">驗證 v12 資料</button><button id="migrationPreview">產生遷移預覽</button><button id="migrationImport" class="primary">受控匯入雲端</button>
+        </div><pre id="migrationResult" class="migration-result">尚未執行遷移檢查</pre>
+        <hr>
         <div class="data-actions">
           <button id="exportData" class="primary">匯出完整備份</button>
           <label class="file-button">匯入備份<input id="importData" type="file" accept=".json"></label>
@@ -413,8 +432,8 @@
   <input type="hidden" id="orderId">
   <div class="form-grid">
     <label>訂房類型<select id="orderType"><option value="normal">一般訂房</option><option value="backfill">補登訂房</option></select></label>
-    <label>營運流程<select id="workflowStatus"><option>建立</option><option>已確認</option><option>入住</option><option>退房</option><option>待清掃</option><option>清掃中</option><option>完成清掃</option><option>可入住</option></select></label>
-    <label>訂單生命週期<select id="lifecycleStatus"><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select></label>
+    <input type="hidden" id="workflowStatus" value="建立">
+    <label>訂單生命週期<select id="lifecycleStatus"><option>詢問中</option><option>待確認</option><option>已確認</option><option>已入住</option><option>已退房</option><option>已取消</option><option>No Show</option></select><small class="field-hint">記錄訂單由詢問到退房或取消的正式階段，變更會寫入歷程。</small></label>
     <label>狀態操作人員<input id="lifecycleOperator" placeholder="例如：管理員"></label>
     <fieldset id="backfillFields" class="wide backfill-fields hidden"><legend>補登紀錄</legend><div class="service-grid"><label>補登原因<input id="backfillReason" placeholder="必填，例如：電話訂房漏登"></label><label>補登時間<input id="backfillTime" readonly></label><label>補登人員（預留）<input id="backfillOperator" placeholder="可留空"></label></div></fieldset>
     <label>旅客姓名<input id="guestName" required></label>
@@ -422,10 +441,11 @@
     <label>入住日期<input id="checkinDate" type="date" required></label>
     <label>退房日期<input id="checkoutDate" type="date" required></label>
     <label>住宿方案<select id="packageType"><option>一般訂房</option><option>小包棟（8～15人）</option><option>全館包棟（16～27人）</option></select></label>
-    <label>入住人數<input id="guestCount" type="number" min="1" value="2"></label>
+    <label>入住人數<input id="guestCount" type="number" inputmode="numeric" min="1" step="1" value="2" aria-describedby="guestCountHint"><small id="guestCountHint" class="field-hint">可直接輸入，或使用欄位右側上下箭頭調整。</small></label>
     <fieldset id="roomSelectionFieldset" class="wide"><legend>住宿單位（可複選）</legend><div id="roomCheckboxes" class="checkbox-grid"></div></fieldset>
     <label>訂單來源<select id="orderSource"><option>官方 LINE</option><option>電話</option><option>Facebook</option><option>Google 商家</option><option>官網詢問</option><option>回訪旅客</option><option>親朋好友</option></select></label>
-    <label>訂單狀態<select id="orderStatus"><option>詢問中</option><option>暫時保留</option><option>已確認</option><option>已付訂金</option><option>已付全額</option><option>已入住</option><option>已退房</option><option>已取消</option></select></label>
+    <input type="hidden" id="orderStatus" value="詢問中">
+    <div class="order-auto-state" aria-live="polite"><strong>系統自動狀態</strong><span>作業進度：<b id="workflowStatusPreview">建立</b></span><span>付款狀態：<b id="paymentStatusPreview">未收款</b></span><small>作業進度由入住、退房及房務操作更新；付款狀態依實際收款自動計算。</small></div>
     <label>訂單總額<input id="orderTotal" type="text" inputmode="numeric" min="0" value="0"></label>
     <label>已收金額<input id="orderPaid" type="text" inputmode="numeric" min="0" value="0"></label>
     <fieldset class="wide service-fieldset">
@@ -501,7 +521,7 @@
 <form id="paymentForm">
   <div class="dialog-head"><h3>登記收款</h3><button type="button" class="icon-only" data-icon="x" data-close="paymentDialog" aria-label="關閉"></button></div>
   <div class="form-grid">
-    <label>日期<input id="paymentDate" type="date" required></label>
+    <label>收款日期<input id="paymentDate" type="date" required></label>
     <label>訂單<select id="paymentOrder" required></select></label>
     <label>類型<select id="paymentType"><option>訂金</option><option>尾款</option><option>全額</option><option>加收費用</option><option>退款</option></select></label>
     <label>方式<select id="paymentMethod"><option>現金</option><option>轉帳</option><option>信用卡</option><option>LINE Pay</option><option>其他</option></select></label>
@@ -596,6 +616,30 @@
 </form>
 </dialog>
 
+
+<div id="cloudStatusBackdrop" class="cloud-status-backdrop" hidden></div>
+<section id="cloudStatusPopover" class="cloud-status-popover" aria-label="雲端狀態" hidden>
+  <div class="cloud-status-head"><strong>雲端狀態</strong><button id="cloudStatusClose" type="button" class="icon-only" aria-label="關閉">×</button></div>
+  <div id="cloudStatusRows" class="cloud-status-rows"></div>
+  <div class="cloud-status-foot"><span id="cloudStatusLastSync">最後同步：尚未同步</span><button id="cloudStatusLog" type="button">查看同步日誌</button></div>
+</section>
+
+<script src="assets/cloud-runtime-config.js"></script>
+<script src="assets/cloud-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-singleton.js"></script>
+<script src="assets/data-repository.js"></script>
+<script src="assets/data-consistency-service.js"></script>
+<script src="assets/cloud-status-center.js"></script>
+<script src="assets/cloud-foundation.js"></script>
+<script src="assets/cloud-data-layer.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/order-cloud-integration.js"></script>
+<script src="assets/auth-role-guard.js"></script>
+<script src="assets/schema-v12-cloud-migration.js"></script>
+<script src="assets/offline-conflict-guard.js"></script>
+<script src="assets/realtime-sync.js"></script>
+<script src="assets/cloud-rc-integration.js"></script>
+<script src="assets/cloud-status-ui.js"></script>
 </body>
 </html>

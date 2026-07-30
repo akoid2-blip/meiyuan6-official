@@ -1,0 +1,50 @@
+{
+  "product": "Meiyuan6 Booking Admin",
+  "phase": "Enterprise V1.3 Phase 10 RC3-A — Housekeeping Automation",
+  "results": [
+    {
+      "name": "Stable checkout task id",
+      "status": "PASS"
+    },
+    {
+      "name": "Checkout automation",
+      "status": "PASS"
+    },
+    {
+      "name": "Housekeeping cloud API",
+      "status": "PASS"
+    },
+    {
+      "name": "Cloud task hydration",
+      "status": "PASS"
+    },
+    {
+      "name": "Cloud task write",
+      "status": "PASS"
+    },
+    {
+      "name": "Write fingerprint dedup",
+      "status": "PASS"
+    },
+    {
+      "name": "Auth-driven hydration",
+      "status": "PASS"
+    },
+    {
+      "name": "Workflow states",
+      "status": "PASS"
+    },
+    {
+      "name": "Room status sync",
+      "status": "PASS"
+    },
+    {
+      "name": "Realtime table enabled",
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "pass": 10,
+    "fail": 0
+  }
+}

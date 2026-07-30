@@ -1,0 +1,51 @@
+{
+  "product": "Meiyuan6 Booking Admin",
+  "version": "Enterprise V1.3 Phase 10 RC3-A HF3",
+  "results": [
+    {
+      "name": "Bulk toolbar HTML",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner Manager guard",
+      "status": "PASS"
+    },
+    {
+      "name": "Bulk start",
+      "status": "PASS"
+    },
+    {
+      "name": "Bulk complete",
+      "status": "PASS"
+    },
+    {
+      "name": "Bulk assign",
+      "status": "PASS"
+    },
+    {
+      "name": "Safety skip",
+      "status": "PASS"
+    },
+    {
+      "name": "Confirmation",
+      "status": "PASS"
+    },
+    {
+      "name": "Audit",
+      "status": "PASS"
+    },
+    {
+      "name": "Responsive CSS",
+      "status": "PASS"
+    },
+    {
+      "name": "Accordion preserved",
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "pass": 10,
+    "fail": 0
+  },
+  "note": "Static and syntax QA. Supabase live batch-write validation requires user environment."
+}

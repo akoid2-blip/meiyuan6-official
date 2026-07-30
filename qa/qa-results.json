@@ -1,0 +1,110 @@
+{
+  "product": "Meiyuan6 Booking Admin",
+  "phase": "Enterprise V1.3 Phase 9 Stage 2 RC2 — Enterprise QA Level 2",
+  "results": [
+    {
+      "name": "Required files",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "HTML local references",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Storage Schema v12",
+      "status": "FAIL",
+      "detail": "None"
+    },
+    {
+      "name": "SQL migration sequence",
+      "status": "PASS",
+      "detail": "001_cloud_foundation_schema.sql, 002_rls_baseline.sql, 003_revision_triggers.sql, 004_authentication_role_guard.sql, 005_schema_v12_migration_support.sql, 006_realtime_sync.sql, 007_offline_conflict_guard.sql, 008_order_cloud_integration.sql"
+    },
+    {
+      "name": "Sensitive secret scan",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Authentication guard",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Migration guard",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Offline conflict guard",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Realtime layer",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Single Supabase Client",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Repository Factory",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Cloud Status Center",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Effective mode derivation",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Local-safe fallback",
+      "status": "FAIL",
+      "detail": ""
+    },
+    {
+      "name": "Cloud disabled by default",
+      "status": "FAIL",
+      "detail": ""
+    },
+    {
+      "name": "Responsive coverage Mobile ≤650",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Responsive coverage Tablet 651–900",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Responsive coverage Desktop adaptation ≥901",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Index present",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "summary": {
+    "pass": 17,
+    "fail": 3
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "product": "Meiyuan6 Booking Admin",
+  "release": "Enterprise V1.3 Phase 10 RC3-A HF1",
+  "checks": [
+    {
+      "name": "deterministic_task_id",
+      "status": "PASS"
+    },
+    {
+      "name": "departed_reconciliation",
+      "status": "PASS"
+    },
+    {
+      "name": "hydrate_reconciliation",
+      "status": "PASS"
+    },
+    {
+      "name": "cloud_force_write_on_create",
+      "status": "PASS"
+    },
+    {
+      "name": "save_existing_departed_order",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate_guard",
+      "status": "PASS"
+    },
+    {
+      "name": "valid_time_to_timestamp",
+      "status": "PASS"
+    },
+    {
+      "name": "housekeeping_cloud_api",
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "pass": 8,
+    "fail": 0
+  }
+}

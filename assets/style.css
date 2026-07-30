@@ -549,3 +549,122 @@ th,td{padding:9px 8px;line-height:1.35;vertical-align:middle}tbody tr{height:54p
  .audit-technical pre{max-width:100%;overflow:auto}
  #exportAuditBtn,.audit-toolbar button{min-height:44px}
 }
+
+
+/* Enterprise V1.3 Phase 2 — Authentication & Role Guard */
+.auth-user-badge{display:inline-flex;align-items:center;min-height:36px;padding:7px 11px;border:1px solid var(--line,#d9ddd8);border-radius:999px;background:var(--surface,#fff);font-size:13px;font-weight:700;white-space:nowrap}.link-button{border:0;background:transparent;color:var(--primary,#285b49);text-decoration:underline}.link-button:hover{background:transparent}.login-card button:disabled{opacity:.6;cursor:wait}html[data-auth-role="housekeeping"] [data-sensitive="finance"],html[data-auth-role="viewer"] [data-action="edit"],html[data-can-delete="false"] [data-action="delete"]{display:none!important}@media(max-width:760px){.auth-user-badge{order:3;width:100%;justify-content:center}.topbar-actions{flex-wrap:wrap}}
+
+.migration-result{max-height:360px;overflow:auto;padding:14px;border:1px solid var(--border,#d8d8d8);border-radius:12px;background:#f7f7f4;white-space:pre-wrap;font-size:12px}.settings-pane hr{border:0;border-top:1px solid var(--border,#ddd);margin:22px 0}
+
+.cloud-sync-status{position:fixed;right:14px;bottom:14px;z-index:9998;padding:8px 12px;border-radius:999px;background:#26352f;color:#fff;font-size:12px;box-shadow:0 4px 16px #0003}.cloud-sync-status[data-status="syncing"],.cloud-sync-status[data-status="connecting"]{opacity:.8}.cloud-sync-status[data-status="error"],.cloud-sync-status[data-status="offline"]{background:#8a3d32}.cloud-sync-status[data-status="waiting-auth"]{background:#8a7341}.cloud-sync-status[data-status="disabled"]{background:#6b6b6b}@media(max-width:600px){.cloud-sync-status{right:8px;bottom:8px;font-size:11px;padding:6px 9px}}
+
+/* V1.3 Phase 5 sync states */
+.cloud-sync-status[data-status="offline"]::after{content:"・待同步"}
+.cloud-sync-status[data-status="error"]{font-weight:700}
+
+
+/* Enterprise V1.3 Phase 7 — Cloud RC1 Integration */
+.cloud-rc-integration-status{
+  position:fixed;right:18px;bottom:64px;z-index:1200;border:0;border-radius:999px;
+  padding:9px 13px;font:700 12px/1.2 system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.18);
+  cursor:pointer;background:#f3eee2;color:#27463a
+}
+.cloud-rc-integration-status[data-status="blocked"]{background:#7a2929;color:#fff}
+.cloud-rc-integration-status[data-status="staging-ready"]{background:#27463a;color:#fff}
+.cloud-rc-integration-status[data-status="local-safe"]{background:#d9bd78;color:#24352e}
+@media (max-width:650px){
+  .cloud-rc-integration-status{right:10px;bottom:58px;max-width:calc(100vw - 20px)}
+}
+
+
+/* Enterprise V1.3 Phase 9 — Stage 1 Cloud Data Layer */
+.cloud-data-layer-status{
+  position:fixed;right:18px;bottom:152px;z-index:1202;border:0;border-radius:999px;
+  padding:9px 13px;font:700 12px/1.2 system-ui,sans-serif;cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,.18);background:#d9bd78;color:#24352e
+}
+.cloud-data-layer-status[data-status="cloud-data-ready"]{background:#27463a;color:#fff}.cloud-data-layer-status[data-status="waiting-auth"],.cloud-data-layer-status[data-status="offline"]{background:#8a7341;color:#fff}
+.cloud-data-layer-status[data-status="local-error"],
+.cloud-data-layer-status[data-status="cloud-unavailable"],
+.cloud-data-layer-status[data-status="error"]{background:#7a2929;color:#fff}
+@media(max-width:650px){
+  .cloud-data-layer-status{right:10px;bottom:146px;max-width:calc(100vw - 20px)}
+}
+
+/* RC3-A HF2 — Housekeeping accordion cards */
+.housekeeping-accordion{overflow:hidden}
+.housekeeping-accordion>summary{list-style:none;cursor:pointer;user-select:none}
+.housekeeping-accordion>summary::-webkit-details-marker{display:none}
+.housekeeping-card-summary{align-items:flex-start;gap:10px}
+.housekeeping-summary-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.housekeeping-expand-label::after{content:"展開";font-weight:700;color:var(--green,#214f40);white-space:nowrap}
+.housekeeping-accordion[open] .housekeeping-expand-label::after{content:"收合"}
+.housekeeping-card-body{padding-top:2px}
+.housekeeping-accordion:not([open]){padding-bottom:10px}
+.housekeeping-accordion:not([open]) .task-card-head{margin-bottom:0}
+@media (max-width:720px){
+ .housekeeping-card-summary{align-items:center}
+ .housekeeping-summary-actions{gap:6px}
+ .housekeeping-expand-label::after{font-size:.88rem}
+}
+
+/* Phase 10 RC3-A HF3 — Bulk Housekeeping Manager */
+.housekeeping-bulk-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;border:1px solid var(--line);border-radius:13px;background:#f7f5f0}
+.housekeeping-bulk-summary{display:flex;align-items:center;gap:10px}.housekeeping-bulk-summary span{display:inline-flex;align-items:center;min-height:28px;padding:4px 9px;border-radius:999px;background:#eee8dc;color:var(--muted);font-size:12px;font-weight:800}
+.housekeeping-bulk-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.housekeeping-bulk-actions button{min-height:38px}
+.housekeeping-bulk-hint{flex-basis:100%;margin:0;color:var(--muted);font-size:12px}
+html:not([data-auth-role="owner"]):not([data-auth-role="manager"]) [data-bulk-role="admin"]{display:none!important}
+@media(max-width:760px){.housekeeping-bulk-toolbar{align-items:stretch}.housekeeping-bulk-summary{justify-content:space-between}.housekeeping-bulk-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}.housekeeping-bulk-actions button{width:100%;min-height:46px}}
+@media(max-width:430px){.housekeeping-bulk-actions{grid-template-columns:1fr}}
+
+/* Enterprise V1.3 Phase 10 RC3-B */
+.housekeeping-assignment{margin:14px 0;padding:14px;border:1px solid var(--line,#ddd);border-radius:16px;background:var(--panel,#fff)}
+.assignment-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}.assignment-head h4{margin:0}.assignment-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.assignment-grid article{display:grid;gap:5px;padding:12px;border-radius:14px;background:rgba(33,75,61,.06)}.assignment-staff-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.assignment-staff-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.assignment-staff-head .compact-button{padding:7px 10px;min-height:34px}.assignment-staff-head .compact-button.danger{color:#a12620;background:#fff0ef}
+.order-auto-state{display:grid;grid-template-columns:auto 1fr 1fr;align-items:center;gap:8px 18px;padding:12px 14px;border-radius:14px;background:rgba(33,75,61,.06)}.order-auto-state small{grid-column:1/-1;color:var(--muted)}.order-auto-state b{color:var(--green)}
+.housekeeping-timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;list-style:none;padding:0;margin:12px 0}.housekeeping-timeline li{position:relative;padding:8px 10px;border-left:3px solid #315c4e;background:rgba(49,92,78,.06);border-radius:8px;display:grid;gap:2px}.housekeeping-timeline time,.housekeeping-timeline span{font-size:.78rem;color:var(--muted,#666)}
+.housekeeping-meta select{max-width:130px}.housekeeping-dashboard-kpi{margin-bottom:10px}
+@media(max-width:720px){.assignment-head{align-items:flex-start;flex-direction:column}.assignment-grid{grid-template-columns:1fr}.housekeeping-timeline{grid-template-columns:1fr}.housekeeping-meta label{width:100%}.housekeeping-meta select{max-width:none;width:100%}.order-auto-state{grid-template-columns:1fr}.order-auto-state small{grid-column:auto}}
+/* RC3-B Cloud Status Center non-overlap stack */
+#cloudDataLayerStatus{bottom:154px!important}
+#orderCloudStatus{bottom:96px!important}
+#cloudSyncStatus{bottom:38px!important}
+@media(max-width:650px){#cloudDataLayerStatus{bottom:142px!important}#orderCloudStatus{bottom:88px!important}#cloudSyncStatus{bottom:34px!important}}
+
+
+/* Enterprise V1.3 Phase 10 RC3-B HF2 — Compact Cloud Status & Housekeeping */
+#cloudDataLayerStatus,#orderCloudStatus,#cloudSyncStatus,#cloudRcIntegrationStatus{display:none!important}
+.cloud-status-trigger{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:7px 11px;border:1px solid var(--line,#d9ddd8);border-radius:999px;background:#fff;color:#214f40;font-weight:800;white-space:nowrap}
+.cloud-status-trigger .cloud-status-dot,.cloud-row-dot{width:9px;height:9px;border-radius:50%;background:#2f7a54;box-shadow:0 0 0 3px rgba(47,122,84,.1);flex:0 0 auto}
+.cloud-status-trigger[data-tone="syncing"] .cloud-status-dot,.cloud-status-row[data-tone="syncing"] .cloud-row-dot{background:#c79838;animation:cloudPulse 1.1s infinite}
+.cloud-status-trigger[data-tone="error"] .cloud-status-dot,.cloud-status-row[data-tone="error"] .cloud-row-dot{background:#a43a35}
+.cloud-status-row[data-tone="muted"] .cloud-row-dot{background:#9aa39f;box-shadow:none}
+@keyframes cloudPulse{50%{opacity:.4}}
+.cloud-status-popover{position:fixed;top:72px;right:22px;z-index:10020;width:min(320px,calc(100vw - 24px));padding:12px;border:1px solid var(--line,#dedbd3);border-radius:16px;background:#fff;box-shadow:0 18px 50px rgba(25,43,36,.2)}
+.cloud-status-popover[hidden],.cloud-status-backdrop[hidden]{display:none!important}
+.cloud-status-head,.cloud-status-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}.cloud-status-head{padding:2px 2px 10px}.cloud-status-foot{padding:10px 2px 2px;border-top:1px solid var(--line,#eee);font-size:11px;color:var(--muted,#667)}
+.cloud-status-foot button{min-height:30px;padding:5px 8px;font-size:11px}.cloud-status-rows{display:grid;gap:4px}.cloud-status-row{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:10px;background:#faf9f6}.cloud-status-row span:last-child{display:grid;gap:2px}.cloud-status-row small{color:var(--muted,#667);font-size:11px}.cloud-status-backdrop{position:fixed;inset:0;z-index:10010;background:transparent}
+.housekeeping-timeline{display:none!important}.housekeeping-timeline-compact{display:flex;align-items:center;gap:7px;margin:8px 0;padding:7px 9px;border-left:3px solid #315c4e;border-radius:8px;background:rgba(49,92,78,.055);font-size:12px}.housekeeping-timeline-compact time{color:var(--muted,#666)}.housekeeping-timeline-compact small{margin-left:auto;color:var(--muted,#666)}.timeline-marker{width:7px;height:7px;border-radius:50%;background:#315c4e}
+.housekeeping-accordion[open] .housekeeping-card-body{padding-top:0}.housekeeping-accordion[open].compact-housekeeping-card{padding:9px 10px}.housekeeping-accordion[open] .housekeeping-meta.compact{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.8fr);gap:5px 10px;margin-top:6px}.housekeeping-accordion[open] .housekeeping-meta.compact span:last-child{grid-column:1/-1}.housekeeping-accordion[open] .housekeeping-inline-footer{margin-top:7px}.housekeeping-accordion[open] .task-actions{gap:6px}.housekeeping-accordion[open] .task-actions button{min-height:34px;padding:6px 9px}
+@media(max-width:760px){
+ .cloud-status-trigger{min-height:34px;padding:6px 9px;font-size:12px}.topbar-actions{gap:6px}.cloud-status-popover{top:auto;right:8px;bottom:8px;left:8px;width:auto;max-height:min(70vh,560px);overflow:auto;border-radius:18px 18px 14px 14px}.cloud-status-backdrop{background:rgba(20,28,25,.32);backdrop-filter:blur(1px)}
+ .cloud-status-popover::before{content:"";display:block;width:42px;height:4px;margin:0 auto 10px;border-radius:999px;background:#c7c7c2}.cloud-status-foot{position:sticky;bottom:-12px;background:#fff;padding-bottom:4px}
+ .housekeeping-accordion[open] .housekeeping-meta.compact{grid-template-columns:1fr 1fr}.housekeeping-timeline-compact{flex-wrap:wrap}.housekeeping-timeline-compact small{width:100%;margin-left:14px}.housekeeping-accordion[open] .task-actions button{min-height:40px}
+}
+@media(max-width:430px){.cloud-status-trigger span:nth-child(3){display:none}.cloud-status-trigger{max-width:112px}.housekeeping-accordion[open] .housekeeping-meta.compact{grid-template-columns:1fr}.housekeeping-accordion[open] .housekeeping-meta.compact span:last-child{grid-column:auto}}
+.dashboard-overdue-receivable{
+  border:2px solid #c7352f;
+  border-radius:14px;
+  padding:14px 16px;
+  background:#fff1f0;
+  box-shadow:0 8px 20px rgba(151,35,30,.12);
+}
+.dashboard-overdue-receivable strong{color:#9f211d}
+.dashboard-overdue-receivable small{color:#6f2926}
+.dashboard-alert-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.dashboard-alert-actions button{border:0;border-radius:999px;background:#9f211d;color:#fff;font-weight:800;padding:8px 12px;cursor:pointer}
+.order-summary-stay{display:flex!important;align-items:center;gap:7px;margin-top:6px;color:#315f50!important;font-size:.92rem}
+.order-summary-stay svg{width:17px;height:17px;flex:0 0 auto}
+.order-summary-stay b{font-weight:800;white-space:nowrap}
+@media(max-width:560px){
+  .order-summary-stay b{white-space:normal}
+}
