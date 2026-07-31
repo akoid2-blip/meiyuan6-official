@@ -25,7 +25,7 @@
     {
       "name": "SQL migration sequence",
       "status": "PASS",
-      "detail": "001_cloud_foundation_schema.sql, 002_rls_baseline.sql, 003_revision_triggers.sql, 004_authentication_role_guard.sql, 005_schema_v12_migration_support.sql, 006_realtime_sync.sql, 007_offline_conflict_guard.sql, 008_order_cloud_integration.sql"
+      "detail": "001_cloud_foundation_schema.sql, 002_rls_baseline.sql, 003_revision_triggers.sql, 004_authentication_role_guard.sql, 005_schema_v12_migration_support.sql, 006_realtime_sync.sql, 007_offline_conflict_guard.sql, 008_order_cloud_integration.sql, 009_p1_independent_cloud_datasets.sql"
     },
     {
       "name": "Sensitive secret scan",

@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#27463a">
   <title>眉原六民宿｜Booking Admin Enterprise V1.3 Phase 9 Cloud Data Layer</title>
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/hf31-order-history.css">
 </head>
 <body>
 <div id="toast" class="toast" role="status"></div>
@@ -149,6 +150,15 @@
           <thead><tr><th>訂單</th><th>旅客</th><th>住宿日期</th><th>方案／房間</th><th>服務</th><th>金額</th><th>狀態</th></tr></thead>
           <tbody id="orderTableBody"></tbody>
         </table></div>
+        <details id="orderHistory" class="order-history">
+          <summary><span>歷史訂單</span><span id="orderHistoryCount" class="order-history-count">0 筆</span></summary>
+          <p class="order-history-note">退房日早於今日的訂單收合於此，點擊後才顯示。</p>
+          <div id="orderHistoryMobileList" class="order-mobile-list unified-management-list"></div>
+          <div class="table-wrap order-desktop-table"><table>
+            <thead><tr><th>訂單</th><th>旅客</th><th>住宿日期</th><th>方案／房間</th><th>服務</th><th>金額</th><th>狀態</th></tr></thead>
+            <tbody id="orderHistoryTableBody"></tbody>
+          </table></div>
+        </details>
       </section>
     </section>
 
@@ -157,6 +167,11 @@
         <div class="panel-head management-panel-head"><div><h3>入住管理</h3><span id="checkinResultCount" class="management-result-count" aria-live="polite"></span></div><button data-page-jump="templates" data-icon="file-text">提取入住須知</button></div>
         <div class="management-search-bar" role="search"><input id="checkinSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、訂單編號、房間或入住日期"><button id="clearCheckinSearch" type="button">清除</button></div>
         <div id="checkinList" class="unified-management-list"></div>
+        <details id="checkinHistory" class="order-history">
+          <summary><span>歷史入住</span><span id="checkinHistoryCount" class="order-history-count">0 筆</span></summary>
+          <p class="order-history-note">退房日早於今日的入住資料收合於此，點擊後才顯示。</p>
+          <div id="checkinHistoryList" class="unified-management-list"></div>
+        </details>
       </section>
     </section>
 
@@ -169,6 +184,11 @@
           <thead><tr><th>訂單</th><th>旅客</th><th>原始訂單</th><th>加收費用</th><th>最新應收</th><th>預收訂金</th><th>已收淨額</th><th>已退款</th><th>剩餘應收</th><th>狀態</th></tr></thead>
           <tbody id="paymentTableBody"></tbody>
         </table></div>
+        <details id="paymentHistory" class="order-history">
+          <summary><span>歷史收款</span><span id="paymentHistoryCount" class="order-history-count">0 筆</span></summary>
+          <p class="order-history-note">退房日早於今日的訂單帳務收合於此，點擊後才顯示。</p>
+          <div id="paymentHistoryMobileList" class="payment-mobile-list unified-management-list"></div>
+        </details>
       </section>
     </section>
 
@@ -223,6 +243,7 @@
         </div>
         <div class="guest-search-bar" role="search">
           <label class="guest-search-field" for="guestSearch"><span class="sr-only">搜尋旅客資料</span><input id="guestSearch" type="search" autocomplete="off" placeholder="搜尋姓名、電話、LINE、E-mail、車牌或備註"></label>
+          <label class="guest-sort-field" for="guestSort"><span class="sr-only">旅客排序方式</span><select id="guestSort" aria-label="旅客排序方式"><option value="recent-desc">最近入住：新到舊</option><option value="recent-asc">最近入住：舊到新</option><option value="name-asc">姓名：正序</option><option value="name-desc">姓名：反序</option><option value="count-desc">入住次數：多到少</option><option value="count-asc">入住次數：少到多</option><option value="total-desc">累計消費：高到低</option><option value="total-asc">累計消費：低到高</option></select></label>
           <button id="clearGuestSearch" type="button" class="guest-search-clear">清除</button>
         </div>
         <div class="table-wrap guest-desktop-table"><table>
