@@ -9,6 +9,7 @@
     settings: "my6_settings",
     templates: "my6_templates",
     shortcuts: "my6_shortcuts",
+    checklists: "my6_checkin_checklists",
     roomLocks: "my6_room_locks",
     auditLogs: "my6_audit_logs",
     notificationState: "my6_notification_state"
@@ -16,7 +17,7 @@
 
   const CLOUD_DATASETS = Object.freeze([
     "orders", "payments", "tasks", "guestProfiles",
-    "settings", "templates", "roomLocks", "auditLogs"
+    "settings", "templates", "shortcuts", "checklists", "roomLocks", "auditLogs"
   ]);
 
   const TABLES = Object.freeze({
@@ -26,6 +27,8 @@
     guestProfiles: "guest_profiles",
     settings: "property_settings",
     templates: "templates",
+    shortcuts: "shortcuts",
+    checklists: "checkin_checklists",
     roomLocks: "room_locks",
     auditLogs: "audit_logs"
   });
@@ -78,6 +81,28 @@
     async remove(name) {
       this.validateName(name);
       this.storage.removeItem(STORAGE_KEYS[name]);
+    }
+
+    async writeTemplate(title, content) {
+      const current = await this.read("templates", {});
+      current[title] = String(content ?? "");
+      await this.write("templates", current);
+      return { title, content: current[title], localOnly: true };
+    }
+
+    async deleteTemplate(title) {
+      const current = await this.read("templates", {});
+      delete current[title];
+      await this.write("templates", current);
+      return true;
+    }
+
+    async writeChecklist(orderId, checklist, options = {}) {
+      const current = await this.read("checklists", {});
+      const revision = Number(options.expectedRevision || current[orderId]?.revision || 0);
+      current[orderId] = { checklist: clone(checklist || {}), revision, updatedAt: new Date().toISOString() };
+      await this.write("checklists", current);
+      return clone(current[orderId]);
     }
 
     async snapshot(names = Object.keys(STORAGE_KEYS)) {
@@ -455,6 +480,91 @@
       return clone(templates);
     }
 
+    async writeTemplate(title, content, options = {}) {
+      await this.requireSession();
+      const row = {
+        ...(options.id ? { id: options.id } : {}),
+        title: String(title || "").trim(),
+        category: options.category || "",
+        content: String(content ?? ""),
+        sort_order: Number(options.sortOrder || 0),
+        is_active: options.isActive !== false
+      };
+      if (!row.title) throw new RepositoryError("Template title is required", "TEMPLATE_TITLE_REQUIRED");
+      const [saved] = await this.upsert("templates", [row], { onConflict: "property_id,title" });
+      return saved || row;
+    }
+
+    async deleteTemplate(title) {
+      await this.requireSession();
+      const propertyId = this.ensureProperty();
+      const { error } = await this.ensureClient().from("templates").delete()
+        .eq("property_id", propertyId).eq("title", String(title || ""));
+      if (error) throw new RepositoryError(`templates: ${error.message}`, "TEMPLATE_DELETE_FAILED", error);
+      return true;
+    }
+
+    async readShortcuts() {
+      const rows = await this.select("shortcuts", { orderBy: "sort_order" });
+      return rows.map(row => ({
+        id: row.id,
+        icon: row.icon,
+        name: row.name,
+        url: row.url,
+        sortOrder: Number(row.sort_order || 0),
+        revision: Number(row.revision || 1),
+        updatedAt: row.updated_at
+      }));
+    }
+
+    async writeShortcuts(shortcuts, options = {}) {
+      await this.requireSession();
+      const userId = await this.currentUserId();
+      const rows = (shortcuts || []).map((shortcut, index) => ({
+        id: String(shortcut.id || `shortcut-${index}`),
+        icon: shortcut.icon || "🔗",
+        name: shortcut.name || "",
+        url: shortcut.url || "",
+        sort_order: Number(shortcut.sortOrder ?? index),
+        updated_by: userId
+      }));
+      return this.replacePropertyRows("shortcuts", rows, {
+        onConflict: "property_id,id",
+        deleteMissing: options.deleteMissing === true
+      });
+    }
+
+    async readChecklists() {
+      const rows = await this.select("checkin_checklists");
+      return Object.fromEntries(rows.map(row => [row.order_id, {
+        checklist: row.checklist || {},
+        revision: Number(row.revision || 1),
+        updatedAt: row.updated_at
+      }]));
+    }
+
+    async writeChecklist(orderId, checklist, options = {}) {
+      await this.requireSession();
+      const propertyId = this.ensureProperty();
+      const expectedRevision = Number(options.expectedRevision || 0);
+      const { data, error } = await this.ensureClient().rpc("upsert_checkin_checklist", {
+        p_property_id: propertyId,
+        p_order_id: String(orderId),
+        p_checklist: checklist || {},
+        p_expected_revision: expectedRevision
+      });
+      if (error) {
+        const code = /CHECKLIST_REVISION_CONFLICT/.test(error.message || "") ? "CHECKLIST_REVISION_CONFLICT" : "CHECKLIST_WRITE_FAILED";
+        throw new RepositoryError(`checkin_checklists: ${error.message}`, code, error);
+      }
+      const row = Array.isArray(data) ? data[0] : data;
+      return {
+        checklist: row?.checklist || checklist || {},
+        revision: Number(row?.revision || expectedRevision + 1 || 1),
+        updatedAt: row?.updated_at || new Date().toISOString()
+      };
+    }
+
     async readSettings() {
       const propertyId = this.ensureProperty();
       const { data, error } = await this.ensureClient().from("property_settings").select("settings").eq("property_id", propertyId).maybeSingle();
@@ -528,6 +638,8 @@
         case "roomLocks": return this.readRoomLocks();
         case "guestProfiles": return this.readGuestProfiles();
         case "templates": return this.readTemplates();
+        case "shortcuts": return this.readShortcuts();
+        case "checklists": return this.readChecklists();
         case "settings": return this.readSettings();
         case "auditLogs": return this.readAuditLogs();
         default:
@@ -544,6 +656,7 @@
         case "roomLocks": return this.writeRoomLocks(value, options);
         case "guestProfiles": return this.writeGuestProfiles(value);
         case "templates": return this.writeTemplates(value);
+        case "shortcuts": return this.writeShortcuts(value, options);
         case "settings": return this.writeSettings(value);
         case "auditLogs":
           throw new RepositoryError("Audit Log 為 append-only，請使用 appendAudit()", "AUDIT_APPEND_ONLY");
@@ -646,7 +759,7 @@
 
     async promoteLocalDataset(name, options = {}) {
       if (!this.cloudWritable(name)) throw new RepositoryError("Cloud Data Write 尚未啟用", "CLOUD_WRITE_DISABLED");
-      const value = await this.local.read(name, options.fallback ?? (name === "guestProfiles" || name === "templates" || name === "settings" ? {} : []));
+      const value = await this.local.read(name, options.fallback ?? (name === "guestProfiles" || name === "templates" || name === "settings" || name === "checklists" ? {} : []));
       await this.cloud.write(name, value, { deleteMissing: options.deleteMissing === true });
       return { dataset: name, promoted: true, count: Array.isArray(value) ? value.length : Object.keys(value || {}).length };
     }
@@ -657,6 +770,34 @@
         results.push(await this.promoteLocalDataset(name, options));
       }
       return results;
+    }
+
+    async writeTemplate(title, content, options = {}) {
+      const current = await this.local.read("templates", {});
+      current[title] = String(content ?? "");
+      await this.local.write("templates", current);
+      if (!this.cloudWritable("templates")) return { title, content: current[title], localOnly: true };
+      return this.cloud.writeTemplate(title, content, options);
+    }
+
+    async deleteTemplate(title) {
+      const current = await this.local.read("templates", {});
+      delete current[title];
+      await this.local.write("templates", current);
+      if (!this.cloudWritable("templates")) return true;
+      return this.cloud.deleteTemplate(title);
+    }
+
+    async writeChecklist(orderId, checklist, options = {}) {
+      const current = await this.local.read("checklists", {});
+      current[orderId] = {
+        checklist: clone(checklist || {}),
+        revision: Number(options.expectedRevision || current[orderId]?.revision || 0),
+        updatedAt: new Date().toISOString()
+      };
+      await this.local.write("checklists", current);
+      if (!this.cloudWritable("checklists")) return current[orderId];
+      return this.cloud.writeChecklist(orderId, checklist, options);
     }
 
     async health() {
@@ -719,6 +860,9 @@
     repository: defaultRepository,
     read: (...args) => defaultRepository.read(...args),
     write: (...args) => defaultRepository.write(...args),
+    writeTemplate: (...args) => defaultRepository.writeTemplate(...args),
+    deleteTemplate: (...args) => defaultRepository.deleteTemplate(...args),
+    writeChecklist: (...args) => defaultRepository.writeChecklist(...args),
     health: () => defaultRepository.health(),
     promoteLocalDataset: (...args) => defaultRepository.promoteLocalDataset(...args),
     promoteAll: (...args) => defaultRepository.promoteAll(...args)

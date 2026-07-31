@@ -36,3 +36,10 @@
 
 ## Phase 10 RC3-A HF3
 - Added Bulk Housekeeping Manager with role guard, confirmation, safety skip, assignment, start and completion actions.
+
+## Enterprise V1.3 Phase 10 RC3-B HF30 — 2026-07-31
+
+- Synchronized the completed check-in checklist with the canonical order lifecycle.
+- Restored single-open accordion behavior for check-in cards on desktop and mobile.
+- Auto-verified pending positive charges when an order is settled or overpaid.
+- Enforced stay-date boundaries for breakfast and taxi services.

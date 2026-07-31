@@ -126,6 +126,26 @@
 - iPhone 與桌機可直接開啟聊天清單；未登入時由 LINE Business 顯示登入驗證。
 - Android 維持優先開啟 LINE Official Account App，不導向一般 LINE 加好友頁面。
 
+## HF27
+
+- 系統設定、所有官方 LINE 按鈕及常用快捷中心統一使用眉原六民宿 `chat.line.biz` 聊天管理網址。
+- 啟動、同步、儲存及備份匯入時自動修正既有「眉原六官方 LINE」舊快捷網址。
+- 模板中心的即時預覽新增「複製並開啟官方 LINE」，會先複製套用訂單後的完整訊息，再開啟管理工具。
+
+## HF28
+
+- 入住檢核項目改由雲端 Settings Repository 保存，避免 Realtime 以不含 checklist 的訂單資料覆蓋後短暫顯示又消失。
+- 勾選入住項目後立即保留本機狀態並直接提交雲端設定；離線時保留 pending write 等待重試。
+- 入住管理卡片取消互斥收合；點選檢核項目後維持原卡片展開、欄位位置及頁面捲動位置。
+
+## HF29
+
+- 修正 HF28 深度回歸發現的三項 P1 資料覆蓋風險。
+- 入住檢核改為 `checkin_checklists` 獨立資料列，加入 revision guard、原子寫入及衝突合併。
+- 模板改為單筆 Repository 寫入／刪除，並加入 pending 保護及雲端 read-back 確認。
+- 常用快捷改為 `shortcuts` 雲端資料集，支援 RLS、Realtime、穩定 ID、離線補寫與雲端確認。
+- 新增 migration `009_p1_independent_cloud_datasets.sql`，部署 HF29 前必須先執行。
+
 ## QA
 
 - 所有 JavaScript 檔案執行語法檢查。

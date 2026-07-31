@@ -48,6 +48,7 @@ equal(order.paid, 19000, "compatibility paid projection");
 equal(order.paymentStatus, "部分收款", "compatibility payment status");
 
 const appSource = fs.readFileSync(path.resolve(__dirname, "../../assets/app.js"), "utf8");
+const htmlSource = fs.readFileSync(path.resolve(__dirname, "../../index.html"), "utf8");
 if (!appSource.includes("const cleaning=tasks.filter(t=>t.date===iso&&HOUSEKEEPING_ACTIVE_STATUSES.has(t.status))")) {
   throw new Error("calendar housekeeping must use active status selector");
 }
@@ -279,6 +280,36 @@ if (!appSource.includes("package=com.linecorp.lineoa") || !appSource.includes("c
 }
 if (!appSource.includes('OFFICIAL_LINE_CHAT_URL="https://chat.line.biz/Ue28fc4caf7d40782abdf10059e3dabc0"')) {
   throw new Error("desktop and iPhone official LINE actions do not target the configured chat manager");
+}
+if (!appSource.includes("normalizeOfficialLineShortcuts") || !appSource.includes('if(name.includes("官方 LINE"))shortcut.url=OFFICIAL_LINE_CHAT_URL')) {
+  throw new Error("saved common shortcuts are not migrated to the official LINE chat manager URL");
+}
+if (!htmlSource.includes('id="sendTemplateLineBtn"') || !appSource.includes("copyTemplateAndOpenOfficialLine")) {
+  throw new Error("template preview does not support copying and opening official LINE");
+}
+if (!appSource.includes("hydrateCheckinChecklistsFromRepositoryCache") || !repositorySource.includes("upsert_checkin_checklist")) {
+  throw new Error("check-in checklist state is not isolated in its own revision-guarded repository");
+}
+if (!appSource.includes("await cloudRepository.writeChecklist") || !appSource.includes("openDetailState.add(`checkin-${id}`)")) {
+  throw new Error("check-in checklist saves are not cloud-confirmed or do not preserve the expanded card");
+}
+if (!appSource.includes("commitTemplateCloud") || !appSource.includes("Template cloud read-back mismatch") || !realtimeSource.includes("preservePendingTemplates")) {
+  throw new Error("template writes do not have pending protection and cloud read-back confirmation");
+}
+if (!repositorySource.includes('case "shortcuts": return this.readShortcuts()') || !realtimeSource.includes('"shortcuts"') || !appSource.includes("Shortcut cloud read-back mismatch")) {
+  throw new Error("common shortcuts are not a cloud-synchronized repository dataset");
+}
+if (!appSource.includes('data-accordion-scope="checkin-mobile"')) {
+  throw new Error("check-in cards do not use the single-open accordion behavior");
+}
+if (!appSource.includes("function synchronizeLifecycleChecklist(o)") || !appSource.includes("const autoLifecycle=")) {
+  throw new Error("canonical lifecycle does not automatically synchronize the completed check-in checklist");
+}
+if (!appSource.includes("if(summary.remaining!==0)return 0;") || appSource.includes("if(summary.remaining!==0||summary.over>0)return 0;")) {
+  throw new Error("fully covered or overpaid orders do not automatically verify pending charges");
+}
+if (!appSource.includes("function updateServiceStayBounds()") || !appSource.includes("早餐預訂天數不可超過退房日期")) {
+  throw new Error("service dates and breakfast duration are not constrained to the stay period");
 }
 if (appSource.includes('protocolFrame.src="line://"') || appSource.includes('LINE_MANAGER_LOGIN_URL') || appSource.includes("https://line.me/R/ti/p/")) {
   throw new Error("official LINE actions can still launch the LINE app or ignore the configured URL");

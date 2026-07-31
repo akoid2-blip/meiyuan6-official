@@ -1,5 +1,5 @@
 {
-  "version": "Enterprise V1.3 Phase 10 RC3-B HF3 Stage1 HF26",
-  "build": "2026-07-30 +08:00",
-  "baseline": "BookingAdmin_P10_RC3B_HF3_Stage1_HF25"
+  "version": "Enterprise V1.3 Phase 10 RC3-B HF3 Stage1 HF30",
+  "build": "2026-07-31 +08:00",
+  "baseline": "BookingAdmin_P10_RC3B_HF3_Stage1_HF29"
 }

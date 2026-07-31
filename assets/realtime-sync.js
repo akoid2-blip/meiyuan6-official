@@ -1,7 +1,7 @@
 (() => {
   "use strict";
   const C=window.MEIYUAN6_CLOUD_CONFIG||{};
-  const TABLES=["orders","order_rooms","payments","services","housekeeping_tasks","room_locks","guest_profiles","templates","property_settings","audit_logs"];
+  const TABLES=["orders","order_rooms","payments","services","housekeeping_tasks","room_locks","guest_profiles","templates","checkin_checklists","shortcuts","property_settings","audit_logs"];
   const state={status:"disabled",connected:false,lastEventAt:null,lastSyncAt:null,pending:0,error:"",channel:null,client:null,pushTimer:null,pullTimer:null,applyingRemote:false,pushing:false,ignoreRemoteUntil:0,lastPullFingerprint:"",seen:new Map()};
   const emit=(name,detail={})=>document.dispatchEvent(new CustomEvent(name,{detail}));
   function setStatus(status,error=""){state.status=status;state.error=error;state.connected=status==="connected";renderBadge();emit("meiyuan6:sync-status",snapshot());}
@@ -18,9 +18,12 @@
     const roomLocks=(d.room_locks||[]).map(x=>({id:x.id,room:x.room_id,start:x.start_date,end:x.end_date,type:x.lock_type,reason:x.reason,revision:x.revision}));
     const guestProfiles=Object.fromEntries((d.guest_profiles||[]).map(g=>[g.phone||g.id,{name:g.name,phone:g.phone,email:g.email,note:g.note,lastOrderAt:g.last_order_at}]));
     const templates=Object.fromEntries((d.templates||[]).map(t=>[t.title,String(t.content||"")]));
+    const checklists=Object.fromEntries((d.checkin_checklists||[]).map(row=>[row.order_id,{checklist:row.checklist||{},revision:Number(row.revision||1),updatedAt:row.updated_at}]));
+    orders.forEach(order=>{const saved=checklists[order.id];if(saved){order.checklist={...(order.checklist||{}),...saved.checklist};order.checklistRevision=saved.revision;}});
+    const shortcuts=(d.shortcuts||[]).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0)).map(row=>({id:row.id,icon:row.icon,name:row.name,url:row.url,sortOrder:Number(row.sort_order||0),revision:Number(row.revision||1),updatedAt:row.updated_at}));
     const settings=(d.property_settings||[])[0]?.settings||{};
     const auditLogs=(d.audit_logs||[]).map(a=>({id:a.id,operator:a.operator_name,module:a.module,action:a.action,targetId:a.target_id,orderId:a.order_id,guestName:a.guest_name,roomName:a.room_name,summary:a.summary,before:a.before_data,after:a.after_data,deviceId:a.device_id,revision:a.revision,createdAt:a.created_at}));
-    return {orders,payments,tasks,roomLocks,guestProfiles,templates,settings,auditLogs};}
+    return {orders,payments,tasks,roomLocks,guestProfiles,templates,checklists,shortcuts,settings,auditLogs};}
   function preservePendingServices(local){
     let pending=[];try{pending=JSON.parse(localStorage.getItem("my6_pending_service_writes")||"[]")}catch{}
     if(!Array.isArray(pending)||!pending.length)return local;
@@ -44,7 +47,50 @@
     if(JSON.stringify(local.settings||{})===JSON.stringify(pending.settings)){localStorage.removeItem("my6_pending_settings_write");return local;}
     local.settings=pending.settings;return local;
   }
-  async function pull(){if(!enabled()||state.applyingRemote||state.pushing)return;state.applyingRemote=true;try{const local=preservePendingSettings(preservePendingServices(toLocal(await fetchAll())));const fingerprint=JSON.stringify(local);if(fingerprint===state.lastPullFingerprint){state.lastSyncAt=state.lastSyncAt||new Date().toISOString();setStatus("connected");return {skipped:true};}setStatus("syncing");state.lastPullFingerprint=fingerprint;const keys={orders:"my6_orders",payments:"my6_payments",tasks:"my6_tasks",roomLocks:"my6_room_locks",guestProfiles:"my6_guest_profiles",templates:"my6_templates",settings:"my6_settings",auditLogs:"my6_audit_logs"};Object.entries(keys).forEach(([n,k])=>localStorage.setItem(k,JSON.stringify(local[n])));state.lastSyncAt=new Date().toISOString();setStatus("connected");emit("meiyuan6:cloud-data-applied",{at:state.lastSyncAt,source:"realtime"})}catch(e){setStatus(navigator.onLine?"error":"offline",e.message)}finally{state.applyingRemote=false}}
+  function preservePendingTemplates(local){
+    let pending={};try{pending=JSON.parse(localStorage.getItem("my6_pending_template_writes")||"{}")}catch{}
+    let pendingDeletes={};try{pendingDeletes=JSON.parse(localStorage.getItem("my6_pending_template_deletes")||"{}")}catch{}
+    const now=Date.now(),remaining={};local.templates=local.templates||{};
+    Object.entries(pending||{}).forEach(([title,item])=>{
+      if(now-new Date(item.savedAt||0).getTime()>=86400000)return;
+      if(String(local.templates[title]??"")===String(item.content??""))return;
+      local.templates[title]=String(item.content??"");remaining[title]=item;
+    });
+    const remainingDeletes={};
+    Object.entries(pendingDeletes||{}).forEach(([title,item])=>{
+      if(now-new Date(item.savedAt||0).getTime()>=86400000)return;
+      if(!Object.prototype.hasOwnProperty.call(local.templates,title))return;
+      delete local.templates[title];remainingDeletes[title]=item;
+    });
+    localStorage.setItem("my6_pending_template_writes",JSON.stringify(remaining));
+    localStorage.setItem("my6_pending_template_deletes",JSON.stringify(remainingDeletes));return local;
+  }
+  function preservePendingChecklists(local){
+    let pending={};try{pending=JSON.parse(localStorage.getItem("my6_pending_checklist_writes")||"{}")}catch{}
+    const now=Date.now(),remaining={};local.checklists=local.checklists||{};
+    Object.entries(pending||{}).forEach(([orderId,item])=>{
+      if(now-new Date(item.savedAt||0).getTime()>=86400000)return;
+      const cloud=local.checklists[orderId];
+      if(cloud&&Number(cloud.revision||0)>Number(item.expectedRevision||0)&&JSON.stringify(cloud.checklist||{})===JSON.stringify(item.checklist||{}))return;
+      local.checklists[orderId]={checklist:item.checklist||{},revision:Number(item.expectedRevision||0),updatedAt:item.savedAt};
+      const order=(local.orders||[]).find(row=>String(row.id)===String(orderId));
+      if(order)order.checklist={...(order.checklist||{}),...(item.checklist||{})};
+      remaining[orderId]=item;
+    });
+    localStorage.setItem("my6_pending_checklist_writes",JSON.stringify(remaining));return local;
+  }
+  function preservePendingShortcuts(local){
+    let pending=null;try{pending=JSON.parse(localStorage.getItem("my6_pending_shortcuts_write")||"null")}catch{}
+    if(!pending?.shortcuts&&!(local.shortcuts||[]).length){
+      let existing=[];try{existing=JSON.parse(localStorage.getItem("my6_shortcuts")||"[]")}catch{}
+      if(Array.isArray(existing)&&existing.length){pending={shortcuts:existing,savedAt:new Date().toISOString()};localStorage.setItem("my6_pending_shortcuts_write",JSON.stringify(pending));}
+    }
+    if(!pending?.shortcuts||Date.now()-new Date(pending.savedAt||0).getTime()>=86400000){localStorage.removeItem("my6_pending_shortcuts_write");return local;}
+    const normalize=list=>JSON.stringify((list||[]).map(({id,icon,name,url})=>({id,icon,name,url})));
+    if(normalize(local.shortcuts)===normalize(pending.shortcuts)){localStorage.removeItem("my6_pending_shortcuts_write");return local;}
+    local.shortcuts=pending.shortcuts;return local;
+  }
+  async function pull(){if(!enabled()||state.applyingRemote||state.pushing)return;state.applyingRemote=true;try{const local=preservePendingShortcuts(preservePendingChecklists(preservePendingTemplates(preservePendingSettings(preservePendingServices(toLocal(await fetchAll()))))));const fingerprint=JSON.stringify(local);if(fingerprint===state.lastPullFingerprint){state.lastSyncAt=state.lastSyncAt||new Date().toISOString();setStatus("connected");return {skipped:true};}setStatus("syncing");state.lastPullFingerprint=fingerprint;const keys={orders:"my6_orders",payments:"my6_payments",tasks:"my6_tasks",roomLocks:"my6_room_locks",guestProfiles:"my6_guest_profiles",templates:"my6_templates",checklists:"my6_checkin_checklists",shortcuts:"my6_shortcuts",settings:"my6_settings",auditLogs:"my6_audit_logs"};Object.entries(keys).forEach(([n,k])=>localStorage.setItem(k,JSON.stringify(local[n])));state.lastSyncAt=new Date().toISOString();setStatus("connected");emit("meiyuan6:cloud-data-applied",{at:state.lastSyncAt,source:"realtime"})}catch(e){setStatus(navigator.onLine?"error":"offline",e.message)}finally{state.applyingRemote=false}}
   function schedulePull(){if(Date.now()<state.ignoreRemoteUntil||state.pushing||state.applyingRemote)return;clearTimeout(state.pullTimer);state.pending=1;state.pullTimer=setTimeout(()=>{state.pending=0;pull()},Math.max(1800,Number(C.realtimeDebounceMs||800)));}
   const BUSINESS_FIELDS={
     orders:["guest_name","phone","checkin_date","checkout_date","guest_count","package_type","order_type","status","total_amount","opening_paid","source","note","backfill_reason"],
@@ -93,8 +139,8 @@
   async function transmit(item){
     const c=client(),snapshot=item?.payload||window.Meiyuan6Migration.transform(),data=await guardConflicts(c,snapshot);
     // Payments are committed immediately after their parent orders. Auxiliary relations must not block money writes.
-    const order=["orders","payments","order_rooms","services","housekeeping_tasks","room_locks","guest_profiles","templates","property_settings","audit_logs"];
-    const conflictTarget={order_rooms:"order_id,room_id",templates:"property_id,title",property_settings:"property_id"};
+    const order=["orders","payments","order_rooms","services","housekeeping_tasks","room_locks","guest_profiles","property_settings","audit_logs"];
+    const conflictTarget={order_rooms:"order_id,room_id",property_settings:"property_id"};
     for(const t of order){
       const rows=data[t]||[];if(!rows.length)continue;
       const opts=conflictTarget[t]?{onConflict:conflictTarget[t]}:undefined;

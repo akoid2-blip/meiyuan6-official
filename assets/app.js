@@ -158,11 +158,46 @@ const defaultSettings={
 };
 const defaultShortcuts=[
  {icon:"🏛️",name:"觀光署旅宿網",url:"https://www.taiwanstay.net.tw/TSA/web_page/TSA010100.jsp"},
- {icon:"💬",name:"眉原六官方 LINE",url:"https://lin.ee/933tuhU"},
+ {icon:"💬",name:"眉原六官方 LINE",url:OFFICIAL_LINE_CHAT_URL},
  {icon:"📍",name:"Google 地圖",url:"https://www.google.com/maps/search/?api=1&query=眉原六民宿"},
  {icon:"✉️",name:"Gmail",url:"https://mail.google.com/"},
  {icon:"🌐",name:"眉原六官網",url:"https://meiyuan6.tw/"}
 ];
+function normalizeOfficialLineShortcuts(list){
+ const normalized=(Array.isArray(list)?list:[]).map((item,index)=>{
+  const shortcut={...item,id:String(item?.id||`shortcut-${index}-${Math.random().toString(36).slice(2,8)}`)},name=String(item?.name||"");
+  if(name.includes("官方 LINE"))shortcut.url=OFFICIAL_LINE_CHAT_URL;
+  return shortcut;
+ });
+ if(!normalized.some(item=>String(item.name||"").includes("官方 LINE")))normalized.splice(1,0,{id:"official-line-chat",icon:"💬",name:"眉原六官方 LINE",url:OFFICIAL_LINE_CHAT_URL});
+ return normalized;
+}
+function normalizeOfficialLineConfiguration(){
+ let changed=settings.lineUrl!==OFFICIAL_LINE_CHAT_URL;
+ settings.lineUrl=OFFICIAL_LINE_CHAT_URL;
+ const normalized=normalizeOfficialLineShortcuts(shortcuts);
+ if(JSON.stringify(normalized)!==JSON.stringify(shortcuts))changed=true;
+ shortcuts=normalized;
+ return changed;
+}
+function syncCheckinChecklistsToSettings(){
+ // HF29: checklists are independent cloud rows. Keep this function as a
+ // compatibility no-op so old settings JSON can never overwrite newer rows.
+}
+function hydrateCheckinChecklistsFromSettings(){
+ const stored=(settings.checkinChecklists&&typeof settings.checkinChecklists==="object")?settings.checkinChecklists:{};
+ orders.forEach(order=>{if(stored[order.id]&&typeof stored[order.id]==="object")order.checklist={...(order.checklist||{}),...stored[order.id]};});
+}
+function hydrateCheckinChecklistsFromRepositoryCache(){
+ const stored=safeJSON("my6_checkin_checklists",{});
+ orders.forEach(order=>{
+  const row=stored?.[order.id];
+  if(!row)return;
+  const checklist=(row.checklist&&typeof row.checklist==="object")?row.checklist:row;
+  order.checklist={...(order.checklist||{}),...checklist};
+  order.checklistRevision=Number(row.revision||order.checklistRevision||0);
+ });
+}
 const seedOrders=[
  {id:"MY6-260801",name:"陳小姐",phone:"0912-345-678",checkin:addDays(todayISO,1),checkout:addDays(todayISO,3),package:"小包棟（8～15人）",rooms:["R1","R2","R4"],count:10,source:"官方 LINE",status:"已付訂金",total:28000,paid:10000,note:"預計 16:00 抵達",breakfast:{date:addDays(todayISO,2),shop:"在地早餐店",qty:10,days:2,fee:0,delivery:"08:00",done:false},taxi:{date:"",time:"",pickup:"",destination:"",guests:0,type:"",fare:0,done:false},earlyCheckin:"",lateCheckout:"",luggageStorage:true,checklist:{}},
  {id:"MY6-260802",name:"林先生",phone:"0988-123-456",checkin:addDays(todayISO,4),checkout:addDays(todayISO,5),package:"一般訂房",rooms:["R3","R6"],count:7,source:"電話",status:"已確認",total:12000,paid:0,note:"有長輩同行",breakfast:{date:"",shop:"",qty:0,days:0,fee:0,delivery:"",done:false},taxi:{date:addDays(todayISO,5),time:"11:30",pickup:"眉原六民宿",destination:"埔里轉運站",guests:4,type:"一般計程車",fare:400,done:false},earlyCheckin:"",lateCheckout:"12:00",luggageStorage:false,checklist:{}}
@@ -312,7 +347,7 @@ function paymentSummary(order){
 }
 function autoVerifySettledPayments(order){
  const summary=paymentSummary(order);
- if(summary.remaining!==0||summary.over>0)return 0;
+ if(summary.remaining!==0)return 0;
  let changed=0,now="";
  summary.records.forEach(p=>{
    if(!p.verified&&p.amount>0){
@@ -367,6 +402,9 @@ let tasks=(Array.isArray(safeJSON("my6_tasks",null)) ? safeJSON("my6_tasks",null
 let guestProfiles=safeJSON("my6_guest_profiles",{});
 let settings={...defaultSettings,...safeJSON("my6_settings",{})};
 let shortcuts=Array.isArray(safeJSON("my6_shortcuts",null)) ? safeJSON("my6_shortcuts",null) : defaultShortcuts;
+normalizeOfficialLineConfiguration();
+hydrateCheckinChecklistsFromSettings();
+hydrateCheckinChecklistsFromRepositoryCache();
 const storedTemplates=safeJSON("my6_templates",null);
 function normalizeTemplates(raw){
  const custom={};
@@ -489,6 +527,8 @@ try{
 }catch(error){ console.warn("Schema backup failed",error); }
 
 function persist(options={}){
+ normalizeOfficialLineConfiguration();
+ syncCheckinChecklistsToSettings();
  orders=orders.map(normalizeOrder);
  payments=payments.map(normalizePayment);
  reconcileOpeningPaid();
@@ -671,13 +711,20 @@ function appendLifecycleHistory(o,from,to,operator="系統"){
  if(to==="已取消")o.status="已取消";
  if(to==="No Show")o.status="No Show";
 }
+function synchronizeLifecycleChecklist(o){
+ o.checklist=o.checklist||{};
+ const completed=["已入住","已退房"].includes(lifecycleStatus(o));
+ o.checklist["完成入住"]=completed;
+ return completed;
+}
 function transitionLifecycle(o,to,operator="系統",options={}){
  const from=lifecycleStatus(o);
- if(to===from)return {ok:true,changed:false};
+ if(to===from){synchronizeLifecycleChecklist(o);return {ok:true,changed:false};}
  if(!options.force&&to==="已入住"&&todayISO<o.checkin)return {ok:false,message:`尚未到入住日 ${o.checkin}，不可提前完成入住`};
  if(!options.force&&to==="已退房"&&todayISO<o.checkout)return {ok:false,message:`尚未到退房日 ${o.checkout}，不可提前完成退房`};
  if(!options.force && !(LIFECYCLE_NEXT[from]||[]).includes(to))return {ok:false,message:`不允許由「${from}」直接變更為「${to}」`};
  appendLifecycleHistory(o,from,to,operator);
+ synchronizeLifecycleChecklist(o);
  return {ok:true,changed:true};
 }
 function repairImpossibleFutureLifecycleOrders(){
@@ -814,7 +861,11 @@ document.addEventListener("meiyuan6:cloud-data-applied",()=>{
   tasks=dedupeHousekeepingTasks((Array.isArray(safeJSON("my6_tasks",[]))?safeJSON("my6_tasks",[]):[]).map(normalizeTask));
   guestProfiles=safeJSON("my6_guest_profiles",{});
   settings={...defaultSettings,...safeJSON("my6_settings",{})};
-  templates=normalizeTemplates(safeJSON("my6_templates",{}));
+   normalizeOfficialLineConfiguration();
+   hydrateCheckinChecklistsFromSettings();
+   hydrateCheckinChecklistsFromRepositoryCache();
+   templates=normalizeTemplates(safeJSON("my6_templates",{}));
+   shortcuts=normalizeOfficialLineShortcuts(Array.isArray(safeJSON("my6_shortcuts",[]))?safeJSON("my6_shortcuts",[]):[]);
   roomLocks=(Array.isArray(safeJSON("my6_room_locks",[]))?safeJSON("my6_room_locks",[]):[]).map(normalizeRoomLock);
   auditLogs=Array.isArray(safeJSON("my6_audit_logs",[]))?safeJSON("my6_audit_logs",[]):[];
   const settlementChanged=autoVerifyAllSettledPayments();
@@ -1071,12 +1122,15 @@ function setupEnterpriseNumberInput(selector,{fallback=0,min=0}={}){
 });
 
 function syncLegacyServiceDates(){
- const checkin=$("#checkinDate")?.value;
+ const checkin=$("#checkinDate")?.value,checkout=$("#checkoutDate")?.value;
+ ["#breakfastDate","#taxiDate"].forEach(selector=>{const field=$(selector);if(field){field.min=checkin||"";field.max=checkout||"";}});
  if(checkin&&(!$("#breakfastDate").value||$("#breakfastDate").dataset.autoDate==="1")){$("#breakfastDate").value=addDays(checkin,1);$("#breakfastDate").dataset.autoDate="1";}
  if(checkin&&(!$("#taxiDate").value||$("#taxiDate").dataset.autoDate==="1")){$("#taxiDate").value=checkin;$("#taxiDate").dataset.autoDate="1";}
+ const breakfastStart=$("#breakfastDate")?.value,maxBreakfastDays=breakfastStart&&checkout?Math.max(1,daysBetween(breakfastStart,checkout)+1):0;
+ if($("#breakfastDays")){$("#breakfastDays").max=maxBreakfastDays?String(maxBreakfastDays):"";if(maxBreakfastDays&&Number($("#breakfastDays").value)>maxBreakfastDays)$("#breakfastDays").value=String(maxBreakfastDays);}
 }
-$("#checkinDate")?.addEventListener("change",syncLegacyServiceDates);
-$("#breakfastDate")?.addEventListener("change",e=>e.target.dataset.autoDate="0");$("#taxiDate")?.addEventListener("change",e=>e.target.dataset.autoDate="0");
+$("#checkinDate")?.addEventListener("change",syncLegacyServiceDates);$("#checkoutDate")?.addEventListener("change",syncLegacyServiceDates);
+$("#breakfastDate")?.addEventListener("change",e=>{e.target.dataset.autoDate="0";syncLegacyServiceDates();});$("#taxiDate")?.addEventListener("change",e=>e.target.dataset.autoDate="0");
 $("#taxiType")?.addEventListener("change",e=>$("#taxiTypeOtherField")?.classList.toggle("hidden",e.target.value!=="其他"));
 
 
@@ -1100,7 +1154,7 @@ $("#orderForm").addEventListener("invalid",e=>{
  focusOrderField(e.target,labels[e.target.id]||"請完成此必填欄位");
 },{capture:true});
 $("#orderForm").addEventListener("input",e=>{const visual=e.target.closest("label,fieldset");if(visual)visual.classList.remove("field-error");});
-$("#orderForm").addEventListener("submit",e=>{
+$("#orderForm").addEventListener("submit",async e=>{
  e.preventDefault(); clearOrderFieldErrors(); const o=readOrderForm();
  if(!o.name)return focusOrderField("#guestName","請填寫旅客姓名");
  if(!o.phone)return focusOrderField("#guestPhone","請填寫聯絡電話");
@@ -1108,8 +1162,15 @@ $("#orderForm").addEventListener("submit",e=>{
  if(!o.checkout)return focusOrderField("#checkoutDate","請選擇退房日期");
  if(!o.rooms.length)return focusOrderField("#roomCheckboxes","請至少選擇一個住宿單位");
  if(!Number.isFinite(o.count)||o.count<1)return focusOrderField("#guestCount","入住人數至少為 1 人");
- if(o.breakfast.qty>0 && o.breakfast.days<1)return focusOrderField("#breakfastDays","有預訂早餐時，送餐天數至少為 1 天");
  if(o.checkout<=o.checkin)return focusOrderField("#checkoutDate","退房日期必須晚於入住日期");
+ if(o.breakfast.qty>0){
+  if(o.breakfast.days<1)return focusOrderField("#breakfastDays","有預訂早餐時，送餐天數至少為 1 天");
+  if(!o.breakfast.date||o.breakfast.date<o.checkin)return focusOrderField("#breakfastDate","早餐起始日不可早於入住日期");
+  if(o.breakfast.date>o.checkout)return focusOrderField("#breakfastDate","早餐起始日不可晚於退房日期");
+  if(addDays(o.breakfast.date,o.breakfast.days-1)>o.checkout)return focusOrderField("#breakfastDays","早餐預訂天數不可超過退房日期");
+ }
+ const orderHasTaxiIntent=Boolean(o.taxi.time||o.taxi.pickup||o.taxi.destination||o.taxi.guests>0||o.taxi.type||o.taxi.fare>0||o.taxi.done);
+ if(orderHasTaxiIntent&&(o.taxi.date<o.checkin||o.taxi.date>o.checkout))return focusOrderField("#taxiDate","叫車日期必須介於入住日與退房日之間");
  const ruleError=validateBookingRules(o,o.id); if(ruleError){focusOrderField("#checkinDate",ruleError);return;}
  if(o.isBackfill&&!o.backfillTime)o.backfillTime=new Date().toISOString();
  const i=orders.findIndex(x=>x.id===o.id); const previous=i>=0?orders[i]:null;
@@ -1140,7 +1201,9 @@ $("#orderForm").addEventListener("submit",e=>{
  delete o.lifecycleOperator;
  if(i>=0)orders[i]=o;else orders.push(o);
  if(lifecycleStatus(o)==="已退房")ensureCheckoutTasks(o);
- upsertGuestProfileFromOrder(o);persist();$("#orderDialog").close();renderAll();toast(o.isBackfill?"補登訂單與旅客資料已儲存":"訂單已儲存");
+ synchronizeLifecycleChecklist(o);upsertGuestProfileFromOrder(o);persist();$("#orderDialog").close();renderAll();
+ if(["已入住","已退房"].includes(lifecycleStatus(o)))await commitCheckinChecklist(o,"完成入住",true);
+ toast(o.isBackfill?"補登訂單與旅客資料已儲存":"訂單已儲存");
 });
 window.editOrder=id=>openOrder(orders.find(o=>o.id===id));
 window.openOrderFromCalendar=id=>{
@@ -1171,7 +1234,7 @@ ${pending.map(s=>`・${s.type}`).join("\n")}
  if(!result.ok)return toast(result.message);
  persist();renderAll();toast(`訂單狀態已更新：${to}`);
 };
-window.advanceOrderWorkflow=id=>{
+window.advanceOrderWorkflow=async id=>{
  const o=orders.find(x=>x.id===id);if(!o)return;const next=WORKFLOW_NEXT[o.workflowStatus];if(!next)return;
  if(!confirm(`確認將 ${o.name} 的流程由「${o.workflowStatus}」更新為「${next}」？`))return;
  if(next==="入住"){
@@ -1182,14 +1245,14 @@ window.advanceOrderWorkflow=id=>{
    if(!result.ok)return toast(result.message);
    o.workflowStatus="待清掃";
  }else o.workflowStatus=next;
- persist();renderAll();toast(`流程已更新：${o.workflowStatus}`);
+ persist();renderAll();if(["已入住","已退房"].includes(lifecycleStatus(o)))await commitCheckinChecklist(o,"完成入住",true);toast(`流程已更新：${o.workflowStatus}`);
 };
-window.checkInOrder=id=>{
+window.checkInOrder=async id=>{
  const o=orders.find(x=>x.id===id); if(!o)return;
  if(!confirm(`確認 ${o.name} 已完成入住？`))return;
  const result=transitionLifecycle(o,"已入住","管理員");
  if(!result.ok)return toast(result.message);
- persist();renderAll();toast("已完成入住登記");
+ persist();renderAll();await commitCheckinChecklist(o,"完成入住",true);toast("已完成入住登記");
 };
 window.checkoutOrder=id=>{
  const o=orders.find(x=>x.id===id); if(!o)return;
@@ -1461,12 +1524,39 @@ function renderCheckin(){
  const list=q?all.filter(o=>[o.id,o.name,o.phone,o.package,o.checkin,o.checkout,...orderRooms(o).map(roomName)].join(" ").toLocaleLowerCase("zh-TW").includes(q)):all;
  const count=$("#checkinResultCount");if(count)count.textContent=`顯示 ${list.length}／${all.length} 筆`;
  const items=["身分確認","訂金","尾款","入住須知","LINE","導航","WiFi","完成入住"];
- $("#checkinList").innerHTML=list.map(o=>`<details class="management-mobile-card checkin-card" data-detail-key="checkin-${esc(o.id)}" data-accordion-scope="checkin-mobile"${q&&list.length===1?" open":""}><summary class="management-mobile-summary"><span class="management-mobile-identity"><strong>${esc(o.name)}</strong><span>${esc(o.id)}・${esc(o.phone)}</span><span class="order-summary-stay">${uiIcon("calendar")}<b>${esc(o.checkin)}～${esc(o.checkout)}</b></span></span><span class="management-mobile-summary-meta"><span class="badge ${lifecycleClass(lifecycleStatus(o))}">${esc(lifecycleStatus(o))}</span><span class="management-expand-label">展開</span></span></summary><div class="management-mobile-body"><p class="section-note">${esc(o.package)}｜${o.count} 人｜${orderRooms(o).map(roomName).map(esc).join("、")}</p><div class="checklist">${items.map(x=>{const state=window.Meiyuan6DataConsistency.selectCheckinPaymentState(o,payments);const autoPayment=(x==="訂金"&&state.depositComplete)||(x==="尾款"&&state.balanceComplete);const checked=autoPayment||o.checklist?.[x];return `<label class="check-item${autoPayment?" auto-checked":""}"${autoPayment?' title="已依統一收款狀態自動完成"':''}><input type="checkbox" ${checked?"checked":""} ${autoPayment?`disabled aria-label='${x}已自動核對'`:""} onchange="window.toggleCheck('${o.id}','${x}',this.checked)"> ${x}${autoPayment?'<small class="check-auto-label">自動</small>':''}</label>`}).join("")}</div><div class="mobile-card-actions checkin-card-actions"><button class="official-line-button" title="聯絡眉原六官方 LINE" onclick="window.copyLineMessage('${o.id}')">${uiIcon("message")}官方 LINE</button><button onclick="window.openServicesForOrder('${o.id}')">${uiIcon("clipboard")}住宿服務</button><button onclick="window.editOrder('${o.id}')">${uiIcon("edit")}編輯訂單</button></div></div></details>`).join("")||'<div class="empty">目前沒有符合條件的待入住訂單。</div>';
+ $("#checkinList").innerHTML=list.map(o=>`<details class="management-mobile-card checkin-card" data-detail-key="checkin-${esc(o.id)}" data-accordion-scope="checkin-mobile"${openDetailState.has(`checkin-${o.id}`)||(q&&list.length===1)?" open":""}><summary class="management-mobile-summary"><span class="management-mobile-identity"><strong>${esc(o.name)}</strong><span>${esc(o.id)}・${esc(o.phone)}</span><span class="order-summary-stay">${uiIcon("calendar")}<b>${esc(o.checkin)}～${esc(o.checkout)}</b></span></span><span class="management-mobile-summary-meta"><span class="badge ${lifecycleClass(lifecycleStatus(o))}">${esc(lifecycleStatus(o))}</span><span class="management-expand-label">展開</span></span></summary><div class="management-mobile-body"><p class="section-note">${esc(o.package)}｜${o.count} 人｜${orderRooms(o).map(roomName).map(esc).join("、")}</p><div class="checklist">${items.map(x=>{const state=window.Meiyuan6DataConsistency.selectCheckinPaymentState(o,payments);const autoPayment=(x==="訂金"&&state.depositComplete)||(x==="尾款"&&state.balanceComplete);const autoLifecycle=x==="完成入住"&&["已入住","已退房"].includes(lifecycleStatus(o));const autoChecked=autoPayment||autoLifecycle;const checked=autoChecked||o.checklist?.[x];return `<label class="check-item${autoChecked?" auto-checked":""}"${autoChecked?' title="已依系統狀態自動完成"':''}><input type="checkbox" ${checked?"checked":""} ${autoChecked?`disabled aria-label='${x}已自動核對'`:""} onchange="window.toggleCheck('${o.id}','${x}',this.checked)"> ${x}${autoChecked?'<small class="check-auto-label">自動</small>':''}</label>`}).join("")}</div><div class="mobile-card-actions checkin-card-actions"><button class="official-line-button" title="聯絡眉原六官方 LINE" onclick="window.copyLineMessage('${o.id}')">${uiIcon("message")}官方 LINE</button><button onclick="window.openServicesForOrder('${o.id}')">${uiIcon("clipboard")}住宿服務</button><button onclick="window.editOrder('${o.id}')">${uiIcon("edit")}編輯訂單</button></div></div></details>`).join("")||'<div class="empty">目前沒有符合條件的待入住訂單。</div>';
  applyStaticIcons($("#checkinList"));
 }
 
-window.toggleCheck=(id,key,val)=>{
- const o=orders.find(x=>x.id===id);if(!o)return;const viewState=captureWorkspaceState();o.checklist=o.checklist||{};
+async function commitCheckinChecklist(o,key,val){
+ const pending=safeJSON("my6_pending_checklist_writes",{});
+ pending[o.id]={checklist:{...(o.checklist||{})},expectedRevision:Number(o.checklistRevision||0),savedAt:new Date().toISOString()};
+ localStorage.setItem("my6_pending_checklist_writes",JSON.stringify(pending));
+ try{
+  if(navigator.onLine&&orderCloudEnabled()){
+   const cloudRepository=window.Meiyuan6Repositories?.repositoryFactory?.get("cloud");
+   if(!cloudRepository)throw new Error("Checklist Cloud Repository 尚未載入");
+   let saved;
+   try{
+    saved=await cloudRepository.writeChecklist(o.id,o.checklist,{expectedRevision:Number(o.checklistRevision||0)});
+   }catch(error){
+    if(error.code!=="CHECKLIST_REVISION_CONFLICT")throw error;
+    const latest=(await cloudRepository.read("checklists",{}))[o.id]||{checklist:{},revision:0};
+    o.checklist={...(latest.checklist||{}),[key]:val};
+    saved=await cloudRepository.writeChecklist(o.id,o.checklist,{expectedRevision:Number(latest.revision||0)});
+   }
+   o.checklistRevision=Number(saved.revision||o.checklistRevision||1);
+   const remaining=safeJSON("my6_pending_checklist_writes",{});
+   delete remaining[o.id];
+   localStorage.setItem("my6_pending_checklist_writes",JSON.stringify(remaining));
+   const cache=safeJSON("my6_checkin_checklists",{});
+   cache[o.id]=saved;
+   localStorage.setItem("my6_checkin_checklists",JSON.stringify(cache));
+  }
+ }catch(error){console.warn("[Checklist Save]",error);}
+}
+window.toggleCheck=async(id,key,val)=>{
+ const o=orders.find(x=>x.id===id);if(!o)return;const viewState=captureWorkspaceState();openDetailState.add(`checkin-${id}`);o.checklist=o.checklist||{};
  if(key==="完成入住"){
    if(!val&&["已入住","已退房"].includes(lifecycleStatus(o))){o.checklist[key]=true;toast("完成入住由訂單生命週期自動管理，無法單獨取消");renderCheckin();restoreWorkspaceState(viewState);return;}
    if(val){
@@ -1475,7 +1565,8 @@ window.toggleCheck=(id,key,val)=>{
    }else o.checklist[key]=false;
  }else o.checklist[key]=val;
  persist();
- safeRender("dashboard",renderDashboard);safeRender("orders",renderOrders);safeRender("checkin",renderCheckin);safeRender("reports",renderReports);restoreWorkspaceState(viewState);
+ safeRender("dashboard",renderDashboard);safeRender("orders",renderOrders);safeRender("checkin",renderCheckin);safeRender("reports",renderReports);restoreOpenDetails();restoreWorkspaceState(viewState);
+ await commitCheckinChecklist(o,key,val);
 };
 window.openServicesForOrder=id=>{navigate("services");const search=$("#serviceSearch");if(search){search.value=id;renderServices();}setTimeout(()=>$("#serviceManagementList")?.scrollIntoView({behavior:"smooth",block:"start"}),0);};
 
@@ -1528,6 +1619,13 @@ function serviceDefaultDate(order,type,direction="checkout"){
  if(type==="延後退房")return order.checkout;
  return order.checkin;
 }
+function updateServiceStayBounds(){
+ const order=selectedServiceOrder(),dateField=$("#serviceDate"),daysField=$("#serviceBreakfastDays");
+ if(!order||!dateField)return;
+ dateField.min=order.checkin||"";dateField.max=order.checkout||"";
+ const start=dateField.value,maxDays=start&&order.checkout?Math.max(1,daysBetween(start,order.checkout)+1):0;
+ if(daysField){daysField.max=maxDays?String(maxDays):"";if(maxDays&&Number(daysField.value)>maxDays)daysField.value=String(maxDays);}
+}
 function updateServiceSpecificFields({preserveDate=false}={}){
  const type=$("#serviceType")?.value||"早餐代訂";
  ["#serviceBreakfastFields","#serviceTaxiFields","#serviceQuantityFields"].forEach(s=>$(s)?.classList.add("hidden"));
@@ -1535,6 +1633,7 @@ function updateServiceSpecificFields({preserveDate=false}={}){
  if(type==="接送／叫車")$("#serviceTaxiFields")?.classList.remove("hidden");
  if(["加床","寵物住宿","特殊需求"].includes(type))$("#serviceQuantityFields")?.classList.remove("hidden");
  if(!preserveDate){const order=selectedServiceOrder(),direction=$("#serviceTaxiDirection")?.value||"checkout";$("#serviceDate").value=serviceDefaultDate(order,type,direction);}
+ updateServiceStayBounds();
 }
 function setServiceTaxiType(value=""){
  const select=$("#serviceTaxiType"),values=[...select.options].map(o=>o.value);select.value=values.includes(value)?value:(value?"其他":"");$("#serviceTaxiTypeOther").value=values.includes(value)?"":value;$("#serviceTaxiTypeOtherField").classList.toggle("hidden",select.value!=="其他");
@@ -1558,6 +1657,7 @@ $("#serviceFee")?.addEventListener("blur",e=>{e.target.value=formatMoneyInput(e.
 $("#serviceType")?.addEventListener("change",()=>updateServiceSpecificFields());
 $("#serviceOrderId")?.addEventListener("change",()=>updateServiceSpecificFields());
 $("#serviceTaxiDirection")?.addEventListener("change",()=>updateServiceSpecificFields());
+$("#serviceDate")?.addEventListener("change",updateServiceStayBounds);
 $("#serviceTaxiType")?.addEventListener("change",e=>$("#serviceTaxiTypeOtherField")?.classList.toggle("hidden",e.target.value!=="其他"));
 
 function syncLegacyFieldsFromServices(order){
@@ -1599,6 +1699,13 @@ $("#serviceForm")?.addEventListener("submit",async e=>{
  if(type==="早餐代訂")Object.assign(details,{shop:$("#serviceBreakfastShop").value.trim(),qty:+$("#serviceBreakfastQty").value||1,days:+$("#serviceBreakfastDays").value||1});
  if(type==="接送／叫車")Object.assign(details,{direction:$("#serviceTaxiDirection").value,vehicleType:$("#serviceTaxiType").value==="其他"?$("#serviceTaxiTypeOther").value.trim():$("#serviceTaxiType").value,guests:+$("#serviceTaxiGuests").value||1,pickup:$("#serviceTaxiPickup").value.trim(),destination:$("#serviceTaxiDestination").value.trim()});
  if(["加床","寵物住宿","特殊需求"].includes(type))Object.assign(details,{quantity:+$("#serviceQuantity").value||1,unit:$("#serviceUnit").value.trim()});
+ const serviceDate=$("#serviceDate").value;
+ if(["早餐代訂","接送／叫車"].includes(type)&&(!serviceDate||serviceDate<order.checkin||serviceDate>order.checkout)){
+  toast(`${type}日期必須介於入住日與退房日之間`);$("#serviceDate").focus();return;
+ }
+ if(type==="早餐代訂"&&addDays(serviceDate,details.days-1)>order.checkout){
+  toast("早餐預訂天數不可超過退房日期");$("#serviceBreakfastDays").focus();return;
+ }
  const service=normalizeService({id,type,status:$("#serviceStatus").value,fee:moneyNumber($("#serviceFee").value),paymentStatus:$("#servicePaymentStatus").value,date:$("#serviceDate").value,time:$("#serviceTime").value,note:$("#serviceNote").value.trim(),details,revision:existing?Math.max(1,Number(existing.revision||1))+1:1,createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()});
  order.services=order.services||[];const i=order.services.findIndex(s=>s.id===id);if(i>=0)order.services[i]=service;else order.services.push(service);syncLegacyFieldsFromServices(order);persist();$("#serviceDialog").close();renderAll();
  try{
@@ -1969,6 +2076,12 @@ function renderTemplatePreview(){
  const preview=$("#templatePreview");if(!preview)return;
  preview.textContent=applyTemplateVariables($("#templateContent")?.value||"");
 }
+async function copyTemplateAndOpenOfficialLine(){
+ const text=applyTemplateVariables($("#templateContent")?.value||"");
+ try{await navigator.clipboard.writeText(text);toast("訊息已複製，正在開啟官方 LINE");}
+ catch{prompt("請複製以下訊息",text);}
+ openOfficialLine();
+}
 function selectTemplate(name){
  if(!templates[name])return;
  selectedTemplate=name;
@@ -1991,31 +2104,69 @@ function renderTemplates(){
  renderTemplateVariablePanel();
  selectTemplate(selectedTemplate);
 }
-function renameTemplate(oldName){
+async function commitTemplateCloud(title,content){
+ const pending=safeJSON("my6_pending_template_writes",{});
+ pending[title]={content:String(content??""),savedAt:new Date().toISOString()};
+ localStorage.setItem("my6_pending_template_writes",JSON.stringify(pending));
+ if(!navigator.onLine||!orderCloudEnabled())return {pending:true};
+ const saved=await window.Meiyuan6Data.writeTemplate(title,content);
+ const cloudRepository=window.Meiyuan6Repositories?.repositoryFactory?.get("cloud");
+ const confirmed=await cloudRepository.read("templates",{});
+ const value=confirmed?.[title];
+ const confirmedContent=typeof value==="string"?value:value?.content;
+ if(String(confirmedContent??"")!==String(content??""))throw new Error("Template cloud read-back mismatch");
+ const remaining=safeJSON("my6_pending_template_writes",{});
+ delete remaining[title];
+ localStorage.setItem("my6_pending_template_writes",JSON.stringify(remaining));
+ return saved;
+}
+async function deleteTemplateCloud(title){
+ const pending=safeJSON("my6_pending_template_deletes",{});
+ pending[title]={savedAt:new Date().toISOString()};
+ localStorage.setItem("my6_pending_template_deletes",JSON.stringify(pending));
+ if(!navigator.onLine||!orderCloudEnabled())return {pending:true};
+ await window.Meiyuan6Data.deleteTemplate(title);
+ const cloudRepository=window.Meiyuan6Repositories?.repositoryFactory?.get("cloud");
+ const confirmed=await cloudRepository.read("templates",{});
+ if(Object.prototype.hasOwnProperty.call(confirmed||{},title))throw new Error("Template delete read-back mismatch");
+ const remaining=safeJSON("my6_pending_template_deletes",{});
+ delete remaining[title];
+ localStorage.setItem("my6_pending_template_deletes",JSON.stringify(remaining));
+ return true;
+}
+async function renameTemplate(oldName){
  if(!templates[oldName])return;
  const raw=prompt("請輸入新的模板標題：",oldName);
  const newName=String(raw||"").trim();
  if(!newName||newName===oldName)return;
  if(templates[newName])return toast("已有相同標題的模板");
  const rebuilt={};Object.keys(templates).forEach(name=>{rebuilt[name===oldName?newName:name]=templates[name];});
- templates=rebuilt;if(selectedTemplate===oldName)selectedTemplate=newName;persist();renderTemplates();toast("模板標題已更新");
+ templates=rebuilt;if(selectedTemplate===oldName)selectedTemplate=newName;persist({skipRealtime:true});renderTemplates();
+ try{await commitTemplateCloud(newName,templates[newName]);await deleteTemplateCloud(oldName);toast("模板標題已更新");}
+ catch(error){console.warn("[Template Rename]",error);toast("模板已保留，等待雲端同步");}
 }
-function addTemplate(){
+async function addTemplate(){
  const raw=prompt("請輸入新模板名稱：", "新模板");
  const name=String(raw||"").trim();
  if(!name)return;
  if(templates[name])return toast("模板名稱已存在");
- templates[name]="請輸入模板內容。";selectedTemplate=name;persist();renderTemplates();toast("模板已新增");
+ templates[name]="請輸入模板內容。";selectedTemplate=name;persist({skipRealtime:true});renderTemplates();
+ try{await commitTemplateCloud(name,templates[name]);toast("模板已新增");}
+ catch(error){console.warn("[Template Add]",error);toast("模板已新增，等待雲端同步");}
 }
-function saveCurrentTemplate(){
+async function saveCurrentTemplate(){
  if(!selectedTemplate||!templates[selectedTemplate])return toast("請先選擇模板");
- templates[selectedTemplate]=$("#templateContent").value;persist();renderTemplates();toast("模板已儲存");
+ templates[selectedTemplate]=$("#templateContent").value;persist({skipRealtime:true});renderTemplates();
+ try{await commitTemplateCloud(selectedTemplate,templates[selectedTemplate]);toast("模板已儲存");}
+ catch(error){console.warn("[Template Save]",error);toast("模板已儲存於本機，等待雲端同步");}
 }
-function deleteCurrentTemplate(){
+async function deleteCurrentTemplate(){
  if(!selectedTemplate||!templates[selectedTemplate])return;
  if(Object.keys(templates).length<=1)return toast("至少需保留一個模板");
  if(!confirm(`確定刪除模板「${selectedTemplate}」？`))return;
- delete templates[selectedTemplate];selectedTemplate=Object.keys(templates)[0];persist();renderTemplates();toast("模板已刪除");
+ const removed=selectedTemplate;delete templates[removed];selectedTemplate=Object.keys(templates)[0];persist({skipRealtime:true});renderTemplates();
+ try{await deleteTemplateCloud(removed);toast("模板已刪除");}
+ catch(error){console.warn("[Template Delete]",error);toast("模板已在本機刪除，雲端稍後重試");}
 }
 
 
@@ -2154,7 +2305,45 @@ function saveRegistration(){
  Object.assign(settings,{registrationDate:$("#registrationDate").value.trim(),registrationDocNo:$("#registrationDocNo").value.trim(),registrationLicense:$("#registrationLicense").value.trim(),insuranceCompany:$("#insuranceCompany").value.trim(),insurancePolicy:$("#insurancePolicy").value.trim(),insuranceStart:$("#insuranceStart").value,insuranceEnd:$("#insuranceEnd").value});commitSettings("登記與保險資料已儲存");
 }
 window.removeShortcut=i=>{shortcuts.splice(i,1);renderSettings();};
-function collectShortcuts(){shortcuts=$$(".shortcut-edit-row").map(r=>({icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"}));persist();renderAll();toast("快捷中心已儲存");}
+async function collectShortcuts(){
+ shortcuts=normalizeOfficialLineShortcuts($$(".shortcut-edit-row").map((r,index)=>({id:shortcuts[index]?.id,icon:$(".icon-input",r).value.trim()||"🔗",name:$(".name-input",r).value.trim()||"未命名",url:$(".url-input",r).value.trim()||"#"})));
+ localStorage.setItem("my6_shortcuts",JSON.stringify(shortcuts));
+ localStorage.setItem("my6_pending_shortcuts_write",JSON.stringify({shortcuts,savedAt:new Date().toISOString()}));
+ renderAll();
+ try{
+  await window.Meiyuan6Data.write("shortcuts",shortcuts,{deleteMissing:true});
+  if(navigator.onLine&&orderCloudEnabled()){
+   const confirmed=await window.Meiyuan6Repositories.repositoryFactory.get("cloud").read("shortcuts",[]);
+   const compact=list=>JSON.stringify((list||[]).map(({id,icon,name,url})=>({id,icon,name,url})));
+   if(compact(confirmed)!==compact(shortcuts))throw new Error("Shortcut cloud read-back mismatch");
+   localStorage.removeItem("my6_pending_shortcuts_write");
+  }
+  toast("快捷中心已儲存");
+ }catch(error){console.warn("[Shortcut Save]",error);toast("快捷已保留，等待雲端同步");}
+}
+async function flushPendingP1Writes(){
+ if(!navigator.onLine||!orderCloudEnabled())return;
+ const templatePending=safeJSON("my6_pending_template_writes",{});
+ for(const [title,item] of Object.entries(templatePending))await commitTemplateCloud(title,item.content).catch(error=>console.warn("[Template Retry]",error));
+ const templateDeletes=safeJSON("my6_pending_template_deletes",{});
+ for(const title of Object.keys(templateDeletes))await deleteTemplateCloud(title).catch(error=>console.warn("[Template Delete Retry]",error));
+ const checklistPending=safeJSON("my6_pending_checklist_writes",{});
+ const cloudRepository=window.Meiyuan6Repositories?.repositoryFactory?.get("cloud");
+ for(const [orderId,item] of Object.entries(checklistPending)){
+  try{
+   const saved=await cloudRepository.writeChecklist(orderId,item.checklist,{expectedRevision:Number(item.expectedRevision||0)});
+   const remaining=safeJSON("my6_pending_checklist_writes",{});delete remaining[orderId];localStorage.setItem("my6_pending_checklist_writes",JSON.stringify(remaining));
+   const order=orders.find(row=>String(row.id)===String(orderId));if(order)order.checklistRevision=Number(saved.revision||1);
+  }catch(error){console.warn("[Checklist Retry]",error);}
+ }
+ const shortcutPending=safeJSON("my6_pending_shortcuts_write",null);
+ if(shortcutPending?.shortcuts){
+  try{await window.Meiyuan6Data.write("shortcuts",shortcutPending.shortcuts,{deleteMissing:true});localStorage.removeItem("my6_pending_shortcuts_write");}
+  catch(error){console.warn("[Shortcut Retry]",error);}
+ }
+}
+window.addEventListener("online",()=>setTimeout(flushPendingP1Writes,500));
+document.addEventListener("meiyuan6:sync-status",event=>{if(event.detail?.status==="connected")setTimeout(flushPendingP1Writes,500);});
 
 function exportBackup(){
  const data={version:"Enterprise V1.2 Build 2A RC6 — Official Stable Candidate",schema:STORAGE_SCHEMA_VERSION,exportedAt:new Date().toISOString(),orders,payments,tasks,roomLocks,guestProfiles,settings,shortcuts,templates,auditLogs,notificationState};
@@ -2215,7 +2404,7 @@ async function importBackup(file){
   const stagedOrderIds=new Set(staged.orders.map(item=>item.id));
   if(staged.payments.some(item=>!stagedOrderIds.has(item.orderId))||staged.tasks.some(item=>!stagedOrderIds.has(item.orderId)))throw new Error("正規化後跨模組訂單關聯失效");
   runtimeBefore=captureRuntimeState();storageBefore=captureStorageState();preImportKey=createPreImportBackup();
-  orders=staged.orders;payments=staged.payments;tasks=staged.tasks;roomLocks=staged.roomLocks;guestProfiles=staged.guestProfiles;settings=staged.settings;shortcuts=staged.shortcuts;templates=staged.templates;auditLogs=staged.auditLogs;notificationState=staged.notificationState;selectedTemplate=Object.keys(templates)[0]||"";
+  orders=staged.orders;payments=staged.payments;tasks=staged.tasks;roomLocks=staged.roomLocks;guestProfiles=staged.guestProfiles;settings=staged.settings;shortcuts=staged.shortcuts;normalizeOfficialLineConfiguration();hydrateCheckinChecklistsFromSettings();templates=staged.templates;auditLogs=staged.auditLogs;notificationState=staged.notificationState;selectedTemplate=Object.keys(templates)[0]||"";
   auditRecordingReady=false;persist();auditRecordingReady=true;
   appendAuditRecord("系統設定","建立","backup-import",null,{operator:"系統／目前使用者",note:`匯入 Schema v${STORAGE_SCHEMA_VERSION} 備份；匯入前快照 ${preImportKey}`});
   localStorage.setItem("my6_audit_logs",JSON.stringify(auditLogs));
@@ -2340,6 +2529,7 @@ $("#addRoomLockBtn")?.addEventListener("click",()=>openRoomLock());$("#packageTy
  $$("[data-template-action]").forEach(btn=>btn.onclick=()=>{const action=btn.dataset.templateAction;if(action==="save")saveCurrentTemplate();if(action==="copy")$("#copyTemplateBtn").click();if(action==="delete")deleteCurrentTemplate();});
  setTemplateTab("editor");
  $("#copyTemplateBtn").onclick=async()=>{const text=applyTemplateVariables($("#templateContent").value);try{await navigator.clipboard.writeText(text);toast("已複製套用後文字");}catch{prompt("請複製",text);}};
+ $("#sendTemplateLineBtn").onclick=copyTemplateAndOpenOfficialLine;
  $("#copyWifiBtn").onclick=async()=>{const t="眉原六民宿 Wi-Fi\nSSID：deco_be25_Guest\n密碼：liou6868";try{await navigator.clipboard.writeText(t);toast("Wi-Fi 資料已複製");}catch{prompt("請複製",t);}};
  ["auditSearch","auditDateFrom","auditDateTo"].forEach(id=>$("#"+id)?.addEventListener("input",()=>{auditVisibleLimit=20;renderAudit();}));$("#auditModuleFilter")?.addEventListener("change",()=>{auditVisibleLimit=20;renderAudit();});$("#clearAuditFilter")?.addEventListener("click",()=>{["auditSearch","auditDateFrom","auditDateTo"].forEach(id=>{const x=$("#"+id);if(x)x.value="";});if($("#auditModuleFilter"))$("#auditModuleFilter").value="";renderAudit();});$("#exportAuditBtn")?.addEventListener("click",exportAuditLog);
  $("#openSettingsBtn").onclick=()=>navigate("settings");
