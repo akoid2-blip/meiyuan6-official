@@ -1,6 +1,6 @@
 backend:
   name: git-gateway
-  branch: main
+  branch: cloudflare-test
   commit_messages:
     create: "CMS 建立 {{collection}}：{{slug}}"
     update: "CMS 更新 {{collection}}：{{slug}}"
@@ -19,8 +19,6 @@ show_preview_links: true
 collections:
   - name: home
     label: 首頁內容
-    media_folder: "assets/garden"
-    public_folder: "/assets/garden"
     files:
       - name: hero
         label: 首頁主視覺
@@ -41,8 +39,6 @@ collections:
 
   - name: rooms
     label: 房型管理
-    media_folder: "assets/garden"
-    public_folder: "/assets/garden"
     files:
       - name: rooms
         label: 房型與照片
@@ -86,8 +82,6 @@ collections:
 
   - name: attractions
     label: 周邊景點
-    media_folder: "assets/attractions"
-    public_folder: "/assets/attractions"
     files:
       - name: attractions
         label: 景點與導航
@@ -144,8 +138,6 @@ collections:
 
   - name: website
     label: 網站與品牌設定
-    media_folder: "assets/brand"
-    public_folder: "/assets/brand"
     files:
       - name: site
         label: 聯絡資訊
@@ -176,8 +168,6 @@ collections:
 
   - name: news
     label: 最新消息／優惠活動
-    media_folder: "assets/news"
-    public_folder: "/assets/news"
     files:
       - name: news_items
         label: 消息與優惠
@@ -199,8 +189,6 @@ collections:
 
   - name: blog
     label: 部落格文章
-    media_folder: "assets/blog"
-    public_folder: "/assets/blog"
     files:
       - name: blog_items
         label: 文章

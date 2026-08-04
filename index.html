@@ -147,137 +147,7 @@ img[loading="lazy"]{content-visibility:auto}
 @media(max-width:960px){#story .card,#story .story-photo,#dining .dining-photo,#dining .dining-copy{min-height:0}#dining .dining-wrap{grid-template-columns:1fr}.facility-groups,.attraction-grid-photo{grid-template-columns:repeat(2,minmax(0,1fr))}.facility-group ul{grid-template-columns:1fr}}
 @media(max-width:620px){.facility-groups,.attraction-grid-photo{grid-template-columns:1fr}.facility-group{padding:24px}.attraction-body{padding:20px}}
 </style>
-<link href="https://meiyuan6.tw/" rel="canonical"/><meta content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" name="robots"/><meta content="#2d3329" name="theme-color"/><meta content="https://meiyuan6.tw/" property="og:url"/><meta content="眉原六民宿" property="og:site_name"/><meta content="zh_TW" property="og:locale"/><meta content="眉原六民宿日式庭園與建築外觀" property="og:image:alt"/><meta content="summary_large_image" name="twitter:card"/><meta content="眉原六民宿｜埔里日式庭園包棟民宿" name="twitter:title"/><meta content="眉原六民宿位於南投埔里，提供日式庭園包棟住宿、家庭房型、獨立大餐廳與寬敞停車空間，鄰近中台禪寺、福興溫泉區與日月潭。" name="twitter:description"/><meta content="https://meiyuan6.tw/assets/brand/og-cover.jpg" name="twitter:image"/><script>
-document.addEventListener('DOMContentLoaded',()=>{
-const menuBtn=document.querySelector('.menu-btn'),navLinks=document.querySelector('.nav-links');
-menuBtn?.addEventListener('click',()=>navLinks.classList.toggle('show'));
-document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>navLinks.classList.remove('show')));
-document.querySelectorAll('.acc-btn').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.acc-item').classList.toggle('open')));
-const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});
-document.querySelectorAll('.fade').forEach(el=>io.observe(el));
-
-function createAutoplay(root, slideSelector, interval, onShow){
-  const slides=[...root.querySelectorAll(slideSelector)];
-  if(!slides.length)return null;
-  let index=0;
-  let timer=null;
-  let mousePaused=false;
-
-  const stop=()=>{
-    if(timer!==null){
-      window.clearTimeout(timer);
-      timer=null;
-    }
-  };
-
-  const show=i=>{
-    index=(i+slides.length)%slides.length;
-    slides.forEach((slide,n)=>{
-      const active=n===index;
-      slide.classList.toggle('active',active);
-      slide.setAttribute('aria-hidden',String(!active));
-    });
-    onShow?.(index);
-  };
-
-  const schedule=()=>{
-    stop();
-    if(mousePaused||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    timer=window.setTimeout(()=>{
-      show(index+1);
-      schedule();
-    },interval);
-  };
-
-  const restart=()=>schedule();
-
-  root.addEventListener('mouseenter',()=>{
-    mousePaused=true;
-    stop();
-  });
-  root.addEventListener('mouseleave',()=>{
-    mousePaused=false;
-    restart();
-  });
-  document.addEventListener('visibilitychange',()=>{
-    if(document.hidden)stop();
-    else restart();
-  });
-
-  show(0);
-  schedule();
-  return{show,restart,stop};
-}
-
-document.querySelectorAll('.js-carousel').forEach(root=>{
-  const dotsBox=root.querySelector('.dots'),slides=[...root.querySelectorAll('.slide')],dots=[];
-  slides.forEach((_,n)=>{const b=document.createElement('button');b.className='dot'+(n===0?' active':'');b.setAttribute('aria-label','切換至第 '+(n+1)+' 張');dotsBox?.appendChild(b);dots.push(b)});
-  const ctl=createAutoplay(root,'.slide',Number(root.dataset.interval)||6000,i=>dots.forEach((d,n)=>d.classList.toggle('active',n===i)));
-  dots.forEach((d,n)=>d.addEventListener('click',()=>{ctl.show(n);ctl.restart()}));
-});
-
-document.querySelectorAll('.js-room-carousel').forEach(root=>{
-  const slides=[...root.querySelectorAll('.room-slide')];let index=0;
-  const ctl=createAutoplay(root,'.room-slide',Number(root.dataset.interval)||5000,i=>index=i);
-  root.querySelector('.prev')?.addEventListener('click',()=>{ctl.show(index-1);ctl.restart()});
-  root.querySelector('.next')?.addEventListener('click',()=>{ctl.show(index+1);ctl.restart()});
-});
-
-document.querySelectorAll('.js-story-gallery').forEach(root=>{
-  const buttons=[...root.querySelectorAll('.gallery-list button')];
-  const ctl=createAutoplay(root,'.gslide',Number(root.dataset.interval)||6000,i=>buttons.forEach((b,n)=>{b.classList.toggle('active',n===i);b.setAttribute('aria-pressed',String(n===i))}));
-  buttons.forEach((b,n)=>b.addEventListener('click',()=>{ctl.show(n);ctl.restart()}));
-});
-
-const lineModal=document.getElementById('lineModal');
-const lineUrl='https://lin.ee/933tuhU';
-const mobileQuery=matchMedia('(max-width: 960px)');
-let lastLineTrigger=null;
-const isMobileView=()=>mobileQuery.matches;
-function openLineModal(trigger){
-  lastLineTrigger=trigger||document.activeElement;
-  lineModal?.classList.add('show');
-  lineModal?.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
-  lineModal?.querySelector('.line-modal-close')?.focus();
-}
-function closeLineModal(){
-  lineModal?.classList.remove('show');
-  lineModal?.setAttribute('aria-hidden','true');
-  document.body.style.overflow='';
-  lineModal?.querySelector('.line-qr-details')?.removeAttribute('open');
-  lastLineTrigger?.focus?.();
-}
-document.querySelectorAll('.line-action').forEach(link=>link.addEventListener('click',event=>{
-  if(isMobileView()){
-    link.href=lineUrl;
-    return;
-  }
-  event.preventDefault();
-  openLineModal(link);
-}));
-document.querySelector('.line-modal-close')?.addEventListener('click',closeLineModal);
-lineModal?.addEventListener('click',event=>{if(event.target===lineModal)closeLineModal()});
-window.addEventListener('keydown',event=>{
-  if(event.key==='Escape'&&lineModal?.classList.contains('show'))closeLineModal();
-});
-
-const float=document.querySelector('.float-actions'),hero=document.querySelector('.hero');
-function handleFloat(){
-  if(isMobileView()){
-    float?.classList.add('show');
-    return;
-  }
-  const threshold=Math.max((hero?.offsetHeight||500)-80,250);
-  float?.classList.toggle('show',window.scrollY>threshold);
-}
-addEventListener('scroll',handleFloat,{passive:true});
-addEventListener('resize',handleFloat);
-mobileQuery.addEventListener?.('change',handleFloat);
-handleFloat();
-document.querySelector('.to-top')?.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
-});
-</script><link as="image" fetchpriority="high" href="assets/garden/exterior-17.webp" rel="preload" type="image/webp"/><link href="assets/brand/favicon.ico" rel="icon"/><link href="assets/brand/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/><link href="assets/brand/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link href="assets/brand/site.webmanifest" rel="manifest"/><style>
+<link href="https://meiyuan6.tw/" rel="canonical"/><meta content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" name="robots"/><meta content="#2d3329" name="theme-color"/><meta content="https://meiyuan6.tw/" property="og:url"/><meta content="眉原六民宿" property="og:site_name"/><meta content="zh_TW" property="og:locale"/><meta content="眉原六民宿日式庭園與建築外觀" property="og:image:alt"/><meta content="summary_large_image" name="twitter:card"/><meta content="眉原六民宿｜埔里日式庭園包棟民宿" name="twitter:title"/><meta content="眉原六民宿位於南投埔里，提供日式庭園包棟住宿、家庭房型、獨立大餐廳與寬敞停車空間，鄰近中台禪寺、福興溫泉區與日月潭。" name="twitter:description"/><meta content="https://meiyuan6.tw/assets/brand/og-cover.jpg" name="twitter:image"/><link as="image" fetchpriority="high" href="assets/garden/exterior-17.webp" rel="preload" type="image/webp"/><link href="assets/brand/favicon.ico" rel="icon"/><link href="assets/brand/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/><link href="assets/brand/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link href="assets/brand/site.webmanifest" rel="manifest"/><style>
 /* Brand identity integration */
 .brand{display:inline-flex;align-items:center;gap:10px;min-width:190px;letter-spacing:0;text-decoration:none}
 .brand img{width:64px;height:64px;object-fit:contain;flex:0 0 auto;background:transparent;mix-blend-mode:multiply}
@@ -412,7 +282,8 @@ document.querySelector('.to-top')?.addEventListener('click',()=>scrollTo({top:0,
 <div class="line-modal-card"><button aria-label="關閉 LINE 視窗" class="line-modal-close" type="button">×</button><h2>加入 LINE 官方帳號</h2><p>點擊按鈕即可加入官方 LINE。</p><div class="line-modal-actions"><a class="btn primary line-direct-link" href="https://lin.ee/933tuhU" rel="noopener" target="_blank">立即加入 LINE</a></div><p class="line-modal-note">若未自動開啟 LINE，可使用下方 QR Code 掃描加入。</p><div class="line-qr-panel"><img alt="眉原六民宿 LINE 官方帳號 QR Code" height="640" loading="lazy" src="assets/line-qr.png" width="640"/><p>請使用 LINE 掃描加入官方帳號</p></div></div>
 </div>
 <footer><div class="footer-brand"><img alt="眉原六民宿｜恬靜・自然・山間生活" class="footer-logo" decoding="async" height="382" loading="lazy" src="assets/brand/logo-full-footer.png" width="403"/></div><p>54559 南投縣埔里鎮廣成里眉原路6號｜<a href="tel:0932702847">0932-702-847</a></p><p><a class="line-action" href="https://lin.ee/933tuhU" rel="noopener" target="_blank">LINE</a> · <a href="https://www.facebook.com/profile.php?id=61590409932509" rel="noopener" target="_blank">Facebook</a> · <a href="https://www.google.com/maps/search/?api=1&amp;query=%E7%9C%89%E5%8E%9F%E5%85%AD%E6%B0%91%E5%AE%BF" rel="noopener" target="_blank">Google Maps</a></p><p>© 2026 Mei Yuan Liu Homestay. All Rights Reserved.</p></footer>
-<script src="/assets/js/cms-content.js" defer></script>
+<script src="assets/js/cms-content.js" defer></script>
+<script src="assets/js/site-ui.js" defer></script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>
 if(window.netlifyIdentity){

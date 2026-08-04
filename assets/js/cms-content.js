@@ -1,7 +1,6 @@
 (()=>{const $=(s,r=document)=>r.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])), mediaPath=v=>{const x=String(v??'').trim();if(!x)return '';if(/^(?:https?:)?\/\//i.test(x)||x.startsWith('data:')||x.startsWith('blob:'))return x;return '/'+x.replace(/^\.?\/+/, '')};
-const get=async n=>{const r=await fetch('/data/'+n+'.json',{cache:'no-store'});if(!r.ok)throw Error(n);return r.json()};
+const get=async n=>{const r=await fetch('data/'+n+'.json',{cache:'no-store'});if(!r.ok)throw Error(n);return r.json()};
 function accordion(items,category){return items.filter(x=>x.enabled!==false&&x.category===category).map((x,i)=>`<div class="acc-item ${i===0?'open':''} fade"><button class="acc-btn"><span>${esc(x.title)}</span><span class="plus">＋</span></button><div class="acc-content"><div class="acc-content-inner">${String(x.content||'').split(/\n\n+/).map(p=>`<p>${esc(p)}</p>`).join('')}</div></div></div>`).join('')}
-function bindAccordion(root){root.querySelectorAll('.acc-btn').forEach(b=>b.addEventListener('click',()=>b.closest('.acc-item').classList.toggle('open')))}
 async function init(){try{const [hero,rooms,fac,attr,pol,faq,site,seo,news,blog]=await Promise.all(['hero','rooms','facilities','attractions','policies','faq','site','seo','news','blog'].map(get));
  document.title=seo.title; $('meta[name=description]')?.setAttribute('content',seo.description);$('meta[name=keywords]')?.setAttribute('content',seo.keywords);$('meta[property="og:title"]')?.setAttribute('content',seo.title);$('meta[property="og:description"]')?.setAttribute('content',seo.description);$('meta[property="og:image"]')?.setAttribute('content',new URL(mediaPath(seo.og_image),location.origin));
  $('.hero .kicker')&&( $('.hero .kicker').textContent=hero.kicker);$('.hero h1')&&($('.hero h1').textContent=hero.title);$('.hero-sub')&&($('.hero-sub').textContent=hero.subtitle);$('.hero-text')&&($('.hero-text').textContent=hero.description);
@@ -12,18 +11,16 @@ async function init(){try{const [hero,rooms,fac,attr,pol,faq,site,seo,news,blog]
  /* Preserve the complete production accommodation and booking policy HTML.
     CMS policy data remains editable in the backend, but does not overwrite these
     rich sections until a renderer supports their tables and formatted rule lists. */
- bindAccordion($('#policy .accordion'));
- bindAccordion($('#booking .accordion'));
  const fa=$('#faq .accordion');
  if(fa){
   const faqItems=(faq?.items||[]).filter(x=>x.enabled!==false);
   if(faqItems.length){
    fa.innerHTML=faqItems.map((x,i)=>`<div class="acc-item ${i?'':'open'}"><button class="acc-btn"><span>${esc(x.question)}</span><span class="plus">＋</span></button><div class="acc-content"><div class="acc-content-inner"><p>${esc(x.answer)}</p></div></div></div>`).join('');
-   bindAccordion(fa);
   }
  }
  const contact=$('#contact .contact-grid');if(contact){contact.innerHTML=`<div class="contact-tile"><div class="contact-tile-body"><h3>📞 電話</h3><p>${esc(site.phone_display)}</p></div><a class="btn primary contact-cta" href="tel:${esc(site.phone_link)}">立即撥打</a></div><div class="contact-tile"><div class="contact-tile-body"><h3>LINE 官方帳號</h3><p>即時詢問房況、包棟預約與入住資訊。</p></div><a class="btn primary line-action contact-cta" href="${esc(site.line_url)}" target="_blank" rel="noopener">加入 LINE</a></div><div class="contact-tile"><div class="contact-tile-body"><h3>Facebook</h3><p>掌握最新住宿資訊、旅遊推薦與優惠活動。</p></div><a class="btn primary contact-cta" href="${esc(site.facebook_url)}" target="_blank" rel="noopener">前往粉絲專頁</a></div>${site.show_email&&site.email?`<div class="contact-tile"><div class="contact-tile-body"><h3>✉️ Email</h3><p>${esc(site.email)}</p></div><a class="btn primary contact-cta" href="mailto:${esc(site.email)}">寄送 Email</a></div>`:''}`}
  const makeCards=(title,eyebrow,items)=>{const s=document.createElement('section');s.className='cms-content-section';s.innerHTML=`<div class="wrap"><div class="section-head"><div class="eyebrow">${eyebrow}</div><h2 class="section-title">${title}</h2></div><div class="cms-card-grid">${items.map(x=>`<article class="cms-card"><img src="${esc(mediaPath(x.cover))}" alt="${esc(x.title)}" loading="lazy"><div><small>${esc(x.date)}</small><h3>${esc(x.title)}</h3><p>${esc(x.summary)}</p></div></article>`).join('')}</div></div>`;return s};
  /* News and blog remain CMS-managed but are not inserted into the current production homepage automatically. */
+ window.dispatchEvent(new CustomEvent('meiyuan:content-updated'));
  }catch(e){console.warn('CMS data fallback: using embedded baseline content',e)}}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();})();
