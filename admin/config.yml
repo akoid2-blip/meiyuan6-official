@@ -2,7 +2,7 @@ backend:
   name: github
   repo: akoid2-blip/meiyuan6-official
   branch: cloudflare-test
-  base_url: https://oauth.meiyuan6.tw
+  base_url: https://meiyuan6-cms-oauth.ako-id2.workers.dev
   auth_endpoint: auth
   commit_messages:
     create: "CMS 建立 {{collection}}：{{slug}}"
