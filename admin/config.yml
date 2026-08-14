@@ -1,6 +1,9 @@
 backend:
-  name: git-gateway
-  branch: cloudflare-test
+  name: github
+  repo: akoid2-blip/meiyuan6-official
+  branch: main
+  base_url: https://meiyuan6-cms-oauth.ako-id2.workers.dev
+  auth_endpoint: auth
   commit_messages:
     create: "CMS 建立 {{collection}}：{{slug}}"
     update: "CMS 更新 {{collection}}：{{slug}}"
